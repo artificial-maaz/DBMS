@@ -38,6 +38,27 @@
   --color-ink-soft: var(--ink-soft);   /* secondary text              */
   --color-ink-faint: var(--ink-faint); /* hints, placeholders         */
 
+  /*
+   * STATUS RAMP (Sir #16, 2026-08-09)
+   * ---------------------------------------------------------------------
+   * Status colour used to be written as raw Tailwind pastels (bg-red-100,
+   * text-red-700) with a per-class dark override bolted on further down this
+   * file. That worked, but every screen picked its own shade, and the reds in
+   * particular were screaming next to the burgundy KPI tiles.
+   *
+   * Four meanings, two tokens each: a `-soft` background and a readable ink.
+   * `ok / warn / danger / info` — say what the status MEANS and both themes
+   * are handled, exactly like surface/ink/brand.
+   */
+  --color-ok: var(--ok);
+  --color-ok-soft: var(--ok-soft);
+  --color-warn: var(--warn);
+  --color-warn-soft: var(--warn-soft);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+  --color-info: var(--info);
+  --color-info-soft: var(--info-soft);
+
   /* B2: warmer, softer geometry — rounder corners, gentler shadows */
   --radius-card: 1rem;
   --shadow-card: 0 1px 2px rgb(15 23 42 / 0.04), 0 8px 24px -12px rgb(15 23 42 / 0.12);
@@ -76,6 +97,21 @@
    * mode (Sir, 2026-08-06).
    */
   --chip-ink: color-mix(in srgb, var(--brand) 25%, white);
+
+  /*
+   * Status ramp — light. The danger tone is a deep ROSE, not a fire-engine
+   * red: Sir's note was that the bright red fought the burgundy KPI tiles
+   * (#8e1c3e). This sits in the same family as that burgundy instead of
+   * shouting over it, and still reads unmistakably as "wrong".
+   */
+  --ok: #0f7a4a;
+  --ok-soft: #e7f4ed;
+  --warn: #96620f;
+  --warn-soft: #fbf1df;
+  --danger: #9d2742;
+  --danger-soft: #fbecef;
+  --info: #1f5fbe;
+  --info-soft: #e9f0fc;
 }
 
 /* ---------- Dark mode ---------- */
@@ -111,6 +147,29 @@
 
   --shadow-card: 0 1px 2px rgb(0 0 0 / 0.35), 0 10px 28px -14px rgb(0 0 0 / 0.55);
   --shadow-lift: 0 2px 6px rgb(0 0 0 / 0.45), 0 18px 36px -18px rgb(0 0 0 / 0.75);
+
+  /*
+   * Status ramp — dark.
+   *
+   * Sir asked (2026-08-09) for the blue to be "the same as in light mode". The
+   * honest answer is that an IDENTICAL hex cannot pass contrast in both modes:
+   * a blue dark enough to read on white disappears on navy. So what stays
+   * identical is the HUE — every token here is the same hue angle as its light
+   * counterpart, lifted in lightness only. That is what the eye actually reads
+   * as "the same blue"; the old per-class sky and red mappings drifted in hue
+   * as well as lightness, which is why they looked like different colours.
+   *
+   * Backgrounds are translucent so they tint whatever surface they land on
+   * rather than punching a flat block through a card.
+   */
+  --ok: #5ed6a4;
+  --ok-soft: rgba(16, 185, 129, 0.14);
+  --warn: #f0c264;
+  --warn-soft: rgba(245, 158, 11, 0.14);
+  --danger: #f09aab;
+  --danger-soft: rgba(190, 60, 90, 0.18);
+  --info: #8ab6f0;
+  --info-soft: rgba(31, 95, 190, 0.20);
 }
 
 /* =========================================================================
@@ -355,14 +414,24 @@ input[type="file"]::-webkit-file-upload-button:hover {
 }
 .dark input:disabled, .dark select:disabled { background-color: #1e293b; color: #94a3b8; }
 
+/*
+ * NOTE (2026-08-09): the `-50` backgrounds used to be declared TWICE in this
+ * file — once here as near-black solids (#052e24, #450a0a...) and again lower
+ * down as translucent tints. The later declaration always won, so the solids
+ * were dead code that nonetheless looked authoritative to anyone reading. The
+ * dead copies are gone; the translucent set below is the real one.
+ *
+ * Everything in this bridge is on borrowed time anyway — screens are migrating
+ * to the semantic status ramp (bg-ok-soft / text-danger / ...), and this block
+ * shrinks with each one. Delete it when nothing matches.
+ */
 .dark .bg-emerald-100 { background-color: #064e3b; } .dark .text-emerald-700 { color: #6ee7b7; }
-.dark .bg-emerald-50 { background-color: #052e24; } .dark .text-emerald-800 { color: #6ee7b7; } .dark .text-emerald-600 { color: #34d399; }
+.dark .text-emerald-800 { color: #6ee7b7; } .dark .text-emerald-600 { color: #34d399; }
 .dark .bg-red-100 { background-color: #7f1d1d; } .dark .text-red-700 { color: #fca5a5; }
-.dark .bg-red-50 { background-color: #450a0a; } .dark .text-red-800 { color: #fca5a5; } .dark .text-red-600 { color: #f87171; }
+.dark .text-red-800 { color: #fca5a5; } .dark .text-red-600 { color: #f87171; }
 .dark .bg-amber-100 { background-color: #78350f; } .dark .text-amber-700 { color: #fcd34d; }
-.dark .bg-amber-50 { background-color: #451a03; } .dark .text-amber-800 { color: #fcd34d; } .dark .text-amber-600 { color: #fbbf24; }
+.dark .text-amber-800 { color: #fcd34d; } .dark .text-amber-600 { color: #fbbf24; }
 .dark .bg-sky-100 { background-color: #0c4a6e; } .dark .text-sky-700 { color: #7dd3fc; }
-.dark .bg-sky-50 { background-color: #082f49; }
 .dark .bg-indigo-100 { background-color: #312e81; } .dark .text-indigo-700 { color: #a5b4fc; }
 .dark .bg-indigo-50 { background-color: #1e1b4b; }
 
