@@ -1,11 +1,16 @@
+import { SportBike } from "./vehicles";
+
 /**
  * Dashboard hero (Sir, 2026-08-04 — "add animations, esp in dashboard...
  * animations of bikes etc").
  *
- * A pure-SVG motorbike that rides in on load, then idles with a gentle bob
- * while its wheels turn and the road streams past. Server-rendered, no client
- * JS, no image files — it recolours itself with the brand and stops entirely
- * for anyone with reduced-motion enabled.
+ * Uses the SAME machine as the login screen (Sir, 2026-08-06) rather than a
+ * second, slightly-different bike. One shared component means the artwork can
+ * never drift apart between the two screens, and a change to the bike updates
+ * both at once.
+ *
+ * Server-rendered, no client JS, no image files — it recolours itself with the
+ * brand and stops entirely for anyone with reduced-motion enabled.
  */
 export function BikeHero({
   title,
@@ -26,52 +31,26 @@ export function BikeHero({
           {subtitle && <p className="mt-1 max-w-md text-sm text-white/80">{subtitle}</p>}
         </div>
 
-        <svg aria-hidden viewBox="0 0 240 110" className="h-24 w-56 shrink-0 md:h-28 md:w-64">
-          {/* Road */}
-          <line x1="0" y1="96" x2="240" y2="96" stroke="rgba(255,255,255,0.35)" strokeWidth="2" />
+        {/* viewBox is wider than the bike so the headlamp beam and the speed
+            lines trailing behind it are not clipped. */}
+        <svg aria-hidden viewBox="-30 0 320 130" className="h-28 w-64 shrink-0 md:h-32 md:w-80">
+          {/* Road under the wheels, streaming right-to-left like the login scene */}
+          <line x1="-30" y1="104" x2="290" y2="104" stroke="rgba(255,255,255,0.3)" strokeWidth="2" />
           <line
-            x1="0"
-            y1="96"
-            x2="240"
-            y2="96"
-            stroke="rgba(255,255,255,0.9)"
-            strokeWidth="2"
+            x1="-30"
+            y1="104"
+            x2="290"
+            y2="104"
+            stroke="rgba(255,255,255,0.85)"
+            strokeWidth="2.5"
             className="road-line"
           />
 
-          <g className="bike">
-            {/* Wheels */}
-            <g className="bike-wheel">
-              <circle cx="56" cy="80" r="16" fill="none" stroke="#fff" strokeWidth="3.5" />
-              <line x1="56" y1="64" x2="56" y2="96" stroke="rgba(255,255,255,0.55)" strokeWidth="2" />
-              <line x1="40" y1="80" x2="72" y2="80" stroke="rgba(255,255,255,0.55)" strokeWidth="2" />
-            </g>
-            <g className="bike-wheel">
-              <circle cx="176" cy="80" r="16" fill="none" stroke="#fff" strokeWidth="3.5" />
-              <line x1="176" y1="64" x2="176" y2="96" stroke="rgba(255,255,255,0.55)" strokeWidth="2" />
-              <line x1="160" y1="80" x2="192" y2="80" stroke="rgba(255,255,255,0.55)" strokeWidth="2" />
-            </g>
-
-            {/* Frame */}
-            <path
-              d="M56 80 L92 52 L140 52 L176 80 M92 52 L112 80 L176 80"
-              fill="none"
-              stroke="#fff"
-              strokeWidth="4"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-            {/* Seat + tank */}
-            <path d="M96 50 L128 50 L134 44 L104 44 Z" fill="rgba(255,255,255,0.92)" />
-            {/* Handlebar */}
-            <path d="M140 52 L152 34 M144 30 L164 30" fill="none" stroke="#fff" strokeWidth="4" strokeLinecap="round" />
-            {/* Headlamp */}
-            <circle cx="166" cy="42" r="5" fill="#fde68a" />
-            {/* Speed lines */}
-            <g stroke="rgba(255,255,255,0.5)" strokeWidth="2.5" strokeLinecap="round">
-              <line x1="6" y1="44" x2="30" y2="44" />
-              <line x1="0" y1="58" x2="20" y2="58" />
-              <line x1="12" y1="70" x2="34" y2="70" />
+          {/* Outer <g> positions, inner <g> animates — a CSS transform would
+              otherwise replace the SVG transform attribute outright. */}
+          <g transform="translate(0 4)">
+            <g className="bike">
+              <SportBike />
             </g>
           </g>
         </svg>
