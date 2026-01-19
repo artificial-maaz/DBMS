@@ -367,11 +367,17 @@ and every specific UI complaint Sir has raised is built. What remains is one swe
 *(Empty — #12, #16, #17, #18, #20 and #21 are all done. See chunks 40-43 above.)*
 
 ### C. Dark-mode sweep — what is actually left
-- **~50 files still carrying 2-6 hardcoded `slate-*` / `gray-*` classes**, overwhelmingly the modal
-  form components (`add-*-form.tsx` / `edit-*-form.tsx`) that the page-level rollout skipped.
-  Heaviest: `sales/new/sale-form.tsx` (6), `customers/[id]/page.tsx` (5), then the staff / plan /
-  visitor / customer edit modals (4 each). The legacy bridge catches the common ones
-  (`text-slate-800`, `hover:bg-slate-100`); the rest are one-off shades that fall through.
+- **The five heaviest offenders are done (2026-08-09):** `sales/new/sale-form.tsx`,
+  `customers/[id]/page.tsx`, and the staff / customer / visitor edit modals now carry **zero**
+  `slate-*` / `gray-*` classes. Replacements were chosen by ROLE, not by matching a similar grey:
+  `focus:border-slate-500` → `focus:border-brand-500` (focus follows the brand), `hover:bg-slate-100`
+  → `hover:bg-raised` (a lift, correct in both modes), `bg-slate-50` panels → `bg-raised`,
+  `bg-slate-100` chips → `bg-raised text-ink-soft`.
+- Vehicle edit and Branch edit followed in the same pass — also at zero.
+- **~43 files still carry 2–4 of them**, overwhelmingly the remaining `add-*-form.tsx` /
+  `edit-*-form.tsx` modals the page-level rollout skipped. The legacy bridge catches the common ones
+  (`text-slate-800`, `hover:bg-slate-100`); the rest are one-off shades that fall through. Same four
+  substitutions apply — this is mechanical now, not a design decision.
 - **The remaining pastels are a taste question now, not a bug.** They render correctly in both
   themes via the bridge. Moving them to the status ramp (`bg-ok-soft` / `text-danger` …) is worth
   doing screen by screen, and every screen that moves shrinks the bridge. Delete the bridge when
