@@ -42,22 +42,39 @@ export function PayloadSummary({
 
   return (
     <div className={compact ? "space-y-2" : "mt-3 space-y-3"}>
-      {scalars.length > 0 && (
-        <dl
-          className={
-            compact
-              ? "grid grid-cols-2 gap-x-4 gap-y-1 text-xs sm:grid-cols-3"
-              : "grid grid-cols-2 gap-x-6 gap-y-2 text-xs sm:grid-cols-3 lg:grid-cols-4"
-          }
-        >
-          {scalars.map(([k, v]) => (
-            <div key={k} className="min-w-0">
-              <dt className="text-ink-faint">{prettyKey(k)}</dt>
-              <dd className="break-words font-medium text-ink">{String(v)}</dd>
-            </div>
-          ))}
-        </dl>
-      )}
+      {/*
+        COMPACT IS NOT A NARROWER GRID (fixed 2026-08-09).
+        The first version used `grid-cols-2 sm:grid-cols-3` here too. Inside a
+        table cell that is only as wide as the other columns leave it, three
+        grid columns are a few characters each, and `break-words` then breaks
+        mid-word — every value came out as a vertical stack of single letters
+        ("c a s h"). A grid divides whatever width it is given, however little
+        that is, so it was the wrong primitive for a cell it does not control.
+
+        Inline chips flow instead: each pair is `whitespace-nowrap`, so a value
+        never splits, and the row wraps between pairs. It reads correctly at any
+        cell width, which is the only guarantee worth having here.
+      */}
+      {scalars.length > 0 &&
+        (compact ? (
+          <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs">
+            {scalars.map(([k, v]) => (
+              <span key={k} className="whitespace-nowrap">
+                <span className="text-ink-faint">{prettyKey(k)}</span>{" "}
+                <span className="font-medium text-ink">{String(v)}</span>
+              </span>
+            ))}
+          </div>
+        ) : (
+          <dl className="grid grid-cols-2 gap-x-6 gap-y-2 text-xs sm:grid-cols-3 lg:grid-cols-4">
+            {scalars.map(([k, v]) => (
+              <div key={k} className="min-w-0">
+                <dt className="text-ink-faint">{prettyKey(k)}</dt>
+                <dd className="break-words font-medium text-ink">{String(v)}</dd>
+              </div>
+            ))}
+          </dl>
+        ))}
 
       {lists.map(([k, v]) => {
         const rows = parseRows(v);
@@ -74,7 +91,10 @@ export function PayloadSummary({
                   {Object.entries(row)
                     .filter(([, val]) => val !== "" && val !== null && val !== undefined)
                     .map(([rk, val]) => (
-                      <span key={rk} className="text-ink-soft">
+                      /* whitespace-nowrap for the same reason as the scalars
+                         above — a narrow container must wrap between pairs,
+                         never through the middle of a value. */
+                      <span key={rk} className="whitespace-nowrap text-ink-soft">
                         <span className="text-ink-faint">{prettyKey(rk)}:</span>{" "}
                         <span className="font-medium text-ink">{String(val)}</span>
                       </span>
