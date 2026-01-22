@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { APP_NAME } from "@/lib/config";
-import { DEFAULT_BRAND } from "@/lib/theme";
+import { DEFAULT_BRAND, resolveBrand } from "@/lib/theme";
 import "./globals.css";
 
 /** #29: browser tab title comes from System Settings (config.ts is the fallback). */
@@ -37,11 +37,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   let brand = DEFAULT_BRAND;
   try {
     const { getSettings } = await import("@/modules/settings/service");
-    const stored = (await getSettings()).themeColor;
-    // #0f172a was the pre-GUI default (near-black). Treating it as "never
-    // chosen" means existing installs get a real brand colour instead of
-    // black-on-black cards until Sir picks one.
-    brand = !stored || stored.toLowerCase() === "#0f172a" ? DEFAULT_BRAND : stored;
+    brand = resolveBrand((await getSettings()).themeColor);
   } catch {
     // DB unreachable on first boot — the CSS default stands.
   }
