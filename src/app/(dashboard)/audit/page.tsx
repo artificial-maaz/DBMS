@@ -51,15 +51,19 @@ export default async function AuditPage({
         <button className="rounded-lg bg-brand-600 px-4 py-1.5 text-sm text-white hover:bg-brand-500">Filter</button>
       </form>
 
+      {/* The Details column needs real width or it gets whatever the other four
+          leave over — which on a laptop was a few characters. `min-w` makes the
+          card scroll horizontally instead of crushing it; the card already has
+          `overflow-x-auto`, it just never had anything to scroll. */}
       <div className="overflow-x-auto card">
-        <table className="w-full text-sm">
+        <table className="w-full min-w-[62rem] text-sm">
           <thead className="bg-raised text-left text-xs uppercase tracking-wide text-ink-faint">
             <tr>
               <th className="px-4 py-3">When</th>
               <th className="px-4 py-3">Who</th>
               <th className="px-4 py-3">Action</th>
               <th className="px-4 py-3">Entity</th>
-              <th className="px-4 py-3">Details</th>
+              <th className="w-[28rem] px-4 py-3">Details</th>
             </tr>
           </thead>
           <tbody>
@@ -93,7 +97,7 @@ export default async function AuditPage({
                     Nothing is hidden here, unlike the Review Queue: the audit
                     log is the record of last resort, so it shows every key it
                     was given. */}
-                <td className="max-w-md px-4 py-2.5">
+                <td className="px-4 py-2.5">
                   {r.details ? (
                     <PayloadSummary payload={r.details} hiddenKeys={NOTHING_HIDDEN} compact />
                   ) : (
