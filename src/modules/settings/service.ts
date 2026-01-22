@@ -16,7 +16,7 @@ const DEFAULTS = {
   companyName: COMPANY_NAME,
   shortName: APP_SHORT_NAME,
   browserTitle: APP_NAME,
-  themeColor: DEFAULT_BRAND, // GUI phase: indigo, not near-black
+  themeColor: DEFAULT_BRAND, // Royal Blue — the house colour
   logoDataUrl: null as string | null,
   defaultCommissionRate: "0",
   defaultExciseFee: "0",
