@@ -52,6 +52,12 @@ repo's docs have drifted from its code twice now.
    utilities anywhere** — the button is styled once in `globals.css` for both themes. If a file
    button looks wrong, grep for `file:` in `.tsx` before touching the CSS.
 5. Headings vs links need to differ on **three axes** (size, weight, letter-spacing), not colour alone.
+5b. **Never put a CSS grid inside a table cell.** A grid divides whatever width it is given, however
+   little that is — in a `<td>` competing with four other columns, `grid-cols-3` becomes three
+   few-character columns and `break-words` then breaks mid-word, rendering values as vertical stacks
+   of single letters. Burned on the Audit Log Details column (2026-08-09). Use `flex-wrap` chips with
+   `whitespace-nowrap` on each pair so it wraps *between* values, never through one, and give the
+   column a real width (`w-[28rem]` on the `<th>`, `min-w-` on the table so the card scrolls).
 6. Never put a still-selectable colour in `LEGACY_DEFAULTS` — picking it gets silently overridden.
 7. Timestamps: columns are `timestamp` without zone and the server runs UTC, so every render must
    pass `timeZone: "Asia/Karachi"`. **There is no `Asia/Islamabad` in IANA and there never has been** —
