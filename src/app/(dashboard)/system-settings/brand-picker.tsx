@@ -16,6 +16,14 @@ export function BrandPicker({ value }: { value: string }) {
   const [hex, setHex] = useState(value);
   const [advanced, setAdvanced] = useState(!presetFor(value));
 
+  /**
+   * Sir (2026-08-06): the live preview repaints the whole app the instant you
+   * click a swatch, which made it look already-saved — so the choice "vanished"
+   * on the next load because Save was never pressed. The banner below now says
+   * so explicitly whenever the preview differs from what is stored.
+   */
+  const unsaved = hex.toLowerCase() !== value.toLowerCase();
+
   function apply(next: string) {
     setHex(next);
     if (/^#[0-9a-fA-F]{6}$/.test(next)) {
@@ -27,7 +35,7 @@ export function BrandPicker({ value }: { value: string }) {
     <div className="sm:col-span-2 lg:col-span-3">
       <span className="mb-2 block text-sm font-medium">Brand Colour *</span>
 
-      <div className="flex flex-wrap gap-2.5">
+      <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-4">
         {BRAND_PRESETS.map((p) => {
           const active = p.hex.toLowerCase() === hex.toLowerCase();
           return (
@@ -36,17 +44,17 @@ export function BrandPicker({ value }: { value: string }) {
               type="button"
               onClick={() => apply(p.hex)}
               title={p.blurb}
-              className={`group flex items-center gap-2.5 rounded-xl border px-3 py-2 text-sm transition ${
+              className={`group flex items-center gap-2.5 rounded-xl border px-3 py-2.5 text-sm transition ${
                 active
                   ? "border-brand-500 bg-brand-50 font-medium text-brand-700 shadow-sm"
                   : "border-line hover:border-brand-300 hover:bg-brand-50/50"
               }`}
             >
               <span
-                className="h-5 w-5 rounded-full ring-1 ring-black/10 transition group-hover:scale-110"
+                className="h-6 w-6 shrink-0 rounded-full ring-1 ring-black/10 transition group-hover:scale-110"
                 style={{ backgroundColor: p.hex }}
               />
-              {p.name}
+              <span className="truncate">{p.name}</span>
             </button>
           );
         })}
@@ -77,6 +85,16 @@ export function BrandPicker({ value }: { value: string }) {
             Lighter and darker shades are generated automatically. Check it in dark mode before saving.
           </span>
         </div>
+      )}
+
+      {unsaved && (
+        <p className="animate-rise mt-3 flex items-center gap-2 rounded-xl bg-amber-50 px-3.5 py-2.5 text-sm text-amber-800">
+          <span className="text-base leading-none">⚠</span>
+          <span>
+            <b>Preview only — not saved yet.</b> Press <b>Save Configuration</b> at the bottom of this page,
+            or this reverts on your next visit.
+          </span>
+        </p>
       )}
 
       {/* The value the form actually submits. */}
