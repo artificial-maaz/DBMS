@@ -36,7 +36,7 @@ export function EditCustomerForm({
     return (
       <button
         onClick={() => setOpen(true)}
-        className="rounded-md px-2.5 py-1 text-xs font-medium text-ink-soft hover:bg-slate-100"
+        className="rounded-md px-2.5 py-1 text-xs font-medium text-ink-soft hover:bg-raised"
       >
         Edit
       </button>
@@ -65,7 +65,7 @@ export function EditCustomerForm({
                 <input
                   disabled
                   value={branches.find((b) => b.id === fixedBranchId)?.name ?? "Your branch"}
-                  className="w-full rounded-lg border border-line bg-slate-50 px-3 py-2"
+                  className="w-full rounded-lg border border-line bg-raised px-3 py-2"
                 />
               </>
             ) : (
@@ -106,7 +106,7 @@ export function EditCustomerForm({
           <button
             type="button"
             onClick={() => setOpen(false)}
-            className="rounded-lg px-4 py-2 text-sm font-medium text-ink-soft hover:bg-slate-100"
+            className="rounded-lg px-4 py-2 text-sm font-medium text-ink-soft hover:bg-raised"
           >
             Cancel
           </button>
@@ -124,7 +124,7 @@ function Field({ name, label, defaultValue }: { name: string; label: string; def
         name={name}
         required={label.includes("*")}
         defaultValue={defaultValue}
-        className="w-full rounded-lg border border-line px-3 py-2 outline-none focus:border-slate-500"
+        className="w-full rounded-lg border border-line px-3 py-2 outline-none focus:border-brand-500"
       />
     </label>
   );

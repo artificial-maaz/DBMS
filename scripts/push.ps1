@@ -2,21 +2,19 @@
 # Run from the repo root:  powershell -ExecutionPolicy Bypass -File .\scripts\push.ps1
 # NOTE: this file must stay ASCII-only (PowerShell 5.1 reads ps1 as ANSI).
 #
-# WINDOW (Sir, 2026-08-09): 2 commits on 28 May, 2 on 29 May, and every other
-# commit filled into EMPTY days in the Jan-April window. The dates below were
-# chosen against the days already used by earlier batches - none of these
-# collide, so each one lights a square that is currently dark:
-#   used already -> Jan 13,16,19,22,27 | Feb 2,6,11,17,23,26
-#                   Mar 4,9,13,16,18,19,23,26,30 | Apr 1,3,6,8,10,13,15,17,20,22,24
-#   filled here  -> Jan 14,21,29 | Feb 4,13,20,27 | Mar 5,11,24,31 | Apr 7,14,21,28
+# WINDOW (Sir, 2026-08-09): stack onto days that ALREADY have commits - Jan 19,
+# 21, 22, 27, 29 and May 24 (which had 3, so 2 more brings it to 5) - with
+# 31 January the one new day, carrying 5.
+# Never more than 5 on any day. January already had 13, 14, 16, 19, 21, 22, 27, 29,
+# so only the 31st lights a fresh square; the rest deepen existing ones.
 #
-# THIS BATCH: chunk 43 - the semantic status ramp, and with it every remaining
-# presentation item on Sir's list (#12, #16, #17, #20, #21).
+# THIS BATCH: the audit log Details column fix, plus the five heaviest files in
+# the slate/gray sweep (queue section C).
 #
 # Each file appears EXACTLY ONCE - git stages per path, so a repeated path
 # commits on its first appearance and silently skips afterwards.
 #
-# No migration in this batch - presentation only.
+# No migration - presentation only.
 
 function Commit($msg, $paths, $date = $null) {
   git add $paths 2>$null
@@ -31,38 +29,33 @@ function Commit($msg, $paths, $date = $null) {
   }
 }
 
-Write-Host "Hussain Motors ERP - semantic status ramp and the presentation queue" -ForegroundColor Cyan
+Write-Host "Hussain Motors ERP - audit log details, slate sweep" -ForegroundColor Cyan
 
-# ---------------- January fills ----------------
-Commit "Design tokens: semantic status ramp for ok, warn, danger and info" @("src/app/globals.css") "2026-01-14T11:32:00+05:00"
-Commit "Shared: payload summary extracted for reuse" @("src/components/payload-summary.tsx") "2026-01-21T19:47:00+05:00"
-Commit "Review queue: shared summary, status ramp badges" @("src/app/(dashboard)/approvals/page.tsx") "2026-01-29T14:08:00+05:00"
+# ---------------- Mon 19 Jan (existing day) - 1 ----------------
+Commit "Docs: slate sweep progress on the dark-mode queue" @("ROADMAP.md") "2026-01-19T22:14:00+05:00"
 
-# ---------------- February fills ----------------
-Commit "Audit log: readable details instead of raw JSON" @("src/app/(dashboard)/audit/page.tsx") "2026-02-04T10:56:00+05:00"
-Commit "Bookings: motion and dark-mode colour on the action buttons" @("src/app/(dashboard)/bookings/booking-status-actions.tsx") "2026-02-13T20:23:00+05:00"
-Commit "Installment cases: warmer danger tone, hue-stable blue" @("src/app/(dashboard)/installments/page.tsx") "2026-02-20T13:41:00+05:00"
-Commit "Installment plans: bold company headings, dark-mode total band" @("src/app/(dashboard)/installment-plans/page.tsx") "2026-02-27T18:12:00+05:00"
+# ---------------- Wed 21 Jan (existing day) - 1 ----------------
+Commit "Payload summary: inline chips in compact mode, values never split" @("src/components/payload-summary.tsx") "2026-01-21T15:47:00+05:00"
 
-# ---------------- March fills ----------------
-Commit "Installment plans: retire toggle on the status ramp" @("src/app/(dashboard)/installment-plans/toggle-plan.tsx") "2026-03-05T12:19:00+05:00"
-Commit "Document checklist: status ramp badges" @("src/app/(dashboard)/document-requirements/page.tsx") "2026-03-11T21:04:00+05:00"
-Commit "Document checklist: retire toggle on the status ramp" @("src/app/(dashboard)/document-requirements/toggle-requirement.tsx") "2026-03-24T10:37:00+05:00"
-Commit "Handover checklist: status ramp badges" @("src/app/(dashboard)/handover-requirements/page.tsx") "2026-03-31T16:58:00+05:00"
+# ---------------- Thu 22 Jan (existing day) - 1 ----------------
+Commit "Audit log: give the Details column real width" @("src/app/(dashboard)/audit/page.tsx") "2026-01-22T12:33:00+05:00"
 
-# ---------------- April fills ----------------
-Commit "Handover checklist: retire toggle on the status ramp" @("src/app/(dashboard)/handover-requirements/toggle-handover-item.tsx") "2026-04-07T11:44:00+05:00"
-Commit "Suppliers: status ramp badge" @("src/app/(dashboard)/suppliers/page.tsx") "2026-04-14T20:09:00+05:00"
-Commit "Suppliers: retire toggle on the status ramp" @("src/app/(dashboard)/suppliers/supplier-form.tsx") "2026-04-21T13:26:00+05:00"
-Commit "Bulk import: drop the file utilities that broke the button" @("src/app/(dashboard)/import/import-form.tsx") "2026-04-28T19:51:00+05:00"
+# ---------------- Tue 27 Jan (existing day) - 1 ----------------
+Commit "Docs: never put a grid inside a table cell" @("HANDOVER.md") "2026-01-27T19:08:00+05:00"
 
-# ---------------- Thu 28 May - 2 ----------------
-Commit "System settings: drop the file utilities that broke the button" @("src/app/(dashboard)/system-settings/settings-form.tsx") "2026-05-28T12:14:00+05:00"
-Commit "Docs: status ramp and the presentation queue recorded" @("ROADMAP.md") "2026-05-28T20:38:00+05:00"
+# ---------------- Thu 29 Jan (existing day) - 1 ----------------
+Commit "Chore: push script and remaining pending files" @(".") "2026-01-29T20:56:00+05:00"
 
-# ---------------- Fri 29 May - 2 ----------------
-Commit "Docs: file-input trap and status ramp guidance" @("HANDOVER.md") "2026-05-29T11:22:00+05:00"
-Commit "Chore: push script and remaining pending files" @(".") "2026-05-29T21:07:00+05:00"
+# ---------------- Sat 31 Jan (new day) - 5 ----------------
+Commit "New Sale: tokens for focus, panels and chips" @("src/app/(dashboard)/sales/new/sale-form.tsx") "2026-01-31T09:41:00+05:00"
+Commit "Customer profile: tokens for status chips and stat panels" @("src/app/(dashboard)/customers/[id]/page.tsx") "2026-01-31T12:18:00+05:00"
+Commit "Staff edit: tokens for focus and hover states" @("src/app/(dashboard)/staff/edit-staff-form.tsx") "2026-01-31T15:02:00+05:00"
+Commit "Customer edit: tokens for focus, hover and readonly fields" @("src/app/(dashboard)/customers/edit-customer-form.tsx") "2026-01-31T18:27:00+05:00"
+Commit "Visitor edit: tokens for focus, hover and readonly fields" @("src/app/(dashboard)/customers/visitors/edit-visitor-form.tsx") "2026-01-31T21:39:00+05:00"
+
+# ---------------- Sun 24 May (existing day, 3 already) - 2 ----------------
+Commit "Vehicle edit: tokens for focus and hover states" @("src/app/(dashboard)/inventory/edit-vehicle-form.tsx") "2026-05-24T13:16:00+05:00"
+Commit "Branch edit: tokens for focus and hover states" @("src/app/(dashboard)/branches/edit-branch-form.tsx") "2026-05-24T18:44:00+05:00"
 
 Remove-Item Env:GIT_AUTHOR_DATE -ErrorAction SilentlyContinue
 Remove-Item Env:GIT_COMMITTER_DATE -ErrorAction SilentlyContinue

@@ -26,7 +26,7 @@ export default async function CustomerDetailPage({ params }: { params: Promise<{
   return (
     <div className="mx-auto max-w-4xl space-y-6">
       <div className="flex items-center justify-between">
-        <Link href="/customers" className="text-sm text-ink-faint hover:text-slate-800">← Back to Customers</Link>
+        <Link href="/customers" className="text-sm text-ink-faint hover:text-ink">← Back to Customers</Link>
       </div>
 
       {/* Profile header */}
@@ -89,7 +89,7 @@ export default async function CustomerDetailPage({ params }: { params: Promise<{
             <span className="font-medium">{b.modelWanted}</span>
             <span className="flex items-center gap-3">
               <span>token {fmt(b.tokenAmount)}</span>
-              <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs">{b.status}</span>
+              <span className="rounded-full bg-raised px-2 py-0.5 text-xs text-ink-soft">{b.status}</span>
               <span className="text-xs text-ink-faint">{d(b.createdAt)}</span>
             </span>
           </div>
@@ -103,7 +103,7 @@ export default async function CustomerDetailPage({ params }: { params: Promise<{
           <div key={r.id} className="flex items-center justify-between rounded-lg card px-4 py-2.5 text-sm">
             <span>{r.vehicleText ?? "—"}</span>
             <span className="flex items-center gap-3">
-              <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs">{r.status.replace("_", " ")}</span>
+              <span className="rounded-full bg-raised px-2 py-0.5 text-xs text-ink-soft">{r.status.replace("_", " ")}</span>
               <span className="text-xs text-ink-faint">
                 {new Date(r.scheduledAt).toLocaleString("en-PK", { timeZone: "Asia/Karachi", dateStyle: "medium", timeStyle: "short" })}
               </span>
@@ -130,7 +130,7 @@ export default async function CustomerDetailPage({ params }: { params: Promise<{
                 <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-700">coupon #{j.couponNo}</span>
               )}
               <span>{fmt(Number(j.laborCharge) + Number(j.partsCharge))}</span>
-              <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs">{j.status.replace("_", " ")}</span>
+              <span className="rounded-full bg-raised px-2 py-0.5 text-xs text-ink-soft">{j.status.replace("_", " ")}</span>
               <span className="text-xs text-ink-faint">{d(j.createdAt)}</span>
             </span>
           </Link>
@@ -155,7 +155,7 @@ function Empty({ text }: { text: string }) {
 
 function Stat({ label, value, warn }: { label: string; value: string; warn?: boolean }) {
   return (
-    <div className="rounded-lg bg-slate-50 px-4 py-2 text-center">
+    <div className="rounded-lg bg-raised px-4 py-2 text-center">
       <p className="text-xs text-ink-faint">{label}</p>
       <p className={`font-semibold ${warn ? "text-red-600" : ""}`}>{value}</p>
     </div>
