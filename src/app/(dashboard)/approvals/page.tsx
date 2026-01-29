@@ -3,6 +3,7 @@ import { db } from "@/db";
 import { vehicles } from "@/db/schema";
 import { canReview, listApprovals } from "@/modules/approvals/service";
 import { needsWarrantyCard } from "@/modules/sales/warranty";
+import { PayloadSummary } from "@/components/payload-summary";
 import { requireStaff } from "@/lib/session";
 import { ReviewControls } from "./review-controls";
 
@@ -23,14 +24,12 @@ const TYPE_LABELS: Record<string, string> = {
   "stock.audit": "Stock Audit Report",
 };
 
+/** #16: off the semantic status ramp, so both themes are handled by construction. */
 const STATUS_BADGE: Record<string, string> = {
-  pending: "bg-amber-100 text-amber-700",
-  approved: "bg-emerald-100 text-emerald-700",
-  rejected: "bg-red-100 text-red-700",
+  pending: "bg-warn-soft text-warn",
+  approved: "bg-ok-soft text-ok",
+  rejected: "bg-danger-soft text-danger",
 };
-
-/** Hide noisy/technical keys when summarizing a payload for review. */
-const HIDDEN_KEYS = new Set(["guarantors", "documents", "handovers", "items", "notes"]);
 
 export default async function ApprovalsPage() {
   const { user, profile } = await requireStaff();
@@ -66,7 +65,7 @@ export default async function ApprovalsPage() {
         <h1 className="text-xl font-semibold">
           Review Queue
           {pending.length > 0 && (
-            <span className="ml-2 rounded-full bg-amber-100 px-2.5 py-0.5 text-sm font-medium text-amber-700">
+            <span className="ml-2 rounded-full bg-warn-soft px-2.5 py-0.5 text-sm font-medium text-warn">
               {pending.length} pending
             </span>
           )}
@@ -85,7 +84,7 @@ export default async function ApprovalsPage() {
           </div>
         )}
         {pending.map((r) => (
-          <div key={r.id} className="rounded-xl border border-amber-200 bg-surface p-4">
+          <div key={r.id} className="rounded-xl border border-warn/30 bg-surface p-4">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <div>
                 <span className="font-semibold">{TYPE_LABELS[r.actionType] ?? r.actionType}</span>
@@ -97,11 +96,11 @@ export default async function ApprovalsPage() {
                 {r.actionType === "sale.create" &&
                   needsWarrantyCard(makeByVehicleId.get(Number((r.payload as Record<string, unknown>)?.vehicleId))) &&
                   ((r.payload as Record<string, unknown>)?.warrantyCardSent === "on" ? (
-                    <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-medium text-emerald-700">
+                    <span className="rounded-full bg-ok-soft px-2 py-0.5 text-xs font-medium text-ok">
                       ✔ warranty card sent
                     </span>
                   ) : (
-                    <span className="rounded-full bg-red-100 px-2 py-0.5 text-xs font-bold text-red-700">
+                    <span className="rounded-full bg-danger-soft px-2 py-0.5 text-xs font-bold text-danger">
                       ⚠ WARRANTY CARD NOT SENT
                     </span>
                   ))}
@@ -112,7 +111,7 @@ export default async function ApprovalsPage() {
             <PayloadSummary payload={r.payload} />
 
             {r.lastError && (
-              <p className="mt-2 rounded-md bg-red-50 px-3 py-1.5 text-xs text-red-700">
+              <p className="mt-2 rounded-md bg-danger-soft px-3 py-1.5 text-xs text-danger">
                 Last approval attempt failed: {r.lastError}
               </p>
             )}
@@ -152,82 +151,4 @@ export default async function ApprovalsPage() {
       )}
     </div>
   );
-}
-
-/**
- * Sir (2026-08-06): the queue used to dump raw JSON, which overflowed its
- * column and was unreadable. Long JSON values (a delivery's vehicle array) are
- * now rendered as a proper list instead of a wall of braces, and every value
- * wraps rather than escaping its cell.
- */
-function PayloadSummary({ payload }: { payload: unknown }) {
-  if (!payload || typeof payload !== "object") return null;
-  const all = Object.entries(payload as Record<string, unknown>).filter(
-    ([k, v]) => !HIDDEN_KEYS.has(k) && v !== "" && v !== null && v !== undefined,
-  );
-
-  // Scalars go in the compact grid; JSON arrays get their own readable block.
-  const scalars = all.filter(([, v]) => typeof v !== "object" && !looksLikeJsonArray(v));
-  const lists = all.filter(([, v]) => typeof v === "object" || looksLikeJsonArray(v));
-
-  if (scalars.length === 0 && lists.length === 0) return null;
-
-  return (
-    <div className="mt-3 space-y-3">
-      {scalars.length > 0 && (
-        <dl className="grid grid-cols-2 gap-x-6 gap-y-2 text-xs sm:grid-cols-3 lg:grid-cols-4">
-          {scalars.map(([k, v]) => (
-            <div key={k} className="min-w-0">
-              <dt className="text-ink-faint">{prettyKey(k)}</dt>
-              <dd className="break-words font-medium text-ink">{String(v)}</dd>
-            </div>
-          ))}
-        </dl>
-      )}
-
-      {lists.map(([k, v]) => {
-        const rows = parseRows(v);
-        if (rows.length === 0) return null;
-        return (
-          <div key={k} className="rounded-lg border border-line bg-raised p-3">
-            <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-ink-faint">
-              {prettyKey(k)} <span className="font-normal">({rows.length})</span>
-            </p>
-            <ul className="space-y-1 text-xs">
-              {rows.slice(0, 12).map((row, i) => (
-                <li key={i} className="flex flex-wrap gap-x-3 gap-y-0.5">
-                  <span className="font-medium text-ink">{i + 1}.</span>
-                  {Object.entries(row)
-                    .filter(([, val]) => val !== "" && val !== null && val !== undefined)
-                    .map(([rk, val]) => (
-                      <span key={rk} className="text-ink-soft">
-                        <span className="text-ink-faint">{prettyKey(rk)}:</span>{" "}
-                        <span className="font-medium text-ink">{String(val)}</span>
-                      </span>
-                    ))}
-                </li>
-              ))}
-              {rows.length > 12 && <li className="text-ink-faint">…and {rows.length - 12} more</li>}
-            </ul>
-          </div>
-        );
-      })}
-    </div>
-  );
-}
-
-const prettyKey = (k: string) => k.replace(/([A-Z])/g, " $1").toLowerCase();
-
-const looksLikeJsonArray = (v: unknown) => typeof v === "string" && v.trim().startsWith("[");
-
-/** Payloads arrive from FormData, so nested arrays are still JSON strings. */
-function parseRows(v: unknown): Record<string, unknown>[] {
-  try {
-    const parsed = typeof v === "string" ? JSON.parse(v) : v;
-    if (Array.isArray(parsed)) return parsed.filter((r) => r && typeof r === "object");
-    if (parsed && typeof parsed === "object") return [parsed as Record<string, unknown>];
-  } catch {
-    /* not JSON — fall through */
-  }
-  return [];
 }
