@@ -42,6 +42,64 @@ const staffSchema = z.object({
   monthlyAllowances: moneyZero,
 });
 
+/**
+ * Creator-set password (Sir, 2026-08-06).
+ *
+ * Self-service reset by email is parked until company mailboxes exist — until a
+ * domain is verified on Resend, RESEND_ONLY_TO redirects every message to the
+ * Creator, so a reset link would never reach the staff member it was meant for.
+ * This is the working alternative: the Creator sets a temporary password and
+ * hands it over in person.
+ *
+ * Every existing session for that user is revoked, so if the account was
+ * compromised the intruder is kicked out immediately rather than surviving on a
+ * stale cookie. The password itself is never written to the audit log.
+ */
+export async function setStaffPassword(actor: Actor, profileId: number, newPassword: string) {
+  if (!canManageStaff(actor.role)) {
+    return { ok: false as const, error: "Only the Creator can reset passwords." };
+  }
+  if (!newPassword || newPassword.length < 8) {
+    return { ok: false as const, error: "Password must be at least 8 characters." };
+  }
+
+  const target = await db.query.staffProfiles.findFirst({ where: (p, { eq }) => eq(p.id, profileId) });
+  if (!target) return { ok: false as const, error: "Staff member not found." };
+  if (target.userId === actor.userId) {
+    return { ok: false as const, error: "Change your own password from Settings, not here." };
+  }
+
+  const authInstance = betterAuth({
+    database: drizzleAdapter(db, { provider: "pg" }),
+    secret: process.env.BETTER_AUTH_SECRET,
+    baseURL: process.env.BETTER_AUTH_URL,
+    emailAndPassword: { enabled: true },
+    plugins: [organization()],
+  });
+
+  try {
+    const ctx = await authInstance.$context;
+    const hash = await ctx.password.hash(newPassword);
+    await ctx.internalAdapter.updatePassword(target.userId, hash);
+
+    // Force a fresh login everywhere.
+    await db.delete(session).where(eq(session.userId, target.userId));
+
+    await writeAudit({
+      userId: actor.userId,
+      action: "staff.password_reset",
+      entity: "staff_profile",
+      entityId: profileId,
+      branchId: target.branchId,
+      details: { note: "Creator set a new password; all sessions revoked" },
+    });
+
+    return { ok: true as const };
+  } catch {
+    return { ok: false as const, error: "Could not set the password. Try again." };
+  }
+}
+
 export async function listStaff() {
   return db
     .select({
