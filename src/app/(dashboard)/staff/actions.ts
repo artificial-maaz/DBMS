@@ -30,6 +30,24 @@ export async function updateStaffAction(
   return { ok: true };
 }
 
+/** Creator sets a temporary password for a locked-out staff member. */
+export async function setStaffPasswordAction(
+  profileId: number,
+  _prev: ActionState,
+  formData: FormData,
+): Promise<ActionState> {
+  const { user, profile } = await requireStaff();
+  const { setStaffPassword } = await import("@/modules/staff/service");
+  const result = await setStaffPassword(
+    { userId: user.id, role: profile.role },
+    profileId,
+    String(formData.get("newPassword") ?? ""),
+  );
+  if (!result.ok) return { ok: false, error: result.error };
+  revalidatePath("/staff");
+  return { ok: true };
+}
+
 export async function toggleStaffAction(profileId: number, isActive: boolean) {
   const { user, profile } = await requireStaff();
   const result = await setStaffActive({ userId: user.id, role: profile.role }, profileId, isActive);
