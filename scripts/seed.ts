@@ -12,6 +12,7 @@ import { organization } from "better-auth/plugins";
 import { eq } from "drizzle-orm";
 import { db } from "../src/db";
 import { branches, staffProfiles } from "../src/db/schema";
+import { guardDatabase } from "./guard";
 
 const email = process.env.SEED_CREATOR_EMAIL!;
 const password = process.env.SEED_CREATOR_PASSWORD!;
@@ -19,6 +20,11 @@ const name = process.env.SEED_CREATOR_NAME ?? "Creator";
 
 async function main() {
   if (!email || !password) throw new Error("Set SEED_CREATOR_EMAIL / SEED_CREATOR_PASSWORD in .env");
+
+  // Destructive: if the Creator already exists this RESETS the password to
+  // whatever is in .env. That is exactly what makes it the recovery tool, and
+  // exactly why it must not fire at production by accident.
+  await guardDatabase({ label: "Seed / repair the Creator account", destructive: true });
 
   const seedAuth = betterAuth({
     database: drizzleAdapter(db, { provider: "pg" }),
