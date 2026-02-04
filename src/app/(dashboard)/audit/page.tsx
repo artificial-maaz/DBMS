@@ -2,7 +2,11 @@ import { desc, eq } from "drizzle-orm";
 import { redirect } from "next/navigation";
 import { db } from "@/db";
 import { auditLog, user } from "@/db/schema";
+import { PayloadSummary } from "@/components/payload-summary";
 import { requireStaff } from "@/lib/session";
+
+/** The audit log withholds nothing — see the Details column below. */
+const NOTHING_HIDDEN = new Set<string>();
 
 /** Audit log viewer — Creator/Owner only. The unblinking eye. */
 export default async function AuditPage({
@@ -79,10 +83,22 @@ export default async function AuditPage({
                 <td className="px-4 py-2.5 text-ink-soft">
                   {r.entity} <span className="font-mono text-xs">#{r.entityId}</span>
                 </td>
-                <td className="max-w-xs px-4 py-2.5">
-                  <code className="block truncate text-xs text-ink-faint">
-                    {r.details ? JSON.stringify(r.details) : "—"}
-                  </code>
+                {/* #21 (Sir): this used to be `JSON.stringify(details)` in a
+                    truncated <code> block — a wall of braces, clipped mid-word,
+                    that nobody could read. Now rendered by the same summariser
+                    the Review Queue uses: labelled key/value pairs, arrays as
+                    numbered lists, everything wrapping. `compact` because an
+                    audit row is denser than a review card.
+
+                    Nothing is hidden here, unlike the Review Queue: the audit
+                    log is the record of last resort, so it shows every key it
+                    was given. */}
+                <td className="max-w-md px-4 py-2.5">
+                  {r.details ? (
+                    <PayloadSummary payload={r.details} hiddenKeys={NOTHING_HIDDEN} compact />
+                  ) : (
+                    <span className="text-xs text-ink-faint">—</span>
+                  )}
                 </td>
               </tr>
             ))}
