@@ -4,6 +4,7 @@ import { listActiveBranches } from "@/modules/inventory/queries";
 import { requireStaff } from "@/lib/session";
 import { AddStaffForm } from "./add-staff-form";
 import { EditStaffForm } from "./edit-staff-form";
+import { ResetPasswordForm } from "./reset-password-form";
 import { ToggleStaff } from "./toggle-staff";
 
 /** #18: only the Creator can grant roles; Owners view the directory read-only. */
@@ -96,6 +97,7 @@ export default async function StaffPage() {
                         }}
                         branches={branches.map((b) => ({ id: b.id, name: b.name }))}
                       />
+                      {m.role !== "creator" && <ResetPasswordForm profileId={m.id} name={m.name} />}
                       {m.role !== "creator" && <ToggleStaff id={m.id} isActive={m.isActive} />}
                     </span>
                   )}
