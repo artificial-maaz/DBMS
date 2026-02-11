@@ -42,13 +42,26 @@ export function Card({
   return <div className={`card ${hover ? "card-hover" : ""} ${className}`}>{children}</div>;
 }
 
+/**
+ * KPI tile palettes — deep jewel tones (Sir, 2026-08-06).
+ *
+ * The stock Tailwind ramps (violet-500, emerald-500, amber-500) are bright and
+ * generic: they read like a framework default and they fight a deep navy brand
+ * instead of sitting beside it. These are hand-mixed, all in the same low-key
+ * register as the navy — burgundy, petrol, bronze, plum, forest — so the tiles
+ * feel like one considered set rather than a box of highlighter pens.
+ *
+ * Every pair is dark enough for white text to clear WCAG AA at the light end
+ * of its gradient, which is the actual constraint on how bright these can go.
+ */
 const TONES = {
-  brand: "from-brand-500 to-brand-700",
-  emerald: "from-emerald-500 to-emerald-700",
-  amber: "from-amber-500 to-amber-600",
-  red: "from-red-500 to-red-700",
-  sky: "from-sky-500 to-sky-700",
-  slate: "from-slate-700 to-slate-900",
+  brand: "from-brand-500 to-brand-800",
+  burgundy: "from-[#8e1c3e] to-[#4f0f22]",   // dark maroon
+  petrol: "from-[#0e6d70] to-[#07393c]",     // deep teal
+  bronze: "from-[#a8722c] to-[#5f3d11]",     // antique gold
+  plum: "from-[#5b2c83] to-[#2f1547]",       // aubergine
+  forest: "from-[#15693a] to-[#08361c]",     // hunter green
+  graphite: "from-[#3d4759] to-[#1c222d]",   // cool near-black
 } as const;
 
 /**
@@ -68,9 +81,15 @@ export function StatCard({
   tone?: keyof typeof TONES;
   href?: string;
 }) {
+  /**
+   * h-full on both the link and the card (Sir, 2026-08-06): a tile carrying a
+   * `hint` used to be taller than its neighbours, so the row looked ragged.
+   * Stretching every tile to the grid row's height keeps them identical, and
+   * mt-auto pins the hint to the bottom rather than letting it push the card.
+   */
   const body = (
     <div
-      className={`card-hover relative overflow-hidden rounded-[var(--radius-card)] bg-gradient-to-br ${TONES[tone]} p-5 text-white shadow-[var(--shadow-card)]`}
+      className={`card-hover relative flex h-full flex-col overflow-hidden rounded-[var(--radius-card)] bg-gradient-to-br ${TONES[tone]} p-5 text-white shadow-[var(--shadow-card)]`}
     >
       {/* Decorative glow — pure ornament, hidden from screen readers */}
       <span
@@ -79,12 +98,12 @@ export function StatCard({
       />
       <p className="text-sm font-medium opacity-85">{title}</p>
       <p className="mt-1 text-3xl font-semibold tracking-tight">{value}</p>
-      {hint && <p className="mt-1 text-xs opacity-75">{hint}</p>}
+      {hint && <p className="mt-auto pt-2 text-xs opacity-75">{hint}</p>}
     </div>
   );
 
   return href ? (
-    <Link href={href} className="block">
+    <Link href={href} className="block h-full">
       {body}
     </Link>
   ) : (
@@ -96,7 +115,8 @@ const BADGE_TONES: Record<string, string> = {
   green: "bg-emerald-100 text-emerald-700",
   red: "bg-red-100 text-red-700",
   amber: "bg-amber-100 text-amber-700",
-  sky: "bg-sky-100 text-sky-700",
+  violet: "bg-violet-100 text-violet-700",
+  teal: "bg-teal-100 text-teal-700",
   brand: "bg-brand-100 text-brand-700",
   grey: "bg-slate-100 text-slate-600",
 };
