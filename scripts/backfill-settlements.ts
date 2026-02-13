@@ -18,8 +18,13 @@
 import { and, count, eq, ne } from "drizzle-orm";
 import { db } from "../src/db";
 import { invoiceDocuments, invoices } from "../src/db/schema";
+import { guardDatabase } from "./guard";
 
 async function main() {
+  // Idempotent and correct against prod — it is meant to be run there once.
+  // Banner only, so whoever runs it can see where they landed before it writes.
+  await guardDatabase({ label: "Backfill invoice settlement status" });
+
   const all = await db
     .select({
       id: invoices.id,
