@@ -17,8 +17,14 @@ import { createVisitor } from "../src/modules/visitors/service";
 import { createRate } from "../src/modules/labor-rates/service";
 import { createAsset } from "../src/modules/assets/service";
 import { createDelivery } from "../src/modules/deliveries/service";
+import { guardDatabase } from "./guard";
 
 async function main() {
+  // This script writes SALES through the real service layer — they post to the
+  // ledger and the P&L. Against production that is not a mistake you can undo
+  // by deleting rows, so the guard refuses rather than asking.
+  await guardDatabase({ label: "Seed test data (fake branches, vehicles, sales)", fakeData: true });
+
   const creator = await db.query.staffProfiles.findFirst({ where: (s, { eq }) => eq(s.role, "creator") });
   if (!creator) throw new Error("No creator profile — run npm run db:seed first.");
   const actor = { userId: creator.userId, role: "creator", branchId: null };
