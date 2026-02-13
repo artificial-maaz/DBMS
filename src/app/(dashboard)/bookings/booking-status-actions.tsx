@@ -18,17 +18,22 @@ export function BookingStatusActions({ id }: { id: number }) {
   return (
     <span className="inline-flex items-center gap-2">
       {error && <span className="text-xs text-red-600">{error}</span>}
+      {/* #12 (Sir): these were the only action buttons in the app with no motion
+          and no dark-mode colours — `bg-slate-100 text-slate-600` had no dark
+          counterpart, so the Cancel button was a light chip on a dark card.
+          Now on the shared treatment: transition + active:scale-95, tokens for
+          the neutral button, the semantic danger ramp for the destructive one. */}
       <button
         disabled={pending}
         onClick={() => run("cancelled")}
-        className="rounded-md bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-600 hover:bg-slate-200 disabled:opacity-50"
+        className="rounded-md bg-raised px-2.5 py-1 text-xs font-medium text-ink-soft transition hover:bg-brand-50 hover:text-brand-700 active:scale-95 disabled:opacity-50"
       >
         Cancel (keep token)
       </button>
       <button
         disabled={pending}
         onClick={() => run("refunded")}
-        className="rounded-md bg-red-50 px-2.5 py-1 text-xs font-medium text-red-700 hover:bg-red-100 disabled:opacity-50"
+        className="rounded-md bg-danger-soft px-2.5 py-1 text-xs font-medium text-danger transition hover:brightness-95 active:scale-95 disabled:opacity-50"
       >
         Refund
       </button>
