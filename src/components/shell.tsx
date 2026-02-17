@@ -82,9 +82,24 @@ export function Shell({
             onClick={toggleCollapsed}
             aria-label={collapsed ? "Show sidebar" : "Hide sidebar"}
             title={collapsed ? "Show sidebar" : "Hide sidebar"}
-            className="ml-3 hidden min-h-10 min-w-10 items-center justify-center rounded-xl border border-line text-sm transition hover:border-brand-300 hover:bg-brand-50 active:scale-95 md:flex"
+            /* An SVG chevron, not a text glyph: glyphs sit on the font's
+               baseline and refuse to centre in a square box however you pad
+               them (Sir, 2026-08-06). */
+            className="ml-3 hidden h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-line text-ink-soft transition hover:border-brand-400 hover:bg-brand-50 hover:text-brand-600 active:scale-95 md:inline-flex"
           >
-            {collapsed ? "»" : "«"}
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className={collapsed ? "rotate-180" : ""}
+            >
+              <path d="M15 6 L9 12 L15 18" />
+            </svg>
           </button>
           <div className="min-w-0 flex-1 [&>header]:border-b-0">{topbar}</div>
         </div>
