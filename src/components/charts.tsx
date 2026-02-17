@@ -119,7 +119,12 @@ export function AreaTrend({
 /* Donut                                                               */
 /* ------------------------------------------------------------------ */
 
-const SLICE_COLORS = ["var(--b500)", "#10b981", "#f59e0b", "#38bdf8", "#f43f5e", "#a78bfa"];
+/**
+ * Donut slices — the same deep jewel set as the KPI tiles (Sir, 2026-08-06),
+ * so a colour means the same thing wherever it appears on the dashboard.
+ * Ordered so neighbouring slices never share a hue family.
+ */
+const SLICE_COLORS = ["var(--b500)", "#8e1c3e", "#0e6d70", "#a8722c", "#5b2c83", "#15693a"];
 
 export function Donut({
   slices,
