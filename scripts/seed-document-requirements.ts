@@ -6,6 +6,7 @@
  */
 import { db } from "../src/db";
 import { documentRequirements } from "../src/db/schema";
+import { guardDatabase } from "./guard";
 
 const CREATOR_EMAIL = process.env.SEED_CREATOR_EMAIL!;
 
@@ -20,6 +21,9 @@ const NAMES = [
 ];
 
 async function main() {
+  // Reference data, safe to run against prod - banner only.
+  await guardDatabase({ label: "Seed the document checklist" });
+
   const creator = await db.query.user.findFirst({ where: (u, { eq }) => eq(u.email, CREATOR_EMAIL) });
   if (!creator) throw new Error(`Creator (${CREATOR_EMAIL}) not found — run npm run db:seed first.`);
 
