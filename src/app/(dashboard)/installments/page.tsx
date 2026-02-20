@@ -6,10 +6,18 @@ import { listActiveBranches } from "@/modules/inventory/queries";
 import { StatCard } from "@/components/ui";
 import { requireStaff } from "@/lib/session";
 
+/**
+ * #16 (Sir, 2026-08-09): the old `bg-red-100 / text-red-700` overdue badge was
+ * a fire-engine red fighting the burgundy KPI tile behind it, and the sky blue
+ * shifted hue between themes so "on track" read as a different colour in dark
+ * mode. Both now come off the semantic status ramp, which keeps one hue per
+ * meaning across both themes and tones the danger colour into the same family
+ * as the burgundy rather than shouting over it.
+ */
 const STATUS_BADGE: Record<CaseStatus, string> = {
-  cleared: "bg-emerald-100 text-emerald-700",
-  on_track: "bg-sky-100 text-sky-700",
-  overdue: "bg-red-100 text-red-700",
+  cleared: "bg-ok-soft text-ok",
+  on_track: "bg-info-soft text-info",
+  overdue: "bg-danger-soft text-danger",
 };
 const STATUS_LABEL: Record<CaseStatus, string> = {
   cleared: "cleared",
@@ -77,10 +85,10 @@ export default async function InstallmentCasesPage({
           <p className="mt-1 text-2xl font-semibold">{fmt(kpi.receivable)}</p>
           <p className="mt-1 text-xs text-ink-faint">Everything still owed to us across these cases.</p>
         </div>
-        <div className="rounded-xl border border-red-200 bg-red-50 px-5 py-4">
-          <p className="text-xs uppercase tracking-wide text-red-500">Past Due Right Now</p>
-          <p className="mt-1 text-2xl font-semibold text-red-700">{fmt(kpi.overdueAmount)}</p>
-          <p className="mt-1 text-xs text-red-500">Instalments whose due date has already passed — chase these.</p>
+        <div className="rounded-xl border border-danger/25 bg-danger-soft px-5 py-4">
+          <p className="text-xs uppercase tracking-wide text-danger">Past Due Right Now</p>
+          <p className="mt-1 text-2xl font-semibold text-danger">{fmt(kpi.overdueAmount)}</p>
+          <p className="mt-1 text-xs text-danger/80">Instalments whose due date has already passed — chase these.</p>
         </div>
       </div>
 
@@ -134,7 +142,7 @@ export default async function InstallmentCasesPage({
               </tr>
             )}
             {cases.map((c) => (
-              <tr key={c.id} className={`border-t border-line row-hover ${c.status === "overdue" ? "bg-red-50/40" : ""}`}>
+              <tr key={c.id} className={`border-t border-line row-hover ${c.status === "overdue" ? "bg-danger-soft/50" : ""}`}>
                 <td className="px-4 py-2.5 font-mono text-xs font-medium">
                   <Link href={`/sales/${c.id}`} className="text-brand-700 hover:underline">{c.invoiceNo}</Link>
                   <span className="block text-ink-faint">{new Date(c.saleDate).toLocaleDateString("en-PK", { timeZone: "Asia/Karachi" })}</span>
@@ -151,13 +159,13 @@ export default async function InstallmentCasesPage({
                   <span className="block text-xs text-ink-faint">instalments paid</span>
                 </td>
                 <td className="px-4 py-2.5 text-right">{fmt(c.total)}</td>
-                <td className="px-4 py-2.5 text-right text-emerald-700">
+                <td className="px-4 py-2.5 text-right text-ok">
                   {fmt(Number(c.downpayment) + Number(c.totalPaid))}
                 </td>
-                <td className="px-4 py-2.5 text-right font-medium text-red-600">{fmt(c.balanceDue)}</td>
+                <td className="px-4 py-2.5 text-right font-medium text-danger">{fmt(c.balanceDue)}</td>
                 <td className="px-4 py-2.5">
                   {c.status === "overdue" ? (
-                    <span className="text-red-600">
+                    <span className="text-danger">
                       <span className="font-medium">{c.daysOverdue} days late</span>
                       <span className="block text-xs">
                         {c.overdueCount} unpaid · {fmt(c.overdueAmount)}
