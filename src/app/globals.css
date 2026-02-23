@@ -1,28 +1,261 @@
 @import "tailwindcss";
 
-/*
- * Dark mode (Abrar #1, 2026-07-14) — pragmatic interim approach:
- * global overrides remapping the light neutral palette under html.dark.
- * The proper per-component dark: variant adoption happens in the GUI polish
- * pass (#31); this delivers a usable dark theme today without touching
- * hundreds of classNames. Sidebar is already dark and needs no changes.
- */
-.dark body { background-color: #0b1220; color: #e2e8f0; }
+/* =========================================================================
+   DESIGN TOKENS (GUI phase, 2026-08-01)
+   -------------------------------------------------------------------------
+   Colours used to be hardcoded (bg-white, indigo-600, slate-200...), which
+   caused two problems: the Settings theme colour did nothing, and dark mode
+   had to be faked by intercepting light-mode classes.
 
-.dark .bg-white { background-color: #16213a; }
-.dark .bg-slate-50 { background-color: #0f172a; }
+   Both are fixed the same way — SEMANTIC tokens. Components now say what a
+   colour MEANS (surface, line, ink, brand) instead of naming a specific
+   shade. Each token resolves differently per mode, and the whole brand scale
+   is derived from ONE hex that System Settings injects at runtime.
+
+   Adding a screen? Use bg-surface / border-line / text-ink / bg-brand-600 and
+   it is correct in both modes, in every brand colour, for free.
+   ========================================================================= */
+
+@theme {
+  /* Brand scale — all derived from --brand (set on <html> by the server) */
+  --color-brand-50: var(--b50);
+  --color-brand-100: var(--b100);
+  --color-brand-200: var(--b200);
+  --color-brand-300: var(--b300);
+  --color-brand-400: var(--b400);
+  --color-brand-500: var(--b500);
+  --color-brand-600: var(--b600);
+  --color-brand-700: var(--b700);
+  --color-brand-800: var(--b800);
+  --color-brand-900: var(--b900);
+
+  /* Neutrals, by meaning */
+  --color-canvas: var(--canvas);       /* page background             */
+  --color-surface: var(--surface);     /* cards, tables, forms        */
+  --color-raised: var(--raised);       /* table headers, subtle fills */
+  --color-line: var(--line);           /* borders, dividers           */
+  --color-ink: var(--ink);             /* primary text                */
+  --color-ink-soft: var(--ink-soft);   /* secondary text              */
+  --color-ink-faint: var(--ink-faint); /* hints, placeholders         */
+
+  /* B2: warmer, softer geometry — rounder corners, gentler shadows */
+  --radius-card: 1rem;
+  --shadow-card: 0 1px 2px rgb(15 23 42 / 0.04), 0 8px 24px -12px rgb(15 23 42 / 0.12);
+  --shadow-lift: 0 2px 6px rgb(15 23 42 / 0.06), 0 16px 32px -16px rgb(15 23 42 / 0.22);
+}
+
+/* ---------- Light mode ---------- */
+:root {
+  --brand: #4f46e5; /* overridden inline by the server from System Settings */
+
+  --b50: color-mix(in srgb, var(--brand) 7%, white);
+  --b100: color-mix(in srgb, var(--brand) 14%, white);
+  --b200: color-mix(in srgb, var(--brand) 28%, white);
+  --b300: color-mix(in srgb, var(--brand) 45%, white);
+  --b400: color-mix(in srgb, var(--brand) 70%, white);
+  --b500: var(--brand);
+  --b600: color-mix(in srgb, var(--brand) 88%, black);
+  --b700: color-mix(in srgb, var(--brand) 74%, black);
+  --b800: color-mix(in srgb, var(--brand) 60%, black);
+  --b900: color-mix(in srgb, var(--brand) 46%, black);
+
+  --canvas: #f5f6fa;
+  --surface: #ffffff;
+  --raised: #fafbfd;
+  /* Sir (2026-08-04): borders were too hard. These are barely-there hairlines —
+     depth now comes from the shadow, not from a drawn outline. */
+  --line: #eef0f5;
+  --ink: #0f172a;
+  --ink-soft: #4b5568;
+  --ink-faint: #9aa4b5;
+}
+
+/* ---------- Dark mode ---------- */
+.dark {
+  /* Brand shades lean lighter here so they stay legible on deep navy */
+  --b50: color-mix(in srgb, var(--brand) 18%, #0b1220);
+  --b100: color-mix(in srgb, var(--brand) 26%, #0b1220);
+  --b200: color-mix(in srgb, var(--brand) 40%, #0b1220);
+  --b300: color-mix(in srgb, var(--brand) 58%, #0b1220);
+  --b400: color-mix(in srgb, var(--brand) 78%, white);
+  --b500: color-mix(in srgb, var(--brand) 88%, white);
+  --b600: var(--brand);
+  --b700: color-mix(in srgb, var(--brand) 82%, black);
+  --b800: color-mix(in srgb, var(--brand) 66%, black);
+  --b900: color-mix(in srgb, var(--brand) 50%, black);
+
+  --canvas: #0a0f1c;
+  --surface: #141d31;
+  --raised: #101828;
+  /* Dark borders are a faint LIFT, not a drawn line — a light stroke on a dark
+     card reads as a harsh outline, which is what Sir flagged. */
+  --line: #1e2942;
+  --ink: #e6ecf5;
+  --ink-soft: #a9b7cc;
+  --ink-faint: #6f8098;
+
+  --shadow-card: 0 1px 2px rgb(0 0 0 / 0.35), 0 10px 28px -14px rgb(0 0 0 / 0.55);
+  --shadow-lift: 0 2px 6px rgb(0 0 0 / 0.45), 0 18px 36px -18px rgb(0 0 0 / 0.75);
+}
+
+/* =========================================================================
+   BASE — B2: warmer, roomier, easier over a long shift
+   ========================================================================= */
+body {
+  background-color: var(--canvas);
+  color: var(--ink);
+  font-size: 15px;              /* up from 14 — staff read this all day */
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Colour changes glide instead of snapping (theme toggle, hovers) */
+*,
+*::before,
+*::after {
+  transition-property: background-color, border-color, color, fill, stroke, box-shadow, opacity, transform;
+  transition-duration: 160ms;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Respect people who get motion sickness — non-negotiable */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Focus rings follow the brand instead of the browser default */
+:where(a, button, input, select, textarea, [tabindex]):focus-visible {
+  outline: 2px solid var(--b500);
+  outline-offset: 2px;
+  border-radius: 0.5rem;
+}
+
+/* =========================================================================
+   COMPONENT PRIMITIVES
+   ========================================================================= */
+.card {
+  background-color: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+}
+
+/* Cards that respond to the cursor — KPI tiles, clickable panels */
+.card-hover:hover {
+  box-shadow: var(--shadow-lift);
+  transform: translateY(-2px);
+}
+
+/* Table rows: a soft brand wash on hover instead of grey */
+.row-hover:hover {
+  background-color: var(--b50);
+}
+
+/* =========================================================================
+   MOTION
+   Entrances are short (200-320ms) and run once. Anything longer feels
+   sluggish to someone entering their fortieth invoice of the day.
+   ========================================================================= */
+@keyframes rise {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes fade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes slide-left {
+  from { opacity: 0; transform: translateX(-12px); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes pop {
+  0%   { opacity: 0; transform: scale(0.96); }
+  60%  { transform: scale(1.01); }
+  100% { opacity: 1; transform: scale(1); }
+}
+@keyframes shimmer {
+  from { background-position: -320px 0; }
+  to   { background-position: 320px 0; }
+}
+
+.animate-rise { animation: rise 280ms cubic-bezier(0.16, 1, 0.3, 1) both; }
+.animate-fade { animation: fade 220ms ease-out both; }
+.animate-slide-left { animation: slide-left 240ms cubic-bezier(0.16, 1, 0.3, 1) both; }
+.animate-pop { animation: pop 220ms cubic-bezier(0.16, 1, 0.3, 1) both; }
+
+/* Stagger helper: put .stagger on a parent and its children cascade in. */
+.stagger > * { animation: rise 300ms cubic-bezier(0.16, 1, 0.3, 1) both; }
+.stagger > *:nth-child(1) { animation-delay: 0ms; }
+.stagger > *:nth-child(2) { animation-delay: 45ms; }
+.stagger > *:nth-child(3) { animation-delay: 90ms; }
+.stagger > *:nth-child(4) { animation-delay: 135ms; }
+.stagger > *:nth-child(5) { animation-delay: 180ms; }
+.stagger > *:nth-child(6) { animation-delay: 225ms; }
+
+/* ---- Chart motion: the line draws itself, bars grow, slices sweep ---- */
+@keyframes draw-line { from { stroke-dashoffset: 1400; } to { stroke-dashoffset: 0; } }
+@keyframes grow-x { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+@keyframes sweep { from { stroke-dasharray: 0 999; } }
+
+.chart-line {
+  stroke-dasharray: 1400;
+  animation: draw-line 1100ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.chart-area { animation: fade 900ms 300ms ease-out both; }
+.chart-dot { animation: pop 300ms cubic-bezier(0.16, 1, 0.3, 1) both; }
+.bar-grow { transform-origin: left center; animation: grow-x 800ms cubic-bezier(0.22, 1, 0.36, 1) both; }
+.donut-slice { animation: sweep 900ms cubic-bezier(0.22, 1, 0.36, 1) both; }
+
+/* ---- The bike: rides in once, then idles with a gentle bob ---- */
+@keyframes ride-in {
+  0%   { opacity: 0; transform: translateX(-60px); }
+  60%  { opacity: 1; }
+  100% { opacity: 1; transform: translateX(0); }
+}
+@keyframes bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+@keyframes spin-wheel { to { transform: rotate(360deg); } }
+@keyframes road { to { stroke-dashoffset: -80; } }
+
+.bike { animation: ride-in 900ms cubic-bezier(0.22, 1, 0.36, 1) both, bob 2.8s 900ms ease-in-out infinite; }
+.bike-wheel { transform-box: fill-box; transform-origin: center; animation: spin-wheel 1.4s linear infinite; }
+.road-line { stroke-dasharray: 22 18; animation: road 1.1s linear infinite; }
+
+/* Loading placeholder */
+.skeleton {
+  background: linear-gradient(90deg, var(--raised) 25%, var(--line) 50%, var(--raised) 75%);
+  background-size: 640px 100%;
+  animation: shimmer 1.4s linear infinite;
+  border-radius: 0.5rem;
+}
+
+/* =========================================================================
+   LEGACY BRIDGE - TRANSITIONAL, DELETE WHEN MIGRATION COMPLETES
+   -------------------------------------------------------------------------
+   Screens not yet converted to tokens still use bg-white / slate-*. Until
+   every page is migrated these overrides keep dark mode usable. Each block
+   disappears as its screens move over; when this section is empty, remove it.
+   ========================================================================= */
+.dark .bg-white { background-color: var(--surface); }
+.dark .bg-slate-50 { background-color: var(--raised); }
 .dark .bg-slate-100 { background-color: #1e293b; }
 .dark .bg-slate-800 { background-color: #1e293b; }
-.dark .bg-slate-900 { background-color: #0f172a; }
+.dark .bg-slate-900 { background-color: var(--raised); }
+.dark .bg-slate-200 { background-color: #334155; }
 
-.dark .text-slate-900 { color: #e2e8f0; }
+.dark .text-slate-900 { color: var(--ink); }
 .dark .text-slate-700 { color: #cbd5e1; }
-.dark .text-slate-600 { color: #b4c0d3; }
+.dark .text-slate-600 { color: var(--ink-soft); }
 .dark .text-slate-500 { color: #94a3b8; }
-.dark .text-slate-400 { color: #7c8ba1; }
+.dark .text-slate-400 { color: var(--ink-faint); }
 
 .dark .border-slate-100 { border-color: #1e293b; }
-.dark .border-slate-200 { border-color: #27354d; }
+.dark .border-slate-200 { border-color: var(--line); }
 .dark .border-slate-300 { border-color: #334155; }
 .dark .divide-slate-50 > * + *, .dark .divide-slate-100 > * + * { border-color: #1e293b; }
 
@@ -31,14 +264,13 @@
 .dark .hover\:bg-slate-700:hover { background-color: #334155; }
 
 .dark input, .dark select, .dark textarea {
-  background-color: #0f172a;
-  color: #e2e8f0;
+  background-color: var(--raised);
+  color: var(--ink);
   border-color: #334155;
 }
 .dark input::placeholder, .dark textarea::placeholder { color: #64748b; }
 .dark input:disabled, .dark select:disabled { background-color: #1e293b; color: #94a3b8; }
 
-/* Soft badge palettes: darken backgrounds, lighten text for contrast */
 .dark .bg-emerald-100 { background-color: #064e3b; } .dark .text-emerald-700 { color: #6ee7b7; }
 .dark .bg-emerald-50 { background-color: #052e24; } .dark .text-emerald-800 { color: #6ee7b7; } .dark .text-emerald-600 { color: #34d399; }
 .dark .bg-red-100 { background-color: #7f1d1d; } .dark .text-red-700 { color: #fca5a5; }
@@ -49,7 +281,19 @@
 .dark .bg-sky-50 { background-color: #082f49; }
 .dark .bg-indigo-100 { background-color: #312e81; } .dark .text-indigo-700 { color: #a5b4fc; }
 .dark .bg-indigo-50 { background-color: #1e1b4b; }
-.dark .bg-slate-200 { background-color: #334155; }
 
-/* Buttons that are dark-on-light in light mode stay legible */
-.dark .bg-slate-900.text-white, .dark button.bg-slate-900 { background-color: #4f46e5; }
+.dark .bg-slate-900.text-white, .dark button.bg-slate-900 { background-color: var(--b600); }
+
+/* Brand-ify the old hardcoded accents so the theme colour applies everywhere
+   immediately, including on screens not yet migrated. */
+.bg-indigo-600 { background-color: var(--b600) !important; }
+.hover\:bg-indigo-500:hover { background-color: var(--b500) !important; }
+.text-indigo-700 { color: var(--b700) !important; }
+.text-indigo-600 { color: var(--b600) !important; }
+
+/* Print: always light, no shadows, no motion */
+@media print {
+  body { background: #fff; color: #000; }
+  .card { box-shadow: none; border-color: #ddd; }
+  .animate-rise, .animate-fade, .animate-pop, .stagger > * { animation: none !important; }
+}
