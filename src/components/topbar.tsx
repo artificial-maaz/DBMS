@@ -23,11 +23,30 @@ export function Topbar({
 
   return (
     <header className="flex items-center justify-between gap-3 border-b border-line px-4 py-3 md:px-6 print:hidden">
-      <form action="/search" className="min-w-0 flex-1 md:max-w-sm md:flex-none">
+      {/* Icon sits inside the field on the left with the label beside it —
+          centring the placeholder read as an empty box (Sir, 2026-08-06). */}
+      <form action="/search" className="relative min-w-0 flex-1 md:max-w-sm md:flex-none">
+        <svg
+          aria-hidden
+          className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-ink-faint"
+          width="17"
+          height="17"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2.2"
+          strokeLinecap="round"
+        >
+          <circle cx="11" cy="11" r="7" />
+          <path d="m20 20-3.2-3.2" />
+        </svg>
         <input
           name="q"
-          placeholder="Search VIN, CNIC, phone, invoice…"
-          className="w-full rounded-xl border border-line bg-raised px-3.5 py-2 text-sm outline-none transition focus:border-brand-400 focus:bg-surface focus:ring-4 focus:ring-brand-100"
+          placeholder="Search"
+          aria-label="Search"
+          /* h-11 matches the collapse button exactly, so the two sit on the
+             same optical row instead of one floating in a taller box. */
+          className="h-11 w-full rounded-xl border border-line bg-raised pl-10 pr-4 text-sm outline-none transition focus:border-brand-400 focus:bg-surface focus:ring-4 focus:ring-brand-100"
         />
       </form>
       <div className="flex shrink-0 items-center gap-2 md:gap-3">
@@ -48,7 +67,9 @@ export function Topbar({
         <ThemeToggle />
         {/* Name hides on phones — the role chip is the useful part there */}
         <span className="hidden text-sm font-medium sm:inline">{name}</span>
-        <span className="rounded-full bg-brand-50 px-2.5 py-1 text-xs font-medium capitalize text-brand-700">
+        {/* Back to a brand tint — now readable in dark because the text uses
+            --chip-ink rather than a chart-weight shade. */}
+        <span className="rounded-full bg-brand-100 px-2.5 py-1 text-xs font-medium capitalize text-brand-700">
           {role.replace("_", " ")}
         </span>
         <button
