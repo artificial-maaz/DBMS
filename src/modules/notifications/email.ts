@@ -20,16 +20,21 @@ export async function emailsByRoles(roles: string[]) {
   return rows.map((r) => r.email).filter(Boolean);
 }
 
-/** Fired from writeAudit for HIGH_PRIORITY actions — fire-and-forget. */
+/**
+ * INSTANT emails — fired from writeAudit, fire-and-forget.
+ *
+ * Deliberately short (revised 2026-08-01). Only events that are RARE and
+ * genuinely urgent belong here; anything high-volume goes through the batched
+ * digest in ./digest.ts instead, which is what keeps us inside Resend's free
+ * 100/day + 3,000/month allowance. `approval.submit`, `sale.create` and
+ * `delivery.create` were moved out for exactly that reason — at four branches
+ * they alone would have blown the daily cap.
+ */
 export const HIGH_PRIORITY_ACTIONS = new Set([
-  "approval.submit",
   "staff.create",
   "staff.deactivate",
   "settings.update",
   "booking.refund",
-  // Sir #4 (2026-07-31): stock physically arriving is a money event — owners
-  // should hear about a consignment the moment it is booked in, not at month end.
-  "delivery.create",
 ]);
 
 export async function sendHighPriorityEmail(action: string, actorName: string, details: unknown) {
