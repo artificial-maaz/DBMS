@@ -4,6 +4,7 @@ import { db } from "@/db";
 import { systemSettings } from "@/db/schema";
 import { writeAudit } from "@/lib/audit";
 import { APP_NAME, APP_SHORT_NAME, COMPANY_NAME } from "@/lib/config";
+import { DEFAULT_BRAND } from "@/lib/theme";
 import { moneyZero } from "@/lib/validation";
 
 type Actor = { userId: string; role: string };
@@ -15,7 +16,7 @@ const DEFAULTS = {
   companyName: COMPANY_NAME,
   shortName: APP_SHORT_NAME,
   browserTitle: APP_NAME,
-  themeColor: "#0f172a",
+  themeColor: DEFAULT_BRAND, // GUI phase: indigo, not near-black
   logoDataUrl: null as string | null,
   defaultCommissionRate: "0",
   defaultExciseFee: "0",
