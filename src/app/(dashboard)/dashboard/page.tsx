@@ -2,10 +2,19 @@ import { and, count, eq, gte, sql } from "drizzle-orm";
 import { BikeHero } from "@/components/bike-hero";
 import { AreaTrend, BarList, Donut } from "@/components/charts";
 import { Card, EmptyState, StatCard } from "@/components/ui";
-import { salesTrend, stockByBranch, stockByMake } from "@/modules/dashboard/queries";
+import {
+  salesTrend,
+  stockBreakdown,
+  stockByMake,
+  STOCK_GROUPS,
+  TREND_RANGES,
+  type StockGroup,
+  type TrendRange,
+} from "@/modules/dashboard/queries";
+import { FilterPills } from "./chart-filters";
 import { topBranches, topSalespeople } from "@/modules/reports/queries";
 import { db } from "@/db";
-import { customers, invoices, ledgerEntries, vehicles } from "@/db/schema";
+import { invoices, ledgerEntries, vehicles } from "@/db/schema";
 import { canSeeFinancials, requireStaff } from "@/lib/session";
 
 /**
@@ -13,9 +22,18 @@ import { canSeeFinancials, requireStaff } from "@/lib/session";
  * this is a server component, so restricted numbers never even leave
  * the server for employee sessions (RBAC rule, not CSS hiding).
  */
-export default async function DashboardPage() {
+export default async function DashboardPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ range?: string; by?: string }>;
+}) {
   const { profile } = await requireStaff();
   const financial = canSeeFinancials(profile.role);
+
+  // Filters ride in the URL so a view is shareable and the back button works.
+  const sp = await searchParams;
+  const range: TrendRange = sp.range && sp.range in TREND_RANGES ? (sp.range as TrendRange) : "6m";
+  const group: StockGroup = sp.by && sp.by in STOCK_GROUPS ? (sp.by as StockGroup) : "branch";
 
   const monthStart = new Date();
   monthStart.setDate(1);
@@ -29,7 +47,6 @@ export default async function DashboardPage() {
     .select({ n: count() })
     .from(invoices)
     .where(eq(invoices.status, "active"));
-  const [customerCount] = await db.select({ n: count() }).from(customers);
 
   let monthlyCashIn = "0";
   let receivables = "0";
@@ -55,37 +72,41 @@ export default async function DashboardPage() {
 
   const fmt = (v: string) => `Rs. ${Number(v).toLocaleString("en-PK")}`;
 
-  const hour = new Date().getHours();
-  const greeting = hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
 
   // Charts: aggregate-only, safe for any dashboard-capable role.
-  const [trend, byBranch, byMake] = await Promise.all([salesTrend(6), stockByBranch(), stockByMake()]);
-  const totalStock = byBranch.reduce((a, b) => a + b.value, 0);
+  const [trend, breakdown, byMake] = await Promise.all([
+    salesTrend(range),
+    stockBreakdown(group),
+    stockByMake(),
+  ]);
+  const totalStock = breakdown.reduce((a, b) => a + b.value, 0);
 
   return (
     <div className="space-y-6">
+      {/* Sir (2026-08-06): the greeting line went — "let's move some bikes"
+          claimed something the screen doesn't do. The word "live" stays. */}
       <BikeHero
-        title={`${greeting}, let's move some bikes`}
-        subtitle="Everything below is live — no refresh needed, no spreadsheets to reconcile."
+        title="Business Dashboard"
+        subtitle="Live across every branch — stock, sales, cash and receivables."
       />
 
       <div className="stagger grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <StatCard title="Vehicles in Stock" value={stock.n} tone="brand" href="/inventory?status=in_stock" />
-        <StatCard title="Active Invoices" value={activeInvoices.n} tone="sky" href="/sales" />
-        <StatCard title="Customers" value={customerCount.n} tone="slate" href="/customers" />
+        {/* Sir (2026-08-06): Customers tile dropped — four tiles fill the row
+            exactly, and a headcount is not something you act on each morning. */}
+        <StatCard title="Vehicles in Stock" value={stock.n} tone="forest" href="/inventory?status=in_stock" />
+        <StatCard title="Active Invoices" value={activeInvoices.n} tone="burgundy" href="/sales" />
         {financial && (
           <>
             <StatCard
               title="Cash In (this month)"
               value={fmt(monthlyCashIn)}
-              tone="emerald"
+              tone="brand"
               href="/ledger?direction=cash_in"
             />
             <StatCard
               title="Outstanding Receivables"
               value={fmt(receivables)}
-              hint="Owed to us across active invoices"
-              tone="amber"
+              tone="bronze"
               href="/installments"
             />
           </>
@@ -93,18 +114,28 @@ export default async function DashboardPage() {
       </div>
 
       {/* ---- Charts ---- */}
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+      <div id="charts" className="grid grid-cols-1 gap-4 lg:grid-cols-3">
         <Card className="p-5 lg:col-span-2">
-          <div className="mb-3 flex items-baseline justify-between">
+          <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
             <h2 className="text-sm font-semibold">
-              {financial ? "Revenue — last 6 months" : "Sales — last 6 months"}
+              {financial ? "Revenue" : "Sales"} — {TREND_RANGES[range].label.toLowerCase()}
             </h2>
-            <span className="text-xs text-ink-faint">
-              {trend.reduce((a, t) => a + t.sales, 0)} sales in the period
-            </span>
+            <div className="flex items-center gap-3">
+              <span className="text-xs text-ink-faint">
+                {trend.reduce((a, t) => a + t.sales, 0)} sales in the period
+              </span>
+              <FilterPills
+                param="range"
+                active={range}
+                keep={{ by: group }}
+                options={Object.fromEntries(
+                  Object.entries(TREND_RANGES).map(([k, v]) => [k, v.label.replace("Last ", "")]),
+                )}
+              />
+            </div>
           </div>
           {trend.every((t) => t.sales === 0) ? (
-            <EmptyState icon="📈" title="No sales in the last six months" hint="The curve appears as invoices are raised." />
+            <EmptyState icon="📈" title="No sales in this period" hint="The curve appears as invoices are raised." />
           ) : (
             <AreaTrend
               data={trend.map((t) => ({ label: t.label, value: financial ? t.revenue : t.sales }))}
@@ -114,18 +145,23 @@ export default async function DashboardPage() {
         </Card>
 
         <Card className="p-5">
-          <h2 className="mb-3 text-sm font-semibold">Stock by branch</h2>
-          {byBranch.length === 0 ? (
+          <div className="mb-3">
+            <h2 className="text-sm font-semibold">Stock Inventory</h2>
+            <div className="mt-2">
+              <FilterPills param="by" active={group} keep={{ range }} options={STOCK_GROUPS} />
+            </div>
+          </div>
+          {breakdown.length === 0 ? (
             <EmptyState icon="🏍️" title="No vehicles in stock" hint="Record a delivery and units land here." action={{ label: "Record a delivery", href: "/deliveries" }} />
           ) : (
-            <Donut slices={byBranch} centerValue={totalStock} centerLabel="units on the floor" />
+            <Donut slices={breakdown} centerValue={totalStock} centerLabel="units in stock" />
           )}
         </Card>
       </div>
 
       {byMake.length > 0 && (
         <Card className="p-5">
-          <h2 className="mb-3 text-sm font-semibold">What&apos;s on the floor, by make</h2>
+          <h2 className="mb-3 text-sm font-semibold">Stock Inventory — by company</h2>
           <BarList rows={byMake} format={(n) => `${n} unit${n === 1 ? "" : "s"}`} />
         </Card>
       )}
@@ -170,8 +206,8 @@ function Board({ title, rows }: { title: string; rows: { rank: number; name: str
               <span
                 className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-bold ${
                   r.rank === 1
-                    ? "bg-amber-100 text-amber-700 ring-2 ring-amber-200"
-                    : "bg-brand-50 text-brand-700"
+                    ? "bg-amber-100 text-amber-700"
+                    : "bg-brand-600 text-white"
                 }`}
               >
                 {r.rank}
