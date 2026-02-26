@@ -2,6 +2,7 @@
 
 import { useActionState } from "react";
 import { updateSettingsAction, type ActionState } from "./actions";
+import { BrandPicker } from "./brand-picker";
 
 type Settings = {
   companyName: string;
@@ -20,33 +21,15 @@ export function SettingsForm({ settings }: { settings: Settings }) {
   const [state, formAction, pending] = useActionState<ActionState, FormData>(updateSettingsAction, null);
 
   return (
-    <form action={formAction} className="space-y-6 rounded-xl border border-slate-200 bg-white p-6">
+    <form action={formAction} className="card animate-rise space-y-6 p-6">
       <section>
-        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-500">Brand Identity</h2>
+        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-ink-faint">Brand Identity</h2>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <Field name="companyName" label="Company / Showroom Name *" defaultValue={settings.companyName} />
           <Field name="shortName" label="Short Name (PWA icon label) *" defaultValue={settings.shortName} />
           <Field name="browserTitle" label="Browser Tab Title *" defaultValue={settings.browserTitle} />
 
-          <label className="text-sm">
-            <span className="mb-1 block font-medium">Theme Color *</span>
-            <span className="flex items-center gap-2">
-              <input
-                type="color"
-                defaultValue={settings.themeColor}
-                onChange={(e) => {
-                  const hex = e.currentTarget.form?.elements.namedItem("themeColor") as HTMLInputElement | null;
-                  if (hex) hex.value = e.currentTarget.value;
-                }}
-                className="h-9 w-12 cursor-pointer rounded border border-slate-300"
-              />
-              <input
-                name="themeColor"
-                defaultValue={settings.themeColor}
-                className="w-28 rounded-lg border border-slate-300 px-3 py-2 font-mono text-sm"
-              />
-            </span>
-          </label>
+          <BrandPicker value={settings.themeColor} />
 
           <label className="text-sm">
             <span className="mb-1 block font-medium">Company Logo</span>
