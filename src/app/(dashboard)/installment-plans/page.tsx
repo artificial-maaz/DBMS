@@ -20,13 +20,13 @@ export default async function InstallmentPlansPage() {
 
   return (
     <div className="space-y-8">
-      <div className="flex items-center justify-between">
-        <div>
+      {/* #17 (Sir): the intro ran long enough to collide with the Add button on
+          a laptop. `gap-4` plus a max-width on the text keeps them apart at any
+          width, and the sentence itself is now one line instead of two. */}
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div className="max-w-xl">
           <h1 className="text-xl font-semibold">Installment Plans</h1>
-          <p className="text-sm text-ink-faint">
-            The company-approved rate card. New Sale auto-fills from here by matching the vehicle&apos;s make/model —
-            still fully editable per sale.
-          </p>
+          <p className="text-sm text-ink-faint">The company rate card. New Sale auto-fills from it, per-sale editable.</p>
         </div>
         {manageable && <AddPlanForm companies={companies} />}
       </div>
@@ -38,8 +38,20 @@ export default async function InstallmentPlansPage() {
       )}
 
       {byCompany.map(({ company, plans }) => (
-        <div key={company} className="space-y-2">
-          <h2 className="text-sm font-semibold uppercase tracking-wide text-ink-faint">{company}</h2>
+        <div key={company} className="space-y-3">
+          {/* #17 (Sir): "YADEA", "RAMZA" were faint 12px grey — smaller and
+              quieter than the table headers underneath them, so the grouping
+              read as an afterthought. A company heading is the most important
+              text on this page: it is now full ink, bold, and sized above the
+              table, with a brand rule to anchor it. */}
+          <div className="flex items-baseline gap-3">
+            <h2 className="text-lg font-bold uppercase tracking-wide text-ink">{company}</h2>
+            <span className="h-px flex-1 bg-brand-200" />
+            <span className="text-xs text-ink-faint">
+              {plans.length} model{plans.length === 1 ? "" : "s"} · w.e.f{" "}
+              {new Date(plans[0]?.effectiveDate).toLocaleDateString("en-PK", { timeZone: "Asia/Karachi" })}
+            </span>
+          </div>
           <div className="overflow-x-auto card">
             <table className="w-full text-sm">
               <thead className="bg-raised text-left text-xs uppercase tracking-wide text-ink-faint">
@@ -61,7 +73,9 @@ export default async function InstallmentPlansPage() {
                     <tr className="border-t border-line">
                       <td rowSpan={2} className="px-4 py-2.5 font-medium align-top">
                         {p.model}
-                        {!p.isActive && <span className="ml-2 rounded-full bg-slate-100 px-2 py-0.5 text-xs text-ink-faint">retired</span>}
+                        {!p.isActive && (
+                          <span className="ml-2 rounded-full bg-raised px-2 py-0.5 text-xs text-ink-faint">retired</span>
+                        )}
                       </td>
                       <td rowSpan={2} className="px-4 py-2.5 align-top">Rs. {fmt(p.cashPrice)}</td>
                       <td rowSpan={2} className="px-4 py-2.5 align-top">Rs. {fmt(p.advance)}</td>
@@ -79,7 +93,11 @@ export default async function InstallmentPlansPage() {
                         </td>
                       )}
                     </tr>
-                    <tr className="border-t border-slate-50 bg-slate-50/40">
+                    {/* The "Total Price" band used a hardcoded slate wash, which
+                        in dark mode was a light stripe across a dark card — the
+                        single loudest part of Sir's "chaos in dark mode". It is
+                        now a brand tint, correct in both themes by construction. */}
+                    <tr className="border-t border-line bg-brand-50/60">
                       <td className="px-4 py-2 text-xs font-medium text-ink-faint">Total Price</td>
                       <td className="px-4 py-2 text-right font-medium">{fmt(p.total3)}</td>
                       <td className="px-4 py-2 text-right font-medium">{fmt(p.total6)}</td>
@@ -91,9 +109,6 @@ export default async function InstallmentPlansPage() {
               </tbody>
             </table>
           </div>
-          <p className="text-xs text-ink-faint">
-            w.e.f {new Date(plans[0]?.effectiveDate).toLocaleDateString("en-PK", { timeZone: "Asia/Karachi" })}
-          </p>
         </div>
       ))}
     </div>
