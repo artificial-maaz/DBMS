@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { APP_NAME } from "@/lib/config";
 
 type Item = { label: string; href: string; roles?: string[] };
@@ -80,27 +83,51 @@ export function Sidebar({
   logoDataUrl?: string | null;
   pendingApprovals?: number;
 }) {
+  const pathname = usePathname();
+
+  /**
+   * Sir (2026-08-04): show WHERE YOU ARE. A section counts as current when the
+   * path matches it exactly or is nested beneath it — so /sales/new and
+   * /sales/42 both keep "Sales & Invoices" lit. The `/` guard matters:
+   * without it "/installments" would also light "/installment-plans".
+   */
+  const isCurrent = (href: string) => pathname === href || pathname.startsWith(`${href}/`);
+
+  const linkClass = (href: string) =>
+    `relative block rounded-lg px-3 py-2.5 text-sm transition ${
+      isCurrent(href)
+        ? "bg-white/12 font-medium text-white before:absolute before:inset-y-1.5 before:-left-1 before:w-1 before:rounded-full before:bg-[var(--b400)]"
+        : "hover:translate-x-0.5 hover:bg-white/10 hover:text-white"
+    }`;
+
   return (
-    <aside className="flex w-56 shrink-0 flex-col bg-slate-900 text-slate-200 print:hidden">
-      <div className="flex items-center gap-2 px-4 py-5 text-lg font-semibold text-white">
+    <aside className="flex w-60 shrink-0 flex-col bg-slate-900 text-slate-200 print:hidden">
+      {/* Brand bar — a soft brand-tinted wash separates it from the nav */}
+      <div className="flex items-center gap-2.5 border-b border-white/5 bg-gradient-to-br from-white/[0.06] to-transparent px-4 py-5 text-lg font-semibold text-white">
         {logoDataUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={logoDataUrl} alt="" className="h-7 w-7 rounded object-contain" />
+          <img src={logoDataUrl} alt="" className="h-8 w-8 rounded-lg object-contain" />
         ) : (
-          "⚡"
-        )}{" "}
-        {appName ?? APP_NAME}
+          <span
+            className="flex h-8 w-8 items-center justify-center rounded-lg text-base"
+            style={{ backgroundColor: "var(--b600)" }}
+          >
+            ⚡
+          </span>
+        )}
+        <span className="truncate">{appName ?? APP_NAME}</span>
       </div>
-      <nav className="flex-1 space-y-5 overflow-y-auto px-2 pb-6">
+
+      <nav className="flex-1 space-y-5 overflow-y-auto px-2.5 py-4">
         {/* Maker-checker Review Queue — visible to everyone: staff track their
             own submissions, owners see everything waiting on them. */}
         <Link
           href="/approvals"
-          className="flex items-center justify-between rounded-md px-2 py-1.5 text-sm font-medium hover:bg-slate-800 hover:text-white"
+          className={`flex items-center justify-between ${linkClass("/approvals")} font-medium`}
         >
           <span>⏳ Review Queue</span>
           {pendingApprovals > 0 && (
-            <span className="rounded-full bg-amber-500 px-2 py-0.5 text-xs font-bold text-slate-900">
+            <span className="animate-pop rounded-full bg-amber-500 px-2 py-0.5 text-xs font-bold text-slate-900">
               {pendingApprovals}
             </span>
           )}
@@ -108,17 +135,20 @@ export function Sidebar({
         {NAV.map((group) => {
           const items = group.items.filter((i) => !i.roles || i.roles.includes(role));
           if (items.length === 0) return null;
+          // Brighten the group heading too, so the section reads at a glance.
+          const groupActive = items.some((i) => isCurrent(i.href));
           return (
             <div key={group.title}>
-              <p className="px-2 pb-1 text-[11px] font-semibold uppercase tracking-wider text-slate-500">
+              <p
+                className={`px-3 pb-1.5 text-[11px] font-semibold uppercase tracking-wider transition ${
+                  groupActive ? "text-[var(--b300)]" : "text-slate-500"
+                }`}
+              >
                 {group.title}
               </p>
               {items.map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className="block rounded-md px-2 py-1.5 text-sm hover:bg-slate-800 hover:text-white"
-                >
+                /* py-2.5 keeps every row a comfortable thumb target on phones */
+                <Link key={item.href} href={item.href} className={linkClass(item.href)}>
                   {item.label}
                 </Link>
               ))}
