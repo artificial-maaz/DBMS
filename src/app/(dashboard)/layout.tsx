@@ -9,6 +9,9 @@ import { requireStaff } from "@/lib/session";
 /** Everything inside this group is behind auth — guard runs on the server. */
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const { user, profile } = await requireStaff();
+  // Sidebar collapse state read server-side (like the theme) so it never flashes.
+  const { cookies } = await import("next/headers");
+  const collapsed = (await cookies()).get("sidebar")?.value === "closed";
   const [settings, approvals, notifications] = await Promise.all([
     getSettings(), // #29: DB-driven branding
     pendingCount({ userId: user.id, role: profile.role, branchId: profile.branchId }),
@@ -17,6 +20,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
   return (
     <Shell
+      defaultCollapsed={collapsed}
       sidebar={
         <Sidebar
           role={profile.role}
