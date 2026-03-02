@@ -94,6 +94,24 @@ No migration needed — logic-only changes.
 5. ~~System Settings & Branding (#29)~~ ✅ **Done 2026-07-11:** singleton `system_settings` table (id=1), Creator-only `/system-settings` page. Company name + logo (≤200KB, stored as inline data URL — no blob storage needed) drive the sidebar; browser tab title via `generateMetadata` (config.ts = first-boot fallback); default excise fee + showroom profit pre-fill New Sale's registration-fee split. Commission rate %, warranty days, timezone stored for upcoming consumers (commission auto-suggest, warranty checks, date rendering). Theme color stored; full UI theming deferred to the polish pass (#31) — applying it properly means replacing hardcoded Tailwind palette classes across every page, a polish-phase job. **Needs migration** (new `system_settings` table).
 6. ~~Notifications (#27)~~ ✅ **Done 2026-07-14 (in-app):** 🔔 bell in the topbar (Creator only) with unread badge; `/notifications` feed DERIVED from the audit log (no second event pipeline) filtered to ~25 important actions (approvals, sales, payments, ledger, stock, staff changes, payroll, settings, imports, warranty-card marks). Per-user `notification_state` watermark — visiting the page marks all seen; your own actions never notify you. Workshop "Deliver & Collect" also gated through the approval queue this pass (was the noted gap). *Email/WhatsApp delivery of the same IMPORTANT_ACTIONS list = future, needs a provider.* **Needs migration** (`notification_state`).
 
+## ✅ Done — Email batching for the free tier (2026-08-01, chunk 35)
+Resend's free plan is **3,000 emails/month capped at 100/day**. Instant-per-action emails would
+have broken that within a week of go-live: 4 branches x ~10 approvals x 4 recipients ~= 160/day.
+- **Instant emails cut to the rare-and-urgent four:** `staff.create`, `staff.deactivate`,
+  `settings.update`, `booking.refund`.
+- **New batched digest** (`modules/notifications/digest.ts` + `/api/cron/digest`): collects
+  `approval.submit`, `sale.create`, `delivery.create`, `installment.payment`, `booking.create`,
+  `gatepass.issue`, `inventory.stock_audit` since the last run and sends ONE grouped email with a
+  "N items waiting in your Review Queue" banner. Derived from the audit log like the in-app bell —
+  no second event pipeline. Watermark reuses `notification_state` under a reserved key, so
+  **no migration is needed**. Sends nothing when there's nothing new; only advances the watermark on
+  a successful send, so a failed run retries instead of losing a batch.
+- **Projected volume:** ~2 digests + 1 daily report per day, plus a handful of instants ≈ **100/month**
+  against a 3,000 allowance. Free indefinitely.
+- **`RESEND_ONLY_TO`** redirects all mail to one verified address while no domain is verified
+  (Resend rejects the whole send if any recipient isn't the account owner) — the email carries a
+  banner naming the intended recipients. Delete the variable once a domain is verified.
+
 ## ✅ Done — Production build repair + arrival tracking (2026-08-01, chunk 34)
 **The production build had been failing since early July** — Railway kept serving a 26-day-old
 image because every newer build died at the type check. `npm run dev` never type-checks the whole
