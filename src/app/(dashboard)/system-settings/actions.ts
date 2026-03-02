@@ -8,9 +8,16 @@ export type ActionState = { ok: boolean; error?: string } | null;
 
 const MAX_LOGO_BYTES = 200 * 1024;
 
-export async function sendTestReportAction(kind: "daily" | "monthly"): Promise<ActionState> {
+export async function sendTestReportAction(kind: "daily" | "monthly" | "digest"): Promise<ActionState> {
   const { profile } = await requireStaff();
   if (profile.role !== "creator") return { ok: false, error: "Creator only." };
+
+  if (kind === "digest") {
+    const { sendActivityDigest } = await import("@/modules/notifications/digest");
+    const d = await sendActivityDigest();
+    return d.sent ? { ok: true } : { ok: false, error: d.error ?? "Not sent." };
+  }
+
   const { sendDailyReport, sendMonthlyReport } = await import("@/modules/reports/email-reports");
   const result = kind === "daily" ? await sendDailyReport() : await sendMonthlyReport();
   // Show the REAL reason (2026-08-01) — a generic "is the key set?" message sent
