@@ -80,7 +80,7 @@ export default async function ApprovalsPage() {
                       ⚠ WARRANTY CARD NOT SENT
                     </span>
                   ))}
-                <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${STATUS_BADGE[r.status]}`}>{r.status}</span>
+                <span className={`pill ${STATUS_BADGE[r.status]}`}>{r.status}</span>
               </span>
             </div>
 
@@ -112,7 +112,7 @@ export default async function ApprovalsPage() {
                     <td className="px-4 py-2 font-medium">{TYPE_LABELS[r.actionType] ?? r.actionType}</td>
                     <td className="px-4 py-2 text-ink-faint">{r.submitterName}</td>
                     <td className="px-4 py-2">
-                      <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${STATUS_BADGE[r.status]}`}>{r.status}</span>
+                      <span className={`pill ${STATUS_BADGE[r.status]}`}>{r.status}</span>
                     </td>
                     <td className="px-4 py-2 text-xs text-ink-faint">{r.reviewNote ?? ""}</td>
                     <td className="px-4 py-2 text-right text-xs text-ink-faint">
