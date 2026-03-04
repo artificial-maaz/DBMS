@@ -135,7 +135,7 @@ export default async function InventoryPage({
                 {showPrice && <td className="px-4 py-2.5">{fmt(v.purchasePrice)}</td>}
                 <td className="px-4 py-2.5">{fmt(v.salePrice)}</td>
                 <td className="px-4 py-2.5">
-                  <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${STATUS_BADGE[v.status]}`}>
+                  <span className={`pill ${STATUS_BADGE[v.status]}`}>
                     {v.status.replace("_", " ")}
                   </span>
                 </td>
