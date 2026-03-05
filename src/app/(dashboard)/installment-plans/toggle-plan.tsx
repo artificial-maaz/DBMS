@@ -14,7 +14,7 @@ export function TogglePlan({ id, isActive }: { id: number; isActive: boolean }) 
         })
       }
       className={`rounded-md px-2.5 py-1 text-xs font-medium disabled:opacity-50 ${
-        isActive ? "bg-red-50 text-red-700 hover:bg-red-100" : "bg-emerald-50 text-emerald-700 hover:bg-emerald-100"
+        isActive ? "bg-danger-soft text-danger hover:brightness-95" : "bg-ok-soft text-ok hover:brightness-95"
       }`}
     >
       {pending ? "…" : isActive ? "Retire" : "Reactivate"}
