@@ -4,6 +4,7 @@ import { db } from "@/db";
 import { canRecordDelivery, canSeeUnitCost, canViewDeliveries, seesAllBranches } from "@/modules/deliveries/permissions";
 import { listDeliveries } from "@/modules/deliveries/queries";
 import { listActiveBranches } from "@/modules/inventory/queries";
+import { StatCard } from "@/components/ui";
 import { requireStaff } from "@/lib/session";
 import { AddDeliveryForm } from "./delivery-form";
 
@@ -52,9 +53,9 @@ export default async function DeliveriesPage({
       </div>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <Card title="Consignments" value={rows.length} cls="bg-slate-900" />
-        <Card title="Units Received" value={totalUnits} cls="bg-sky-600" />
-        <Card title="Units Sold" value={totalSold} cls="bg-emerald-600" />
+        <StatCard title="Consignments" value={rows.length} tone="graphite" />
+        <StatCard title="Units Received" value={totalUnits} tone="brand" />
+        <StatCard title="Units Sold" value={totalSold} tone="forest" />
       </div>
 
       {all && (
@@ -120,11 +121,3 @@ export default async function DeliveriesPage({
   );
 }
 
-function Card({ title, value, cls }: { title: string; value: number; cls: string }) {
-  return (
-    <div className={`rounded-xl ${cls} p-5 text-white shadow-sm`}>
-      <p className="text-sm opacity-80">{title}</p>
-      <p className="mt-1 text-2xl font-semibold">{value}</p>
-    </div>
-  );
-}
