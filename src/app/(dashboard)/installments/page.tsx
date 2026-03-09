@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { canViewInstallmentCases, seesAllBranches } from "@/modules/installments/permissions";
 import { listInstallmentCases, type CaseStatus } from "@/modules/installments/queries";
 import { listActiveBranches } from "@/modules/inventory/queries";
+import { StatCard } from "@/components/ui";
 import { requireStaff } from "@/lib/session";
 
 const STATUS_BADGE: Record<CaseStatus, string> = {
@@ -64,10 +65,10 @@ export default async function InstallmentCasesPage({
       </div>
 
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        <Card title="Total Cases" value={String(kpi.total)} cls="bg-slate-900" />
-        <Card title="Cleared" value={String(kpi.cleared)} cls="bg-emerald-600" />
-        <Card title="On Track" value={String(kpi.onTrack)} cls="bg-sky-600" />
-        <Card title="Overdue" value={String(kpi.overdue)} cls="bg-red-600" />
+        <StatCard title="Total Cases" value={kpi.total} tone="graphite" />
+        <StatCard title="Cleared" value={kpi.cleared} tone="forest" />
+        <StatCard title="On Track" value={kpi.onTrack} tone="brand" />
+        <StatCard title="Overdue" value={kpi.overdue} tone="burgundy" />
       </div>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -192,11 +193,3 @@ export default async function InstallmentCasesPage({
   );
 }
 
-function Card({ title, value, cls }: { title: string; value: string; cls: string }) {
-  return (
-    <div className={`rounded-xl ${cls} p-5 text-white shadow-sm`}>
-      <p className="text-sm opacity-80">{title}</p>
-      <p className="mt-1 text-2xl font-semibold">{value}</p>
-    </div>
-  );
-}
