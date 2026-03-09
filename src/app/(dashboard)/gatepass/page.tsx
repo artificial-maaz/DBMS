@@ -4,6 +4,7 @@ import { db } from "@/db";
 import { vehicles } from "@/db/schema";
 import { canUseGatePass, listGatePasses, seesAllBranches } from "@/modules/gatepass/service";
 import { listActiveBranches } from "@/modules/inventory/queries";
+import { StatCard } from "@/components/ui";
 import { requireStaff } from "@/lib/session";
 import { IssuePassForm, PassActions } from "./gatepass-forms";
 
@@ -55,9 +56,9 @@ export default async function GatePassPage() {
       </div>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <Card title="In Transit / Pending" value={counts.in_transit} cls="bg-amber-500" />
-        <Card title="Completed Transfers" value={counts.received} cls="bg-emerald-600" />
-        <Card title="Cancelled" value={counts.cancelled} cls="bg-red-600" />
+        <StatCard title="In Transit / Pending" value={counts.in_transit} tone="bronze" />
+        <StatCard title="Completed Transfers" value={counts.received} tone="forest" />
+        <StatCard title="Cancelled" value={counts.cancelled} tone="burgundy" />
       </div>
 
       <div className="overflow-x-auto card">
@@ -106,7 +107,7 @@ export default async function GatePassPage() {
                     {new Date(p.issuedAt).toLocaleDateString("en-PK", { timeZone: "Asia/Karachi" })}
                   </td>
                   <td className="px-4 py-2.5">
-                    <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${STATUS_BADGE[p.status]}`}>
+                    <span className={`pill ${STATUS_BADGE[p.status]}`}>
                       {p.status.replace("_", " ")}
                     </span>
                   </td>
@@ -123,11 +124,3 @@ export default async function GatePassPage() {
   );
 }
 
-function Card({ title, value, cls }: { title: string; value: number; cls: string }) {
-  return (
-    <div className={`rounded-xl ${cls} p-5 text-white shadow-sm`}>
-      <p className="text-sm opacity-80">{title}</p>
-      <p className="mt-1 text-2xl font-semibold">{value}</p>
-    </div>
-  );
-}
