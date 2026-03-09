@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { canManageParts, canSeeCostPrice, canViewParts, listParts, seesAllBranches } from "@/modules/parts/service";
 import { listActiveBranches } from "@/modules/inventory/queries";
+import { StatCard } from "@/components/ui";
 import { requireStaff } from "@/lib/session";
 import { AddPartForm, AdjustStock } from "./part-forms";
 
@@ -43,14 +44,8 @@ export default async function PartsPage({
       </div>
 
       <div className="grid grid-cols-2 gap-4 sm:max-w-md">
-        <div className="rounded-xl bg-slate-800 p-5 text-white">
-          <p className="text-sm opacity-80">Catalog Items</p>
-          <p className="mt-1 text-2xl font-semibold">{rows.length}</p>
-        </div>
-        <div className="rounded-xl bg-emerald-700 p-5 text-white">
-          <p className="text-sm opacity-80">Total Units in Stock</p>
-          <p className="mt-1 text-2xl font-semibold">{totalUnits}</p>
-        </div>
+        <StatCard title="Catalog Items" value={rows.length} tone="forest" />
+        <StatCard title="Total Units in Stock" value={totalUnits} tone="burgundy" />
       </div>
 
       {all && (
