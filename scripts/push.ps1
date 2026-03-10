@@ -2,9 +2,12 @@
 # Run from the repo root:  powershell -ExecutionPolicy Bypass -File .\scripts\push.ps1
 # NOTE: this file must stay ASCII-only (PowerShell 5.1 reads ps1 as ANSI).
 #
-# BUILD-FIX batch, backdated 25 Jun / 1 Jul / 2 Jul 2026.
-# The production build has been failing since early July on three identical
-# useTransition type errors - this batch fixes them and extends the test seeder.
+# BACKDATED WINDOW (Sir, 2026-08-01): all commits from here on land between
+# 23 Feb and 13 May 2026. Gaps between days are fine; a used day carries at
+# least 3-4 commits and never more than 16-18.
+#
+# This batch: 16 commits over 4 days - the production build repair, inventory
+# arrival tracking, and the email diagnostics/redirect work.
 # Anything with no real change is skipped, so re-running this is safe.
 
 function Commit($msg, $paths, $date = $null) {
@@ -20,29 +23,38 @@ function Commit($msg, $paths, $date = $null) {
   }
 }
 
-Write-Host "Hussain Motors ERP - build fix batch" -ForegroundColor Cyan
+Write-Host "Hussain Motors ERP - build repair + email diagnostics (Feb-Mar 2026 window)" -ForegroundColor Cyan
 
-# ===================== Thu 25 June - 2 =====================
-Commit "Fix build: branch toggle passed a promise into useTransition" @("src/app/(dashboard)/branches/toggle-branch.tsx") "2026-06-25T22:41:00+05:00"
-Commit "Fix build: installment plan toggle passed a promise into useTransition" @("src/app/(dashboard)/installment-plans/toggle-plan.tsx") "2026-06-25T23:27:00+05:00"
+# ============ Mon 23 Feb - 5: the production build repair ============
+Commit "Fix build: branch toggle passed a promise into useTransition" @("src/app/(dashboard)/branches/toggle-branch.tsx") "2026-02-23T10:14:00+05:00"
+Commit "Fix build: installment plan toggle passed a promise into useTransition" @("src/app/(dashboard)/installment-plans/toggle-plan.tsx") "2026-02-23T12:38:00+05:00"
+Commit "Fix build: document requirement toggle passed a promise into useTransition" @("src/app/(dashboard)/document-requirements/toggle-requirement.tsx") "2026-02-23T15:02:00+05:00"
+Commit "Fix build: balance sheet branch filter must accept any table's column" @("src/modules/accounting/queries.ts") "2026-02-23T17:46:00+05:00"
+Commit "Fix build: global search branch scope must accept any table's column" @("src/modules/search/queries.ts") "2026-02-23T20:21:00+05:00"
 
-# ===================== Wed 1 July - 10 =====================
-Commit "Fix build: document requirement toggle passed a promise into useTransition" @("src/app/(dashboard)/document-requirements/toggle-requirement.tsx") "2026-07-01T14:22:00+05:00"
-Commit "Fix build: balance sheet branch filter must accept any table's column" @("src/modules/accounting/queries.ts") "2026-07-01T15:47:00+05:00"
-Commit "Fix build: global search branch scope must accept any table's column" @("src/modules/search/queries.ts") "2026-07-01T17:03:00+05:00"
-Commit "Inventory: carry arrival date and batch through the vehicle query" @("src/modules/inventory/queries.ts") "2026-07-01T18:29:00+05:00"
-Commit "Inventory: show arrival date, days in stock and batch link" @("src/app/(dashboard)/inventory/page.tsx") "2026-07-01T19:51:00+05:00"
-Commit "Notifications: email owners the moment a consignment is booked in" @("src/modules/notifications/email.ts") "2026-07-01T21:14:00+05:00"
-Commit "Email: return the real failure reason instead of a silent false" @("src/lib/email.ts") "2026-07-01T22:38:00+05:00"
-Commit "Email: RESEND_ONLY_TO redirect for unverified-domain mode" @(".env.example") "2026-07-01T23:05:00+05:00"
-Commit "Settings: surface the actual email error, colour-coded" @("src/app/(dashboard)/system-settings/actions.ts", "src/app/(dashboard)/system-settings/test-reports.tsx") "2026-07-01T23:19:00+05:00"
-Commit "Docs: record the build-fix pass and the inventory arrival column" @("ROADMAP.md") "2026-07-01T23:52:00+05:00"
+# ============ Wed 25 Feb - 4: arrival tracking + consignment alerts ============
+Commit "Inventory: carry arrival date and batch through the vehicle query" @("src/modules/inventory/queries.ts") "2026-02-25T11:09:00+05:00"
+Commit "Inventory: show arrival date, days in stock and batch link" @("src/app/(dashboard)/inventory/page.tsx") "2026-02-25T14:33:00+05:00"
+Commit "Notifications: email owners the moment a consignment is booked in" @("src/modules/notifications/email.ts") "2026-02-25T17:52:00+05:00"
+Commit "Email: return the real failure reason instead of a silent false" @("src/lib/email.ts") "2026-02-25T21:07:00+05:00"
 
-# ===================== Thu 2 July - 4 =====================
-Commit "Seed: real consignment plus an overdue installment case" @("scripts/seed-test-data.ts") "2026-07-02T19:31:00+05:00"
-Commit "Chore: tsconfig newline" @("tsconfig.json") "2026-07-02T20:47:00+05:00"
-Commit "Chore: regenerate the push script" @("scripts/push.ps1") "2026-07-02T21:44:00+05:00"
-Commit "Chore: remaining pending files" @(".") "2026-07-02T22:58:00+05:00"
+# ============ Mon 2 Mar - 4: email diagnostics surfaced ============
+Commit "Email: document RESEND_ONLY_TO redirect and custom sender" @(".env.example") "2026-03-02T10:41:00+05:00"
+Commit "Settings: surface the actual email error, colour-coded" @("src/app/(dashboard)/system-settings/actions.ts", "src/app/(dashboard)/system-settings/test-reports.tsx") "2026-03-02T13:26:00+05:00"
+Commit "Seed: real consignment plus an overdue installment case" @("scripts/seed-test-data.ts") "2026-03-02T16:48:00+05:00"
+Commit "Docs: record the build-fix pass and the inventory arrival column" @("ROADMAP.md") "2026-03-02T19:15:00+05:00"
+
+# ============ Thu 5 Mar - 5: batched digest keeps us on the free tier ============
+Commit "Notifications: batched activity digest derived from the audit log" @("src/modules/notifications/digest.ts") "2026-03-05T10:18:00+05:00"
+Commit "Notifications: instant emails cut to the rare-and-urgent four" @("src/modules/notifications/email.ts") "2026-03-05T12:44:00+05:00"
+Commit "Cron: digest endpoint" @("src/app/api/cron/digest") "2026-03-05T15:09:00+05:00"
+Commit "Settings: send-digest-now button and delivery policy note" @("src/app/(dashboard)/system-settings") "2026-03-05T17:31:00+05:00"
+Commit "Docs: email batching rationale and volume projection" @("ROADMAP.md") "2026-03-05T20:02:00+05:00"
+
+# ============ Tue 10 Mar - 3: cleanup ============
+Commit "Chore: tsconfig newline" @("tsconfig.json") "2026-03-10T12:22:00+05:00"
+Commit "Chore: regenerate the push script" @("scripts/push.ps1") "2026-03-10T15:37:00+05:00"
+Commit "Chore: remaining pending files" @(".") "2026-03-10T18:54:00+05:00"
 
 Remove-Item Env:GIT_AUTHOR_DATE -ErrorAction SilentlyContinue
 Remove-Item Env:GIT_COMMITTER_DATE -ErrorAction SilentlyContinue
