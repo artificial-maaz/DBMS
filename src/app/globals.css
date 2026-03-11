@@ -517,4 +517,27 @@ input[type="file"]::-webkit-file-upload-button:hover {
   body { background: #fff; color: #000; }
   .card { box-shadow: none; border-color: #ddd; }
   .animate-rise, .animate-fade, .animate-pop, .stagger > * { animation: none !important; }
+
+  /*
+   * BRANDING IN PRINT (2026-08-09). Two things browsers do by default that ruin
+   * a branded invoice:
+   *   1. They strip background colours and images to save ink — which erases
+   *      the company logo and every status badge. `print-color-adjust: exact`
+   *      is the only way to tell them not to.
+   *   2. Dark mode follows the document into the print dialog, so an invoice
+   *      printed at night came out white-on-navy. Force the light tokens.
+   */
+  html, .dark {
+    --canvas: #ffffff;
+    --surface: #ffffff;
+    --raised: #f6f7fa;
+    --line: #dddfe6;
+    --ink: #0f172a;
+    --ink-soft: #3f4a5f;
+    --ink-faint: #6b7488;
+  }
+  img, .pill, [class*="bg-ok"], [class*="bg-warn"], [class*="bg-danger"], [class*="bg-info"] {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
 }
