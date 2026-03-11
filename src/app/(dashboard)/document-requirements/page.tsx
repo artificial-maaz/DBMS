@@ -48,9 +48,9 @@ export default async function DocumentRequirementsPage() {
                   <td className="px-4 py-2.5 font-medium">{r.name}</td>
                   <td className="px-4 py-2.5">
                     {r.isActive ? (
-                      <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-xs text-emerald-700">active</span>
+                      <span className="rounded-full bg-ok-soft px-2 py-0.5 text-xs text-ok">active</span>
                     ) : (
-                      <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs text-ink-faint">retired</span>
+                      <span className="rounded-full bg-raised px-2 py-0.5 text-xs text-ink-faint">retired</span>
                     )}
                   </td>
                   {manageable && (
