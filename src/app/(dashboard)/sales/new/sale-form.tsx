@@ -214,7 +214,7 @@ export function SaleForm({
                 <option value="">No booking to apply</option>
                 {customerBookings.map((b) => (
                   <option key={b.id} value={b.id}>
-                    {b.modelWanted} — Rs. {Number(b.tokenAmount).toLocaleString("en-PK", { timeZone: "Asia/Karachi" })} token
+                    {b.modelWanted} — Rs. {Number(b.tokenAmount).toLocaleString("en-PK")} token
                   </option>
                 ))}
               </select>
