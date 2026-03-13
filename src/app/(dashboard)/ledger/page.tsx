@@ -3,6 +3,7 @@ import { canRecordEntry, canViewLedger, seesAllBranches } from "@/modules/ledger
 import { listEntries } from "@/modules/ledger/queries";
 import { LEDGER_CATEGORIES } from "@/modules/ledger/validators";
 import { listActiveBranches } from "@/modules/inventory/queries";
+import { StatCard } from "@/components/ui";
 import { requireStaff } from "@/lib/session";
 import { AddEntryForm } from "./add-entry-form";
 
@@ -46,9 +47,9 @@ export default async function LedgerPage({
       </div>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <Card title="Cash In (filtered)" value={fmt(totalIn)} cls="bg-emerald-600" />
-        <Card title="Cash Out (filtered)" value={fmt(totalOut)} cls="bg-red-600" />
-        <Card title="Net" value={`Rs. ${net.toLocaleString("en-PK", { timeZone: "Asia/Karachi" })}`} cls={net >= 0 ? "bg-slate-700" : "bg-amber-600"} />
+        <StatCard title="Cash In (filtered)" value={fmt(totalIn)} tone="forest" />
+        <StatCard title="Cash Out (filtered)" value={fmt(totalOut)} tone="burgundy" />
+        <StatCard title="Net" value={`Rs. ${net.toLocaleString("en-PK")}`} tone={net >= 0 ? "graphite" : "bronze"} />
       </div>
 
       <form method="get" className="flex flex-wrap gap-3">
@@ -118,11 +119,3 @@ export default async function LedgerPage({
   );
 }
 
-function Card({ title, value, cls }: { title: string; value: string; cls: string }) {
-  return (
-    <div className={`rounded-xl ${cls} p-5 text-white shadow-sm`}>
-      <p className="text-sm opacity-80">{title}</p>
-      <p className="mt-1 text-2xl font-semibold">{value}</p>
-    </div>
-  );
-}
