@@ -1,4 +1,4 @@
-import { and, desc, eq, type SQL } from "drizzle-orm";
+import { and, desc, eq, sql, type SQL } from "drizzle-orm";
 import { db } from "@/db";
 import { branches, customers, invoices, vehicles } from "@/db/schema";
 import { listOpenBookingsForSale } from "@/modules/bookings/queries";
@@ -28,6 +28,21 @@ export async function listInvoices(opts: { role: string; ownBranchId: number | n
       branchName: branches.name,
       saleDate: invoices.saleDate,
       createdAt: invoices.createdAt,
+      // Sir (2026-08-06): the list must say WHICH bike was sold, without
+      // opening the invoice. Sub-selects rather than joins so a multi-line
+      // invoice can't duplicate the row.
+      vehicleLabel: sql<string | null>`(
+        select v.make || ' ' || v.model
+        from invoice_items ii join vehicles v on v.id = ii.vehicle_id
+        where ii.invoice_id = ${invoices.id} and ii.vehicle_id is not null
+        order by ii.id limit 1
+      )`,
+      vehicleChassis: sql<string | null>`(
+        select v.chassis_no
+        from invoice_items ii join vehicles v on v.id = ii.vehicle_id
+        where ii.invoice_id = ${invoices.id} and ii.vehicle_id is not null
+        order by ii.id limit 1
+      )`,
     })
     .from(invoices)
     .innerJoin(customers, eq(invoices.customerId, customers.id))
