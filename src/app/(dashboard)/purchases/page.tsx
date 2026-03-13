@@ -7,6 +7,7 @@ import {
   orderPatterns,
 } from "@/modules/procurement/service";
 import { listActiveBranches } from "@/modules/inventory/queries";
+import { StatCard } from "@/components/ui";
 import { requireStaff } from "@/lib/session";
 import { PayPurchase, ReceiveItem, RecordPurchaseForm } from "./purchase-forms";
 
@@ -43,9 +44,9 @@ export default async function PurchasesPage() {
       </div>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 sm:max-w-2xl">
-        <Card title="Purchase Orders" value={String(rows.length)} cls="bg-slate-800" />
-        <Card title="Units Awaiting Delivery" value={String(unitsInTransit)} cls={unitsInTransit > 0 ? "bg-sky-600" : "bg-emerald-700"} />
-        <Card title="Payable to Suppliers" value={fmt(totalOutstanding)} cls={totalOutstanding > 0 ? "bg-amber-600" : "bg-emerald-700"} />
+        <StatCard title="Purchase Orders" value={rows.length} tone="graphite" />
+        <StatCard title="Units Awaiting Delivery" value={unitsInTransit} tone={unitsInTransit > 0 ? "bronze" : "forest"} />
+        <StatCard title="Payable to Suppliers" value={fmt(totalOutstanding)} tone={totalOutstanding > 0 ? "burgundy" : "forest"} />
       </div>
 
       <div className="space-y-4">
@@ -159,11 +160,3 @@ export default async function PurchasesPage() {
   );
 }
 
-function Card({ title, value, cls }: { title: string; value: string; cls: string }) {
-  return (
-    <div className={`rounded-xl ${cls} p-5 text-white shadow-sm`}>
-      <p className="text-sm opacity-80">{title}</p>
-      <p className="mt-1 text-2xl font-semibold">{value}</p>
-    </div>
-  );
-}
