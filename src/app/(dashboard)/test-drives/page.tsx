@@ -122,7 +122,7 @@ export default async function TestDrivesPage({
                   <td className="px-4 py-2.5">{r.branchName}</td>
                   <td className="px-4 py-2.5 text-ink-faint">{r.bookedBy ?? "—"}</td>
                   <td className="px-4 py-2.5">
-                    <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${STATUS_BADGE[r.status]}`}>
+                    <span className={`pill ${STATUS_BADGE[r.status]}`}>
                       {r.status.replace("_", " ")}
                     </span>
                   </td>
