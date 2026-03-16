@@ -100,7 +100,9 @@ export function AdjustStock({ partId, currentQty }: { partId: number; currentQty
     return (
       <button
         onClick={() => setOpen(true)}
-        className="rounded-md bg-brand-50 px-2.5 py-1 text-xs font-medium text-brand-700 hover:bg-brand-100"
+        /* Matched exactly to the Edit control on Customers (Sir, 2026-08-06) —
+           one interaction style for "modify this row" across the whole app. */
+        className="rounded-md px-2.5 py-1 text-xs font-medium text-ink-soft hover:bg-slate-100"
       >
         Adjust
       </button>
