@@ -17,6 +17,33 @@ the complete context of this project. Last updated: 2026-07-06.
      schema changed, and the git push checkpoint command.
   5. He runs all terminal commands (npm, git) himself — hand him exact commands.
 
+## READ FIRST (2026-08-06) — where the work stands
+
+The build is functionally complete and in production. The **GUI phase** is in flight and is the
+only active workstream. **`ROADMAP.md` → "🔜 NEXT SESSION — open queue"** is the live task list;
+start there, and work business rules before cosmetics.
+
+**Design-system rules learned the hard way — do not relearn these:**
+1. A CSS `transform` animation **replaces** an element's SVG `transform` attribute. Nest: outer
+   `<g>` positions, inner `<g>` animates.
+2. Dark mode **must not redefine brand shades 300–900**. Mixing the brand with white drains a navy;
+   dark inherits the light ramp so the blue is identical by construction. Only 50/100/200 are
+   dark-tinted (they are backgrounds). Chip TEXT uses `--chip-ink`, never the chart ramp.
+3. `--raised` sits **above** `--surface`, not below — nested panels went black when it was inverted.
+4. File-input buttons need BOTH `::file-selector-button` and `::-webkit-file-upload-button`, and
+   Tailwind `file:` utilities in markup will outrank them.
+5. Headings vs links need to differ on **three axes** (size, weight, letter-spacing), not colour alone.
+6. Never put a still-selectable colour in `LEGACY_DEFAULTS` — picking it gets silently overridden.
+7. Timestamps: columns are `timestamp` without zone and the server runs UTC, so every render must
+   pass `timeZone: "Asia/Karachi"`. (There is no `Asia/Islamabad` in IANA.)
+8. Invoice numbers are derived from the **highest sequence already issued for that prefix**, never
+   from a count — two branches can share a 3-letter code.
+
+**Sir's working preferences:** address him as Sir; execute in chunks without waiting for typed
+approval; explain the *why* briefly; end every chunk with what changed, exact commands, and the
+push checkpoint. He runs all terminal commands himself. Commits are backdated via `scripts/push.ps1`
+— one commit per file, every path listed exactly once (a repeated path silently skips).
+
 ## Project state
 - **Hussain Motors ERP** — multi-branch vehicle dealership ERP for Sir's own company.
   ALL 3 phases built, tested by Sir, LIVE in production. See CLAUDE.md for module list.
