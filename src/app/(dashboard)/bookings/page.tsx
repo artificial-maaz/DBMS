@@ -37,7 +37,7 @@ export default async function BookingsPage() {
   // Cross-branch ops (2026-07-31): branch is a free choice, defaulting to own.
   const fixedBranchId = null;
   const defaultBranchId = seesAllBranches(profile.role) ? null : profile.branchId;
-  const fmt = (v: string) => `Rs. ${Number(v).toLocaleString("en-PK", { timeZone: "Asia/Karachi" })}`;
+  const fmt = (v: string) => `Rs. ${Number(v).toLocaleString("en-PK")}`;
 
   const openTotal = rows.filter((r) => r.status === "open").reduce((acc, r) => acc + Number(r.tokenAmount), 0);
 

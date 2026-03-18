@@ -18,7 +18,7 @@ export default async function CustomerDetailPage({ params }: { params: Promise<{
   if (!data) notFound();
   const { customer, branch, purchases, bookings, rides, jobs } = data;
 
-  const fmt = (v: string | number) => `Rs. ${Number(v).toLocaleString("en-PK", { timeZone: "Asia/Karachi" })}`;
+  const fmt = (v: string | number) => `Rs. ${Number(v).toLocaleString("en-PK")}`;
   const d = (v: string | Date) => new Date(v).toLocaleDateString("en-PK", { timeZone: "Asia/Karachi" });
   const totalSpent = purchases.filter((p) => p.status !== "cancelled").reduce((a, p) => a + Number(p.total), 0);
   const outstanding = purchases.filter((p) => p.status === "active").reduce((a, p) => a + Number(p.balanceDue), 0);

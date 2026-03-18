@@ -44,7 +44,7 @@ export default async function VisitorsPage({
   const fixedBranchId = seesAllBranches(profile.role) ? null : profile.branchId;
   const defaultBranchId = fixedBranchId;
   const today = new Date().toISOString().slice(0, 10);
-  const fmt = (v: string | null) => (v == null ? "—" : `Rs. ${Number(v).toLocaleString("en-PK", { timeZone: "Asia/Karachi" })}`);
+  const fmt = (v: string | null) => (v == null ? "—" : `Rs. ${Number(v).toLocaleString("en-PK")}`);
 
   return (
     <div className="space-y-6">
