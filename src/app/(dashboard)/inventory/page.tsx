@@ -33,7 +33,7 @@ export default async function InventoryPage({
   ]);
 
   const fmt = (v: string | null | undefined) =>
-    v == null ? "—" : `Rs. ${Number(v).toLocaleString("en-PK", { timeZone: "Asia/Karachi" })}`;
+    v == null ? "—" : `Rs. ${Number(v).toLocaleString("en-PK")}`;
   const editable = canEditVehicle(profile.role);
 
   return (

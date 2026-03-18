@@ -22,7 +22,7 @@ export default async function DeliveryDetailPage({ params }: { params: Promise<{
   const { delivery, branch, supplier, receiverName, units } = data;
   const showCost = canSeeUnitCost(profile.role);
 
-  const fmt = (v: string | null) => (v == null ? "—" : `Rs. ${Number(v).toLocaleString("en-PK", { timeZone: "Asia/Karachi" })}`);
+  const fmt = (v: string | null) => (v == null ? "—" : `Rs. ${Number(v).toLocaleString("en-PK")}`);
   const sold = units.filter((u) => u.status === "sold").length;
   const daysHeld = (u: (typeof units)[number]) => {
     if (!u.arrivedOn) return null;
