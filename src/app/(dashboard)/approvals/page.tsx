@@ -129,20 +129,80 @@ export default async function ApprovalsPage() {
   );
 }
 
+/**
+ * Sir (2026-08-06): the queue used to dump raw JSON, which overflowed its
+ * column and was unreadable. Long JSON values (a delivery's vehicle array) are
+ * now rendered as a proper list instead of a wall of braces, and every value
+ * wraps rather than escaping its cell.
+ */
 function PayloadSummary({ payload }: { payload: unknown }) {
   if (!payload || typeof payload !== "object") return null;
-  const entries = Object.entries(payload as Record<string, unknown>).filter(
-    ([k, v]) => !HIDDEN_KEYS.has(k) && v !== "" && v !== null && v !== undefined && typeof v !== "object",
+  const all = Object.entries(payload as Record<string, unknown>).filter(
+    ([k, v]) => !HIDDEN_KEYS.has(k) && v !== "" && v !== null && v !== undefined,
   );
-  if (entries.length === 0) return null;
+
+  // Scalars go in the compact grid; JSON arrays get their own readable block.
+  const scalars = all.filter(([, v]) => typeof v !== "object" && !looksLikeJsonArray(v));
+  const lists = all.filter(([, v]) => typeof v === "object" || looksLikeJsonArray(v));
+
+  if (scalars.length === 0 && lists.length === 0) return null;
+
   return (
-    <dl className="mt-2 grid grid-cols-2 gap-x-6 gap-y-1 text-xs sm:grid-cols-3 lg:grid-cols-4">
-      {entries.map(([k, v]) => (
-        <div key={k}>
-          <dt className="text-ink-faint">{k.replace(/([A-Z])/g, " $1").toLowerCase()}</dt>
-          <dd className="font-medium text-slate-700">{String(v)}</dd>
-        </div>
-      ))}
-    </dl>
+    <div className="mt-3 space-y-3">
+      {scalars.length > 0 && (
+        <dl className="grid grid-cols-2 gap-x-6 gap-y-2 text-xs sm:grid-cols-3 lg:grid-cols-4">
+          {scalars.map(([k, v]) => (
+            <div key={k} className="min-w-0">
+              <dt className="text-ink-faint">{prettyKey(k)}</dt>
+              <dd className="break-words font-medium text-ink">{String(v)}</dd>
+            </div>
+          ))}
+        </dl>
+      )}
+
+      {lists.map(([k, v]) => {
+        const rows = parseRows(v);
+        if (rows.length === 0) return null;
+        return (
+          <div key={k} className="rounded-lg border border-line bg-raised p-3">
+            <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-ink-faint">
+              {prettyKey(k)} <span className="font-normal">({rows.length})</span>
+            </p>
+            <ul className="space-y-1 text-xs">
+              {rows.slice(0, 12).map((row, i) => (
+                <li key={i} className="flex flex-wrap gap-x-3 gap-y-0.5">
+                  <span className="font-medium text-ink">{i + 1}.</span>
+                  {Object.entries(row)
+                    .filter(([, val]) => val !== "" && val !== null && val !== undefined)
+                    .map(([rk, val]) => (
+                      <span key={rk} className="text-ink-soft">
+                        <span className="text-ink-faint">{prettyKey(rk)}:</span>{" "}
+                        <span className="font-medium text-ink">{String(val)}</span>
+                      </span>
+                    ))}
+                </li>
+              ))}
+              {rows.length > 12 && <li className="text-ink-faint">…and {rows.length - 12} more</li>}
+            </ul>
+          </div>
+        );
+      })}
+    </div>
   );
+}
+
+const prettyKey = (k: string) => k.replace(/([A-Z])/g, " $1").toLowerCase();
+
+const looksLikeJsonArray = (v: unknown) => typeof v === "string" && v.trim().startsWith("[");
+
+/** Payloads arrive from FormData, so nested arrays are still JSON strings. */
+function parseRows(v: unknown): Record<string, unknown>[] {
+  try {
+    const parsed = typeof v === "string" ? JSON.parse(v) : v;
+    if (Array.isArray(parsed)) return parsed.filter((r) => r && typeof r === "object");
+    if (parsed && typeof parsed === "object") return [parsed as Record<string, unknown>];
+  } catch {
+    /* not JSON — fall through */
+  }
+  return [];
 }
