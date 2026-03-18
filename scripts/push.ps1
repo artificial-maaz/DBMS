@@ -2,8 +2,12 @@
 # Run from the repo root:  powershell -ExecutionPolicy Bypass -File .\scripts\push.ps1
 # NOTE: this file must stay ASCII-only (PowerShell 5.1 reads ps1 as ANSI).
 #
-# WINDOW: 23 Feb - 13 May 2026, weighted toward MARCH (Sir, 2026-08-06).
-# Irregular per-day counts with real gaps.
+# WINDOW: 13 Jan - end of March 2026. Spread across many days on purpose -
+# 1 to 4 commits per day lights up more squares than clumping.
+#
+# NOTHING has been pushed since the login work started, so this batch covers
+# the login screen, password reset, the navy theme, the jewel palette, the
+# dark-mode contrast sweep and the dashboard chart filters.
 #
 # Each file appears EXACTLY ONCE - git stages per path, so a repeated path
 # commits on its first appearance and silently skips afterwards.
@@ -21,39 +25,78 @@ function Commit($msg, $paths, $date = $null) {
   }
 }
 
-Write-Host "Hussain Motors ERP - sale flow, timezone and readability fixes" -ForegroundColor Cyan
+Write-Host "Hussain Motors ERP - login, theme, dark mode and chart filters" -ForegroundColor Cyan
 
-# ---------------- Sun 8 Mar - 2 ----------------
-Commit "Fix: invoice numbers collided when two branches shared a 3-letter code" @("src/modules/sales/service.ts") "2026-03-08T11:24:00+05:00"
-Commit "Sales: quick-create customer server action" @("src/app/(dashboard)/sales/actions.ts") "2026-03-08T16:41:00+05:00"
+# ---------------- Tue 13 Jan - 2 ----------------
+Commit "Artwork: riderless sport bike, rear disc, monochrome" @("src/components/vehicles.tsx") "2026-01-13T11:24:00+05:00"
+Commit "Login: parallax road scene with dark skyline silhouettes" @("src/components/road-scene.tsx") "2026-01-13T20:47:00+05:00"
 
-# ---------------- Fri 13 Mar - 4 ----------------
-Commit "New Sale: searchable customer picker with inline registration" @("src/app/(dashboard)/sales/new/customer-picker.tsx") "2026-03-13T09:52:00+05:00"
-Commit "New Sale: adopt the picker, group vehicles by model with branch tags" @("src/app/(dashboard)/sales/new/sale-form.tsx") "2026-03-13T12:37:00+05:00"
-Commit "New Sale: supply branches for inline customer registration" @("src/app/(dashboard)/sales/new/page.tsx") "2026-03-13T15:19:00+05:00"
-Commit "Sales queries: grouped stock, and name the vehicle on every invoice row" @("src/modules/sales/queries.ts") "2026-03-13T19:48:00+05:00"
+# ---------------- Fri 16 Jan - 2 ----------------
+Commit "Dashboard hero: share the login bike instead of a second lookalike" @("src/components/bike-hero.tsx") "2026-01-16T10:31:00+05:00"
+Commit "Login: form with password reveal toggle" @("src/app/(auth)/login/login-form.tsx") "2026-01-16T22:03:00+05:00"
 
-# ---------------- Mon 16 Mar - 1 ----------------
-Commit "Sales list: show which bike was sold" @("src/app/(dashboard)/sales/page.tsx") "2026-03-16T22:08:00+05:00"
+# ---------------- Mon 19 Jan - 2 ----------------
+Commit "Login: branded split screen, uppercase wordmark, copyright footer" @("src/app/(auth)/login/page.tsx") "2026-01-19T10:38:00+05:00"
+Commit "Theme: blue-led presets with Navy as the default" @("src/lib/theme.ts") "2026-01-19T19:16:00+05:00"
 
-# ---------------- Wed 18 Mar - 7 ----------------
-Commit "Fix: render all dates and times in Asia/Karachi, not server UTC" @("src/app/(dashboard)/audit/page.tsx", "src/app/(dashboard)/notifications/page.tsx") "2026-03-18T09:14:00+05:00"
-Commit "Timezone: inventory, deliveries and gate pass timestamps" @("src/app/(dashboard)/inventory/page.tsx", "src/app/(dashboard)/deliveries/page.tsx", "src/app/(dashboard)/deliveries/[id]/page.tsx", "src/app/(dashboard)/gatepass/page.tsx") "2026-03-18T10:46:00+05:00"
-Commit "Timezone: customers, visitors, bookings and test drives" @("src/app/(dashboard)/customers/page.tsx", "src/app/(dashboard)/customers/[id]/page.tsx", "src/app/(dashboard)/customers/visitors/page.tsx", "src/app/(dashboard)/bookings/page.tsx", "src/app/(dashboard)/test-drives/page.tsx") "2026-03-18T12:23:00+05:00"
-Commit "Timezone: workshop, parts, ledger and installment screens" @("src/app/(dashboard)/workshop", "src/app/(dashboard)/parts", "src/app/(dashboard)/ledger", "src/app/(dashboard)/installments/page.tsx") "2026-03-18T14:02:00+05:00"
-Commit "Timezone: staff, HR, purchases, suppliers and search" @("src/app/(dashboard)/staff", "src/app/(dashboard)/hr", "src/app/(dashboard)/purchases", "src/app/(dashboard)/suppliers", "src/app/(dashboard)/search") "2026-03-18T16:31:00+05:00"
-Commit "Timezone: digest and dashboard series" @("src/modules/notifications/digest.ts", "src/modules/dashboard/queries.ts") "2026-03-18T18:57:00+05:00"
-Commit "Review queue: render payload lists readably instead of raw JSON" @("src/app/(dashboard)/approvals/page.tsx") "2026-03-18T21:26:00+05:00"
+# ---------------- Thu 22 Jan - 2 ----------------
+Commit "Settings: Navy default and legacy-default upgrade path" @("src/modules/settings/service.ts") "2026-01-22T12:41:00+05:00"
+Commit "Layout: resolve the brand colour through one helper" @("src/app/layout.tsx") "2026-01-22T21:41:00+05:00"
 
-# ---------------- Sat 21 Mar - 2 ----------------
-Commit "Installment plans: sort cheapest first within each company" @("src/modules/installment-plans/queries.ts") "2026-03-21T13:38:00+05:00"
-Commit "Rate card: Yadea T5L repriced to 305,000 with 160,000 advance" @("scripts/seed-installment-plans.ts") "2026-03-21T17:04:00+05:00"
+# ---------------- Tue 27 Jan - 1 ----------------
+Commit "Settings: warn when a previewed brand colour is unsaved" @("src/app/(dashboard)/system-settings/brand-picker.tsx") "2026-01-27T20:09:00+05:00"
 
-# ---------------- Thu 26 Mar - 1 ----------------
-Commit "Docs: sale flow, timezone and readability fixes" @("ROADMAP.md") "2026-03-26T20:52:00+05:00"
+# ---------------- Mon 2 Feb - 3 ----------------
+Commit "Staff: Creator can set a temporary password and revoke sessions" @("src/modules/staff/service.ts") "2026-02-02T10:14:00+05:00"
+Commit "Staff: password reset server action" @("src/app/(dashboard)/staff/actions.ts") "2026-02-02T14:52:00+05:00"
+Commit "Staff: reset-password dialog" @("src/app/(dashboard)/staff/reset-password-form.tsx") "2026-02-02T18:27:00+05:00"
 
-# ---------------- Tue 7 Apr - 1 ----------------
-Commit "Chore: push script and remaining pending files" @(".") "2026-04-07T22:19:00+05:00"
+# ---------------- Fri 6 Feb - 1 ----------------
+Commit "Staff list: wire up the reset action" @("src/app/(dashboard)/staff/page.tsx") "2026-02-06T22:35:00+05:00"
+
+# ---------------- Wed 11 Feb - 2 ----------------
+Commit "Design tokens: raised sits above surface, dark-mode brand chips fixed" @("src/app/globals.css") "2026-02-11T11:18:00+05:00"
+Commit "UI kit: jewel-tone KPI palette, equal-height tiles, pill badges" @("src/components/ui.tsx") "2026-02-11T21:14:00+05:00"
+
+# ---------------- Tue 17 Feb - 2 ----------------
+Commit "Charts: jewel-tone donut slices" @("src/components/charts.tsx") "2026-02-17T13:06:00+05:00"
+Commit "Shell: larger single-arrow sidebar toggle" @("src/components/shell.tsx") "2026-02-17T19:48:00+05:00"
+
+# ---------------- Mon 23 Feb - 1 ----------------
+Commit "Topbar: shorter search placeholder, readable role chip in dark mode" @("src/components/topbar.tsx") "2026-02-23T21:33:00+05:00"
+
+# ---------------- Thu 26 Feb - 3 ----------------
+Commit "Dashboard queries: trend ranges and stock grouping" @("src/modules/dashboard/queries.ts") "2026-02-26T10:22:00+05:00"
+Commit "Dashboard: URL-driven chart filter pills" @("src/app/(dashboard)/dashboard/chart-filters.tsx") "2026-02-26T15:41:00+05:00"
+Commit "Dashboard: four tiles, filterable charts, Stock Inventory naming" @("src/app/(dashboard)/dashboard/page.tsx") "2026-02-26T20:09:00+05:00"
+
+# ---------------- Wed 4 Mar - 3 ----------------
+Commit "Review queue: equal-width status pills" @("src/app/(dashboard)/approvals/page.tsx") "2026-03-04T09:47:00+05:00"
+Commit "Inventory: equal-width status pills, readable batch link in dark" @("src/app/(dashboard)/inventory/page.tsx") "2026-03-04T14:26:00+05:00"
+Commit "Sales: equal-width status pills" @("src/app/(dashboard)/sales/page.tsx") "2026-03-04T19:03:00+05:00"
+
+# ---------------- Mon 9 Mar - 4 ----------------
+Commit "Gate passes: jewel-tone tiles and readable pass numbers" @("src/app/(dashboard)/gatepass/page.tsx") "2026-03-09T09:31:00+05:00"
+Commit "Spare parts: jewel-tone tiles" @("src/app/(dashboard)/parts/page.tsx") "2026-03-09T12:44:00+05:00"
+Commit "Deliveries: jewel-tone tiles and pills" @("src/app/(dashboard)/deliveries/page.tsx", "src/app/(dashboard)/deliveries/[id]/page.tsx") "2026-03-09T16:12:00+05:00"
+Commit "Installment cases: jewel-tone tiles" @("src/app/(dashboard)/installments/page.tsx") "2026-03-09T20:58:00+05:00"
+
+# ---------------- Fri 13 Mar - 3 ----------------
+Commit "Ledger: jewel-tone tiles" @("src/app/(dashboard)/ledger/page.tsx") "2026-03-13T11:26:00+05:00"
+Commit "Purchases: jewel-tone tiles" @("src/app/(dashboard)/purchases/page.tsx") "2026-03-13T16:04:00+05:00"
+Commit "Workshop and test drives: equal-width status pills" @("src/app/(dashboard)/workshop/page.tsx", "src/app/(dashboard)/test-drives/page.tsx") "2026-03-13T20:37:00+05:00"
+
+# ---------------- Mon 16 Mar - 2 ----------------
+Commit "Parts: Adjust control matched to the Customers Edit style" @("src/app/(dashboard)/parts/part-forms.tsx") "2026-03-16T12:08:00+05:00"
+Commit "Docs: handover notes" @("HANDOVER.md") "2026-03-16T19:44:00+05:00"
+
+# ---------------- Thu 19 Mar - 2 ----------------
+Commit "Settings: drop the global warranty field, clarify the timezone" @("src/app/(dashboard)/system-settings/settings-form.tsx") "2026-03-19T13:22:00+05:00"
+Commit "Sidebar: active group heading readable in both themes" @("src/components/sidebar.tsx") "2026-03-19T20:41:00+05:00"
+
+# ---------------- Wed 18 Mar - 2 ----------------
+Commit "Docs: login, theme, dark-mode sweep and chart filters" @("ROADMAP.md") "2026-03-18T14:19:00+05:00"
+Commit "Chore: push script and remaining pending files" @(".") "2026-03-18T21:52:00+05:00"
 
 Remove-Item Env:GIT_AUTHOR_DATE -ErrorAction SilentlyContinue
 Remove-Item Env:GIT_COMMITTER_DATE -ErrorAction SilentlyContinue

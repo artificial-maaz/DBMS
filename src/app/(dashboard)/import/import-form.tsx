@@ -43,7 +43,7 @@ export function ImportForm({ templates }: { templates: Record<string, Tpl> }) {
               name="file"
               accept=".csv,text/csv"
               required
-              className="w-full rounded-lg border border-line px-3 py-1.5 text-sm file:mr-3 file:rounded-md file:border-0 file:bg-slate-100 file:px-3 file:py-1 file:text-sm"
+              className="w-full rounded-lg border border-line px-3 py-1.5 text-sm file:mr-3 file:rounded-md file:border-0 file:px-3 file:py-1 file:text-sm"
             />
           </label>
         </div>
