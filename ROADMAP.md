@@ -190,8 +190,98 @@ the semantic tokens (`surface / raised / line / ink / ink-soft / ink-faint`) and
   advance + (monthly × months). Apply with `npm run db:seed:plans` — it updates in place.
 - **"(other branch)" removed** from the vehicle dropdown; the branch name alone says it.
 
-**Still to do:** empty states on the remaining list screens, login + invoice branding pass,
-simplified role-home for phones, delete the legacy bridge.
+## 🔜 NEXT SESSION — open queue (captured 2026-08-06)
+
+**Start here. Take business rules first, cosmetics last. Suggested order:
+15 → 13 → 19 → 14 → 21 → 12 → 16/17/18 → dark-mode sweep.**
+
+### A. Business rules / features
+- **15. Auto-settle completed cases (do first).** Cash sales where the money is in and documents
+  are handed over are still counted `active`, and so are installment cases with every instalment
+  paid and docs released. Both should flip to `settled` and drop out of the dashboard's
+  "Active Invoices". Touches `sales/service.ts` (createSale + recordInstallmentPayment),
+  `setDocumentCustody`, and the dashboard count. Decide: auto-settle on last payment, or require
+  an explicit "close case" action? Sir leans automatic.
+- **13. Handover checklist per sale.** New child table on `invoices` (same pattern as
+  `invoiceDocuments`). Items: motor charger, charger lead/adaptor, chassis holder, mirrors,
+  1 litre petrol (fuel bikes) / sufficient charge (EV), vehicle scratchless & undamaged,
+  customer photo, Google review requested. Suggested additions: number plate/registration file
+  handed, spare key, toolkit, owner's manual, helmet if bundled. Snapshot names at sale time so
+  renaming later never rewrites history.
+- **14. Warranty-card requirement is YADEA-ONLY.** Today it is demanded on every sale. Gate the
+  field and the Review Queue warning on `vehicle.make === "Yadea"` (case-insensitive).
+- **19. Editing for Suppliers, Manufacturers and Stock Purchases.** No edit path exists — a typo in
+  a contact person is permanent. Add `update*` service functions + edit forms, routed through the
+  approval queue for staff (Creator/Owner direct), audit-logged like every other edit.
+- **12. Missing animation in the Bookings action column** — the status buttons do not use the
+  shared transition/`active:scale` treatment the other modules have.
+
+### B. Readability / UX
+- **21. Audit Log "Details" column is raw JSON** — same problem the Review Queue had before it was
+  fixed. Reuse the `PayloadSummary` approach from `approvals/page.tsx`: labelled key/value pairs,
+  nested arrays as numbered lists, everything wrapping.
+- **16. Installment Cases:** the bright red is too harsh — replace with a warmer tone that sits
+  with the burgundy tile background. Blue must match between light and dark.
+- **17. Installment Plans page needs real work:** company headings (YADEA, RAMZA…) should be bold
+  and properly sized, table boxes reworked, dark mode is a mess, and the intro line is long enough
+  to collide with the action button — shorten it.
+- **18. Stock Deliveries module:** apply the jewel-tone palette pass properly, as done elsewhere.
+
+### C. Dark-mode sweep still outstanding
+Screens Sir has flagged as unchecked or wrong in dark mode:
+- **Stock Audit**
+- **Sales & Invoices detail / print view**
+- **Finance modules** (Accounting statements, Monthly P&L, Fixed Assets)
+- **The DBMS top header bar**
+- **Top-left corner of the sidebar** (brand bar area)
+- **The last column of several list screens** — the same unreadable-tail problem the Review Queue
+  had; check every table's final column, not just the ones with screenshots.
+
+### D. Known, still unresolved
+- **Favicon still shows ⚡.** The tab/taskbar icon comes from a build-time file, NOT the logo stored
+  in System Settings. Fix = write Sir's logo to `src/app/icon.png` and update `app/manifest.ts`.
+  **Needs the logo file as a transparent PNG from Sir** — the current one has a baked-in white
+  background, which is also why it sat as a white tile on the login and sidebar.
+- **Commit volume:** Sir wants 100+ commits. The honest constraint is one commit per changed file;
+  the queue above is roughly the volume needed to reach that. Do not pad with empty commits —
+  `push.ps1` skips them anyway.
+
+## ✅ Done — Login screen + password handling (2026-08-06, chunk 39)
+- **"The road" login** (Sir's pick): split screen, 55% animated scene / 45% form. Two skyline layers
+  pan at different speeds — that speed difference IS the depth cue — over a streaming road with the
+  bike riding, headlamp beam and flickering speed lines. Pure SVG, no image assets, inherits the
+  brand colour, and stops dead under `prefers-reduced-motion`. The scene is **hidden below `lg`**:
+  a phone needs keyboard room far more than scenery.
+- Company name and logo come from **System Settings**, so rebranding updates the login screen with
+  no code change. Time-aware greeting.
+- **Password reveal toggle** with `aria-label` + `aria-pressed`, so screen readers announce the
+  state rather than just an icon. `tabIndex={-1}` keeps it out of the tab order between the two
+  fields.
+- **Self-service email reset: PARKED by Sir** until company mailboxes exist. Reason: `RESEND_ONLY_TO`
+  redirects all mail to the Creator while no domain is verified, so a reset link would never reach
+  the staff member. A dead "Forgot password?" link is worse than none, so the login screen states the
+  real process instead.
+- **Creator-side reset shipped as the working alternative** (and worth keeping permanently — "my BM
+  is locked out on a Sunday" never goes away): Staff → Reset password → set a temporary password,
+  hand it over in person. **All of that user's sessions are revoked**, so a compromised account can't
+  survive on a stale cookie. The password is never written to the audit log; only the fact of the
+  reset is.
+
+**Revision after Sir's review (2026-08-06):**
+- **GOTCHA worth remembering:** a CSS `transform` animation **replaces** an element's SVG `transform`
+  attribute rather than composing with it — the bike floated into the corner because its positioning
+  was silently discarded. Fix: nest, outer `<g>` positions and inner `<g>` animates. Applied to the
+  wheels too, and retro-fitted to `bike-hero.tsx`, which carried the same latent fault.
+- Skyline rebuilt with irregular heights and widths; evenly spaced equal-width bars read as a bar
+  chart, which is exactly how the first attempt looked. Bike now sits **on** the road.
+- Left panel carries **no copy at all** — artwork only, per Sir.
+- Email placeholder `user@gmail.com`; the reset note reduced to one line: "Forgot password? Contact
+  the admin for a reset." All user-facing copy says **admin**, never "Sir".
+- Copyright footer pinned to the bottom of the form column, company name from Settings.
+- Still open: logo sizing and typography pass on the wordmark.
+
+**Still to do:** empty states on the remaining list screens, invoice/print branding pass,
+simplified role-home for phones, delete the legacy bridge, self-service reset once a domain is verified.
 
 ## ✅ Done — Email batching for the free tier (2026-08-01, chunk 35)
 Resend's free plan is **3,000 emails/month capped at 100/day**. Instant-per-action emails would
