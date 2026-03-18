@@ -34,7 +34,7 @@ export default async function WorkshopPage({
   ]);
   const rateOpts = rates.map((r) => ({ serviceName: r.serviceName, price: r.price }));
 
-  const fmt = (v: string) => `Rs. ${Number(v).toLocaleString("en-PK", { timeZone: "Asia/Karachi" })}`;
+  const fmt = (v: string) => `Rs. ${Number(v).toLocaleString("en-PK")}`;
   const active = jobs.filter((j) => j.status === "open" || j.status === "in_progress").length;
 
   return (

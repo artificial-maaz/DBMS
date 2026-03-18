@@ -29,7 +29,7 @@ export default async function LedgerPage({
     listActiveBranches(),
   ]);
 
-  const fmt = (v: string) => `Rs. ${Number(v).toLocaleString("en-PK", { timeZone: "Asia/Karachi" })}`;
+  const fmt = (v: string) => `Rs. ${Number(v).toLocaleString("en-PK")}`;
   const net = Number(totalIn) - Number(totalOut);
 
   return (

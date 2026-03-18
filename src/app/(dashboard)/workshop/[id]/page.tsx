@@ -18,7 +18,7 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
 
   const parts = await listBranchParts(job.branchId);
   const rateOpts = (await listRates(true)).map((r) => ({ serviceName: r.serviceName, price: r.price }));
-  const fmt = (v: string | number) => `Rs. ${Number(v).toLocaleString("en-PK", { timeZone: "Asia/Karachi" })}`;
+  const fmt = (v: string | number) => `Rs. ${Number(v).toLocaleString("en-PK")}`;
   const laborDue = job.warrantyStatus === "free_coupon" ? 0 : Number(job.laborCharge);
   const total = laborDue + Number(job.partsCharge);
   // Mechanics view job details read-only (Sir 2026-07-31); only BM+ edit parts/status.

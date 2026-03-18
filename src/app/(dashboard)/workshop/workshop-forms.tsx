@@ -167,7 +167,7 @@ export function JobActions({
               <option value="">standard service…</option>
               {rates.map((r) => (
                 <option key={r.serviceName} value={r.price}>
-                  {r.serviceName} — Rs. {Number(r.price).toLocaleString("en-PK", { timeZone: "Asia/Karachi" })}
+                  {r.serviceName} — Rs. {Number(r.price).toLocaleString("en-PK")}
                 </option>
               ))}
             </select>

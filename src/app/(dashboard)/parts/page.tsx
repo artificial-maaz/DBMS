@@ -26,7 +26,7 @@ export default async function PartsPage({
   ]);
 
   const fmt = (v: string | null | undefined) =>
-    v == null ? "—" : `Rs. ${Number(v).toLocaleString("en-PK", { timeZone: "Asia/Karachi" })}`;
+    v == null ? "—" : `Rs. ${Number(v).toLocaleString("en-PK")}`;
   const totalUnits = rows.reduce((a, r) => a + r.currentQty, 0);
 
   return (

@@ -41,7 +41,7 @@ export default async function InstallmentCasesPage({
     listActiveBranches(),
   ]);
 
-  const fmt = (v: string | number) => `Rs. ${Number(v).toLocaleString("en-PK", { timeZone: "Asia/Karachi" })}`;
+  const fmt = (v: string | number) => `Rs. ${Number(v).toLocaleString("en-PK")}`;
 
   // KPI cards are computed over the CURRENT filter so the numbers always
   // match the table beneath them.

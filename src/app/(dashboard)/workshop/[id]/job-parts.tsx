@@ -20,7 +20,7 @@ export function AddJobPart({ jobId, parts }: { jobId: number; parts: PartOpt[] }
         <option value="">Select part…</option>
         {parts.map((p) => (
           <option key={p.id} value={p.id} disabled={p.currentQty === 0}>
-            {p.name} — {p.currentQty} in stock{p.retailPrice ? ` @ Rs. ${Number(p.retailPrice).toLocaleString("en-PK", { timeZone: "Asia/Karachi" })}` : ""}
+            {p.name} — {p.currentQty} in stock{p.retailPrice ? ` @ Rs. ${Number(p.retailPrice).toLocaleString("en-PK")}` : ""}
           </option>
         ))}
       </select>
