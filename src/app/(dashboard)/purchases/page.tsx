@@ -28,7 +28,7 @@ export default async function PurchasesPage() {
     itemsByPo.set(it.poId, list);
   }
 
-  const fmt = (v: string | number) => `Rs. ${Number(v).toLocaleString("en-PK", { timeZone: "Asia/Karachi" })}`;
+  const fmt = (v: string | number) => `Rs. ${Number(v).toLocaleString("en-PK")}`;
   const totalOutstanding = rows.reduce((a, r) => a + (Number(r.totalCost) - Number(r.amountPaid)), 0);
   const unitsInTransit = items.reduce((a, it) => a + (it.qtyOrdered - it.qtyReceived), 0);
 
