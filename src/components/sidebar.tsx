@@ -140,8 +140,15 @@ export function Sidebar({
           return (
             <div key={group.title}>
               <p
-                className={`px-3 pb-1.5 text-[11px] font-semibold uppercase tracking-wider transition ${
-                  groupActive ? "text-[var(--b300)]" : "text-slate-500"
+                /*
+                 * Sir (2026-08-06): a heading and its links were reading as the
+                 * same thing. Colour alone was never going to separate them —
+                 * they now differ on THREE axes at once: size (10px vs 14px),
+                 * weight, and letter-spacing, plus a hairline rule above the
+                 * group. That reads as a section label at a glance.
+                 */
+                className={`mb-1 border-t border-white/5 px-3 pb-1 pt-4 text-[10px] font-bold uppercase tracking-[0.14em] transition ${
+                  groupActive ? "text-[var(--chip-ink)]" : "text-slate-500/80"
                 }`}
               >
                 {group.title}
