@@ -37,9 +37,9 @@ export function SettingsForm({ settings }: { settings: Settings }) {
               type="file"
               name="logo"
               accept="image/png,image/jpeg,image/svg+xml,image/webp"
-              className="w-full rounded-lg border border-line px-3 py-1.5 text-sm file:mr-3 file:rounded-md file:border-0 file:bg-slate-100 file:px-3 file:py-1 file:text-sm"
+              className="w-full rounded-lg border border-line px-3 py-1.5 text-sm file:mr-3 file:rounded-md file:border-0 file:px-3 file:py-1 file:text-sm"
             />
-            <span className="mt-1 block text-xs text-ink-faint">PNG/JPG/SVG/WebP, max 200 KB. Replaces the ⚡ everywhere.</span>
+            <span className="mt-1 block text-xs text-ink-faint">PNG/JPG/SVG/WebP, max 200 KB.</span>
           </label>
 
           {settings.logoDataUrl && (
@@ -76,8 +76,16 @@ export function SettingsForm({ settings }: { settings: Settings }) {
             defaultValue={settings.defaultShowroomProfit}
             hint="Pre-fills the showroom portion of the registration fee"
           />
-          <Field name="warrantyDays" label="Warranty Duration (days)" defaultValue={String(settings.warrantyDays)} hint="e.g. 365 for 1 year" />
-          <Field name="timezone" label="Global Timezone" defaultValue={settings.timezone} hint="e.g. Asia/Karachi" />
+          {/* Warranty duration removed from the UI (Sir, 2026-08-06): every
+              brand warrants differently, so one global number was misleading.
+              The column stays so existing rows are untouched. */}
+          <input type="hidden" name="warrantyDays" value={String(settings.warrantyDays)} />
+          <Field
+            name="timezone"
+            label="Global Timezone"
+            defaultValue={settings.timezone}
+            hint="Asia/Karachi — the IANA zone covering all of Pakistan, Islamabad included"
+          />
         </div>
       </section>
 
