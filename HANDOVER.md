@@ -17,11 +17,16 @@ the complete context of this project. Last updated: 2026-07-06.
      schema changed, and the git push checkpoint command.
   5. He runs all terminal commands (npm, git) himself — hand him exact commands.
 
-## READ FIRST (2026-08-06) — where the work stands
+## READ FIRST (2026-08-09) — where the work stands
 
-The build is functionally complete and in production. The **GUI phase** is in flight and is the
-only active workstream. **`ROADMAP.md` → "🔜 NEXT SESSION — open queue"** is the live task list;
-start there, and work business rules before cosmetics.
+The build is functionally complete and in production. The **GUI phase** is in flight, and a short
+**business-rules queue** sits in front of it. **`ROADMAP.md` → "🔜 OPEN QUEUE — reconciled against
+code 2026-08-09"** is the live task list; start there, and work business rules before cosmetics.
+
+That queue was re-verified item-by-item against the source on 2026-08-09 — the previous version had
+been pasted verbatim from Sir's feedback and listed work that chunk 40 had already finished. If you
+find yourself about to build something the roadmap calls outstanding, **grep for it first**; this
+repo's docs have drifted from its code twice now.
 
 **Design-system rules learned the hard way — do not relearn these:**
 1. A CSS `transform` animation **replaces** an element's SVG `transform` attribute. Nest: outer
