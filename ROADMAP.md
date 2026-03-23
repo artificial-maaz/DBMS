@@ -190,52 +190,132 @@ the semantic tokens (`surface / raised / line / ink / ink-soft / ink-faint`) and
   advance + (monthly × months). Apply with `npm run db:seed:plans` — it updates in place.
 - **"(other branch)" removed** from the vehicle dropdown; the branch name alone says it.
 
-## 🔜 NEXT SESSION — open queue (captured 2026-08-06)
+## ✅ Done — Jewel-tone palette + dark-mode pass (2026-08-06, chunk 40)
+Roughly twenty commits of visual work that landed alongside the queue below. Recorded here because
+the queue was pasted verbatim from Sir's feedback and never pruned — several of its items were
+already finished by the time it was committed.
+- **Token fix at the root:** `--raised` now sits **above** `--surface`. It had been inverted, which
+  is why nested panels rendered black inside a card. Dark-mode brand chips read from `--chip-ink`
+  rather than the chart ramp, so chip text no longer inherits a colour meant for fills.
+- **Jewel-tone KPI palette** in the UI kit: equal-height tiles, pill badges, and the same treatment
+  rolled across Gate Passes (plus readable pass numbers), Spare Parts, Deliveries, Installment
+  Cases, Ledger and Purchases. Donut slices adopted the same ramp.
+- **Equal-width status pills** on Review Queue, Inventory (plus a readable batch link in dark),
+  Sales, Workshop and Test Drives — this was the "unreadable last column" complaint; a ragged pill
+  column was the cause, not the colour.
+- **Dashboard:** four tiles, URL-driven chart filter pills, trend-range and stock-grouping support
+  in the queries, "Stock Inventory" naming.
+- **Chrome:** larger single-arrow sidebar toggle, shorter topbar search placeholder, role chip
+  readable in dark mode, active sidebar group heading readable in both themes.
+- **Settings:** the global warranty-days field was dropped (it was policy pretending to be config)
+  and the timezone note clarified. Parts' Adjust control matched to the Customers Edit style.
 
-**Start here. Take business rules first, cosmetics last. Suggested order:
-15 → 13 → 19 → 14 → 21 → 12 → 16/17/18 → dark-mode sweep.**
+## ✅ Done — Auto-settle + Yadea-only warranty card (2026-08-09, chunk 41)
+
+**#15 Auto-settle completed cases — fully automatic (Sir's call).** There is no "close case" button
+and deliberately so; a status nobody is obliged to set is a status nobody sets, which is exactly how
+every cash sale ever made ended up sitting in "Active Invoices" forever.
+- One rule, one place: `syncInvoiceSettlement()` in `sales/service.ts`. A case is `settled` when
+  **nothing is owed AND no document we took is still in our custody**. Both halves matter — a paid-up
+  case whose registration file is in our drawer is not finished business.
+- Blocking documents are `provided = true AND custody <> given_to_customer`. A paper the customer
+  never handed over (`provided = false`) was **waived at sale time** with compensation on record, so
+  it must not block settlement forever — otherwise every waiver would permanently freeze a case.
+- **Bidirectional on purpose:** taking a document back (`held_by_dealer`) on a settled invoice
+  reopens it. With no manual override in the design, a one-way flip would strand invoices in
+  `settled` with real work outstanding and no route back except SQL.
+- Wired into all three paths that can change the answer: `createSale` (a cash sale now settles the
+  moment it is written), `recordInstallmentPayment` (which no longer decides the status inline), and
+  `setDocumentCustody` (now transactional, so custody and status can never be read out of step).
+  `cancelled` is never touched. The dashboard's Active Invoices count needed no change — it reads
+  the status and becomes truthful by itself.
+- **Backfill required, once:** `npm run db:settle` (`scripts/backfill-settlements.ts`) applies the
+  same rule to history. Nothing else will ever touch those rows — a finished cash sale has no future
+  payment or custody change to trigger a recalculation. Idempotent; skips `cancelled`.
+- **No migration** — logic only.
+
+**#14 Warranty card is Yadea-only.** It was demanded on every sale, so a Honda CD-70 carried a red
+"⚠ WARRANTY CARD NOT SENT" banner into the Review Queue that nobody could ever clear — noise that
+trains owners to ignore the warning that matters.
+- Rule isolated in `modules/sales/warranty.ts` (`needsWarrantyCard`), case- and whitespace-tolerant
+  because makes are free text from staff and CSV import. Adding a second brand later is one line.
+- Gated on all three surfaces: the New Sale checkbox (keys off the selected vehicle, so it appears
+  and disappears as you change bikes), the Review Queue pill (makes resolved in **one** query for the
+  whole page, not one per row), and the invoice detail badge.
+- Enforced server-side too, not just hidden: `createSale` hard-strips `warrantyCardSent` for non-Yadea
+  makes (same treatment cash sales give guarantor rows), and `setWarrantyCardSent` refuses outright.
+- `getInvoiceDetail` now returns the sold `vehicle` — read from the vehicle row, not parsed out of the
+  line-item description, which is display text and free to change.
+- **No migration** — logic only.
+
+## ✅ Done — Handover checklist (2026-08-09, chunk 41)
+**#13 — applies to EVERY sale (Sir's call), not installment only.** The document checklist is
+*agreement paperwork* and rightly installment-only; this one is *goods and checks*, and a cash
+buyer's missing mirrors is exactly as much of a problem as an installment buyer's.
+- New `handover_requirements` master list at `/handover-requirements` (Retail group), Creator/Owner
+  manage, retire-never-delete — the same manageable-list pattern as Document Checklist and
+  Installment Plans, deliberately not a third way of doing the same thing.
+- Per-sale `invoice_handovers` child table snapshots the item name at sale time, so retiring or
+  renaming later never rewrites what a past invoice says was handed over.
+- **Not a hard gate:** New Sale defaults every item ticked; unticking reveals a note field
+  ("mirrors on order, collect Friday") and a running "N still owed" badge. The sale completes either
+  way — the record is the promise, not a blocker.
+- Printed on the invoice with the documents, because the customer's copy is their record of what
+  they are still owed. Audit log carries `itemsNotHandedOver` when anything went out short.
+- Seeded with Sir's original eight plus the five he approved 2026-08-09 (13 items):
+  `npm run db:seed:handover`. **Note:** "Spare Key" and "Tool Kit" already exist in the *document*
+  checklist, so an installment sale will show them twice — both lists are manageable, so retire
+  whichever copy Sir prefers rather than hard-coding an exception.
+- **Needs migration** (`handover_requirements` + `invoice_handovers`).
+
+## 🔜 OPEN QUEUE — reconciled against code 2026-08-09
+
+Every item below was re-verified in the source before being listed; finished items were moved into
+the chunk-40 section above. **Business rules first, cosmetics last.**
 
 ### A. Business rules / features
-- **15. Auto-settle completed cases (do first).** Cash sales where the money is in and documents
-  are handed over are still counted `active`, and so are installment cases with every instalment
-  paid and docs released. Both should flip to `settled` and drop out of the dashboard's
-  "Active Invoices". Touches `sales/service.ts` (createSale + recordInstallmentPayment),
-  `setDocumentCustody`, and the dashboard count. Decide: auto-settle on last payment, or require
-  an explicit "close case" action? Sir leans automatic.
-- **13. Handover checklist per sale.** New child table on `invoices` (same pattern as
-  `invoiceDocuments`). Items: motor charger, charger lead/adaptor, chassis holder, mirrors,
-  1 litre petrol (fuel bikes) / sufficient charge (EV), vehicle scratchless & undamaged,
-  customer photo, Google review requested. Suggested additions: number plate/registration file
-  handed, spare key, toolkit, owner's manual, helmet if bundled. Snapshot names at sale time so
-  renaming later never rewrites history.
-- **14. Warranty-card requirement is YADEA-ONLY.** Today it is demanded on every sale. Gate the
-  field and the Review Queue warning on `vehicle.make === "Yadea"` (case-insensitive).
-- **19. Editing for Suppliers, Manufacturers and Stock Purchases.** No edit path exists — a typo in
-  a contact person is permanent. Add `update*` service functions + edit forms, routed through the
+- **1. Editing for Suppliers, Manufacturers and Stock Purchases (#19).** No edit path exists — a typo
+  in a contact person is permanent. Add `update*` service functions + edit forms, routed through the
   approval queue for staff (Creator/Owner direct), audit-logged like every other edit.
-- **12. Missing animation in the Bookings action column** — the status buttons do not use the
-  shared transition/`active:scale` treatment the other modules have.
+  *Verified 2026-08-09: no `update*` export in `modules/procurement`.*
 
 ### B. Readability / UX
-- **21. Audit Log "Details" column is raw JSON** — same problem the Review Queue had before it was
-  fixed. Reuse the `PayloadSummary` approach from `approvals/page.tsx`: labelled key/value pairs,
-  nested arrays as numbered lists, everything wrapping.
-- **16. Installment Cases:** the bright red is too harsh — replace with a warmer tone that sits
-  with the burgundy tile background. Blue must match between light and dark.
-- **17. Installment Plans page needs real work:** company headings (YADEA, RAMZA…) should be bold
+- **2. Audit Log "Details" column is raw JSON (#21)** — same problem the Review Queue had before it
+  was fixed. Reuse the `PayloadSummary` approach from `approvals/page.tsx`: labelled key/value pairs,
+  nested arrays as numbered lists, everything wrapping. *Verified 2026-08-09: `PayloadSummary` still
+  exists only in `approvals/page.tsx`.*
+- **3. Missing animation in the Bookings action column (#12)** — the status buttons do not use the
+  shared transition/`active:scale` treatment the other modules have. *Verified 2026-08-09: no
+  `transition` or `active:scale` anywhere under `app/(dashboard)/bookings`.*
+- **4. Installment Cases: the bright red is too harsh (#16)** — replace with a warmer tone that sits
+  with the burgundy tile background; blue must match between light and dark. *Verified 2026-08-09:
+  still outstanding — `installments/page.tsx` uses raw `bg-red-100 / text-red-700 / bg-red-50`,
+  which have no dark-mode variant, so this is a dark-mode bug as much as a taste one. The chunk-40
+  jewel-tone commit re-toned the tiles but left the status colours.*
+- **5. Installment Plans page needs real work (#17):** company headings (YADEA, RAMZA…) should be bold
   and properly sized, table boxes reworked, dark mode is a mess, and the intro line is long enough
   to collide with the action button — shorten it.
-- **18. Stock Deliveries module:** apply the jewel-tone palette pass properly, as done elsewhere.
+- ~~Stock Deliveries jewel-tone pass (#18)~~ ✅ **Done in chunk 40** (`Deliveries: jewel-tone tiles and pills`).
 
-### C. Dark-mode sweep still outstanding
-Screens Sir has flagged as unchecked or wrong in dark mode:
-- **Stock Audit**
-- **Sales & Invoices detail / print view**
-- **Finance modules** (Accounting statements, Monthly P&L, Fixed Assets)
-- **The DBMS top header bar**
-- **Top-left corner of the sidebar** (brand bar area)
-- **The last column of several list screens** — the same unreadable-tail problem the Review Queue
-  had; check every table's final column, not just the ones with screenshots.
+### C. Dark-mode sweep — what is actually left
+Re-measured 2026-08-09. The blanket "these screens are unchecked" list was replaced with the two
+concrete faults behind it:
+- **~40 raw pastel status colours** (`bg-red-50`, `bg-amber-50`, `bg-emerald-50` and friends) across
+  the dashboard. These have no `dark:` variant and no token equivalent, so any screen carrying one
+  has a light-mode patch burned into dark mode. This is the single biggest remaining source of the
+  "dark mode is a mess" reports, item 7 above included. Fix properly = a semantic status ramp
+  (`--ok / --warn / --danger` with per-mode surfaces), not 40 hand-written `dark:` overrides.
+- **~50 files still carrying 2–6 hardcoded `slate-*` / `gray-*` classes**, overwhelmingly the modal
+  form components (`add-*-form.tsx` / `edit-*-form.tsx`) that the page-level rollout skipped.
+  Heaviest: `sales/new/sale-form.tsx` (6), `customers/[id]/page.tsx` (5), then the staff / plan /
+  visitor / customer edit modals (4 each).
+- **`indigo-*` is genuinely at zero** under `app/(dashboard)` — that claim in the GUI-phase section
+  holds up.
+- Already fixed in chunk 40 and dropped from this list: the top header bar, the sidebar brand/group
+  area, and the ragged last column on Review Queue / Inventory / Sales / Workshop / Test Drives.
+- Still worth eyeballing once the two faults above are fixed: Stock Audit, Sales & Invoice detail /
+  print view, and the finance screens (Accounting, Monthly P&L, Fixed Assets) — all three carry
+  slate/gray residue.
 
 ### D. Known, still unresolved
 - **Favicon still shows ⚡.** The tab/taskbar icon comes from a build-time file, NOT the logo stored
