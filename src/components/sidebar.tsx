@@ -109,11 +109,15 @@ export function Sidebar({
           // eslint-disable-next-line @next/next/no-img-element
           <img src={logoDataUrl} alt="" className="h-8 w-8 rounded-lg object-contain" />
         ) : (
+          /* Branding (2026-08-09): the fallback was a ⚡ emoji, which read as
+             "unfinished software" to anyone who saw the screen over a manager's
+             shoulder. A monogram of the company's own initial is neutral, looks
+             deliberate, and disappears the moment a logo is uploaded. */
           <span
-            className="flex h-8 w-8 items-center justify-center rounded-lg text-base"
+            className="flex h-8 w-8 items-center justify-center rounded-lg text-base font-bold"
             style={{ backgroundColor: "var(--b600)" }}
           >
-            ⚡
+            {(appName ?? APP_NAME).trim().charAt(0).toUpperCase() || "H"}
           </span>
         )}
         <span className="truncate">{appName ?? APP_NAME}</span>
