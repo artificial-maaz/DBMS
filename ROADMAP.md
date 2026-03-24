@@ -355,6 +355,43 @@ between modes, not missing rules. Fixed the claim rather than leaving a plausibl
 the file.
 **No migration** — presentation only.
 
+## ✅ Done — Production hardening + invoice branding (2026-08-09, chunk 44)
+
+Sir confirmed real staff and real sales are **weeks away**, which reprioritised everything: the
+remaining risk is not missing features, it is the gap between "built" and "safe to run a business on".
+
+**Seed-script safety gate (`scripts/guard.ts`).** Dev and prod share one Neon database and the seed
+scripts silently take whatever `DATABASE_URL` is in `.env`. Two of them are genuinely destructive —
+`db:seed` resets the Creator password, `db:seed:test` injects fake branches, vehicles and **sales**
+through the real service layer, so they post to the ledger and the P&L. Neither printed where it was
+about to write. Now every writing script announces host + database first, `db:seed:test` is **refused
+outright** against production (there is no legitimate reason to put "Test Branch Lahore" in a live
+dealership, so no prompt is offered), and `db:seed` demands the database name typed by hand — and
+refuses entirely without a terminal, so cron and CI cannot confirm on your behalf. Production is
+identified by `PROD_DB_HOST` or `APP_ENV`; with neither set the banner reads **UNIDENTIFIED** rather
+than defaulting to "safe". The password is never read or logged.
+
+**`npm run db:find-test-data`** reports seeded rows (branches named `Test Branch%`, `TST…` chassis,
+and everything attached to them). **Read-only on purpose** — a `--purge` flag would be easy to write
+and hard to make correct, because the seeded sale already moved cash through the ledger, recognised
+COGS, consumed a vehicle and wrote a schedule. Deleting its vehicle leaves the books inconsistent in
+a way nobody notices until a month-end fails to balance. The clean route is a fresh Neon branch.
+
+**`GOLIVE.md`** — the ordered checklist: Neon dev/prod split, what each script does against
+production, starting production clean, reference data to confirm, what is still outstanding
+(email domain, favicon), and first-week habits.
+
+**Invoice branding (Sir, mid-chunk).** The invoice header read `⚡ Test Branch Lahore` — a
+placeholder emoji and the *branch* name, on the one document a customer takes home. Now the company
+logo and name from System Settings lead, with the branch beneath as the issuing office; a rebrand
+reaches the invoice with no code change. The status badge was hardcoded green for every state, so a
+**cancelled invoice printed with a reassuring green badge** — now settled/cancelled/active off the
+status ramp. Print CSS forces the light tokens (dark mode followed the document into the print
+dialog, so a night-time invoice came out white-on-navy) and sets `print-color-adjust: exact`, without
+which browsers strip the logo and every badge to save ink.
+
+**No migration** — logic and presentation only.
+
 ## 🔜 OPEN QUEUE — reconciled against code 2026-08-09
 
 Re-verified against the source 2026-08-09. Sections A and B are now empty — every business rule
@@ -385,6 +422,16 @@ and every specific UI complaint Sir has raised is built. What remains is one swe
 - **`indigo-*` is genuinely at zero** under `app/(dashboard)`.
 - Worth eyeballing on a real screen: Stock Audit, Sales & Invoice detail / print view, and the
   finance screens (Accounting, Monthly P&L, Fixed Assets) — all three still carry slate/gray residue.
+
+### C2. Branding pass — still outstanding after chunk 44
+The sale invoice is done. These carry the same fault (placeholder emoji, or company identity
+missing entirely) and are worth the same treatment:
+- **Gate pass print view** and **job card / workshop print** — check for `⚡` and branch-as-title.
+- **Payslip print view** — still on the backlog, never built.
+- **PDF/print headers on the P&L and Accounting statements** — an owner may hand these to an
+  accountant.
+- Anywhere else `APP_NAME` is printed rather than `settings.companyName`: `lib/config.ts` is the
+  first-boot fallback, not the display name.
 
 ### D. Known, still unresolved
 
@@ -539,7 +586,7 @@ Final hierarchy (Sir, 2026-07-31): **Creator** (god-level, sole code/system acce
 
 ## 📋 Planned (bigger builds)
 - **WhatsApp integration (#9):** follow-up messages to visitors/leads via WhatsApp Business API (Meta approval + provider needed) — pairs with visitors module + notifications.
-- **Accounting expansion (#22):** ✅ *Part 1 done 2026-07-11:* physical stock audit reconciliation (`/inventory/audit`, Creator/Owner/BM, branch-scoped — paste/scan VINs → Perfect Matches / Missing (investigate!) / Scanned-but-Unregistered; read-only, outcome audit-logged) + dashboard **Top Salespeople / Top Branches** monthly leaderboards (financial roles, server-rendered, keyed off saleDate). *Remaining:* orders & quotation pipeline (draft → confirmed → billed, finalize-immediately shortcut), balance sheet + trial balance + general journal entries (formal double-entry layer), branch fixed-assets register (furniture, devices).
+- **Accounting expansion (#22):** ✅ *Part 1 done 2026-07-11:* physical stock audit reconciliation (`/inventory/audit`, Creator/Owner/BM, branch-scoped — paste/scan VINs → Perfect Matches / Missing (investigate!) / Scanned-but-Unregistered; read-only, outcome audit-logged) + dashboard **Top Salespeople / Top Branches** monthly leaderboards (financial roles, server-rendered, keyed off saleDate). *Remaining as of 2026-08-09: **only** the orders & quotation pipeline* (draft → confirmed → billed, with a finalize-immediately shortcut). **Corrected:** this line used to also list balance sheet, trial balance, general journal and the fixed-assets register as outstanding — all four shipped in the ENDGAME chunk (`generalJournal` / `trialBalance` / `balanceSheet` in `modules/accounting/queries.ts`, `modules/assets/*`). Verified in source, not assumed.
 - **Empty-state illustrations (#25)** and **GUI liveliness pass (#31):** part of the frontend polish phase after core completeness (#8, #13).
 
 ## 💬 Answered (no build needed)
