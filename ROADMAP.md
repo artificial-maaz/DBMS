@@ -174,6 +174,22 @@ the semantic tokens (`surface / raised / line / ink / ink-soft / ink-faint`) and
   make + model with a count ("Yadea T5L (3 in stock)"), and **every** row now names the branch
   holding it, flagging other branches explicitly.
 
+## ✅ Done — Sale flow, timezone and readability (2026-08-06, chunk 38)
+- **BUG: every timestamp was five hours out.** Columns are `timestamp` (no zone) and the server runs
+  in UTC, so `toLocaleString` rendered UTC — 9:55 am for a 2:55 pm action. Every date/time render now
+  passes `timeZone: "Asia/Karachi"`. (Money formatting was deliberately left alone; `NumberFormat`
+  ignores the option but the noise isn't worth it.) A proper fix is `timestamptz` columns — a
+  migration across ~15 tables, worth doing only if the business ever spans zones.
+- **Review Queue readability (Sir #5):** payloads dumped raw JSON that overflowed its column. Nested
+  arrays (a delivery's vehicle list) now render as a numbered list with labelled fields; scalars stay
+  in the compact grid and every value wraps.
+- **Sales list names the vehicle (Sir #6):** make, model and chassis on each invoice row via
+  correlated sub-selects — deliberately not joins, so a multi-line invoice can't duplicate the row.
+- **Installment plans sorted cheapest-first within each company** (was alphabetical by model).
+- **Yadea T5L repriced:** cash 305,000, advance 160,000, monthlies unchanged, totals recomputed as
+  advance + (monthly × months). Apply with `npm run db:seed:plans` — it updates in place.
+- **"(other branch)" removed** from the vehicle dropdown; the branch name alone says it.
+
 **Still to do:** empty states on the remaining list screens, login + invoice branding pass,
 simplified role-home for phones, delete the legacy bridge.
 
