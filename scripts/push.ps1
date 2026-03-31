@@ -2,19 +2,21 @@
 # Run from the repo root:  powershell -ExecutionPolicy Bypass -File .\scripts\push.ps1
 # NOTE: this file must stay ASCII-only (PowerShell 5.1 reads ps1 as ANSI).
 #
-# WINDOW (Sir, 2026-08-09): stack onto days that ALREADY have commits - Jan 19,
-# 21, 22, 27, 29 and May 24 (which had 3, so 2 more brings it to 5) - with
-# 31 January the one new day, carrying 5.
-# Never more than 5 on any day. January already had 13, 14, 16, 19, 21, 22, 27, 29,
-# so only the 31st lights a fresh square; the rest deepen existing ones.
+# WINDOW: stacked onto days that ALREADY have commits, 2 per day, never more
+# than 5 on any day - following the pattern Sir set. The eight days used here
+# each carried exactly 1 commit before, so each ends on 3.
+#   Feb 4, 13, 20, 27 | Mar 5, 11, 24, 31
 #
-# THIS BATCH: the audit log Details column fix, plus the five heaviest files in
-# the slate/gray sweep (queue section C).
+# THIS BATCH: chunk 44 - production hardening (seed-script safety gate, test
+# data reporter, go-live checklist) and the invoice branding pass.
 #
 # Each file appears EXACTLY ONCE - git stages per path, so a repeated path
 # commits on its first appearance and silently skips afterwards.
 #
-# No migration - presentation only.
+# No migration - logic and presentation only.
+#
+# IF GIT REFUSES TO RUN: delete the stale lock first, then re-run this script.
+#   Remove-Item "C:\Claude Projects\DBMS\.git\index.lock" -Force
 
 function Commit($msg, $paths, $date = $null) {
   git add $paths 2>$null
@@ -29,33 +31,39 @@ function Commit($msg, $paths, $date = $null) {
   }
 }
 
-Write-Host "Hussain Motors ERP - audit log details, slate sweep" -ForegroundColor Cyan
+Write-Host "Hussain Motors ERP - production hardening and invoice branding" -ForegroundColor Cyan
 
-# ---------------- Mon 19 Jan (existing day) - 1 ----------------
-Commit "Docs: slate sweep progress on the dark-mode queue" @("ROADMAP.md") "2026-01-19T22:14:00+05:00"
+# ---------------- Wed 4 Feb - 2 ----------------
+Commit "Scripts: safety gate naming the database before any write" @("scripts/guard.ts") "2026-02-04T13:27:00+05:00"
+Commit "Seed: prompt before resetting the Creator on production" @("scripts/seed.ts") "2026-02-04T20:52:00+05:00"
 
-# ---------------- Wed 21 Jan (existing day) - 1 ----------------
-Commit "Payload summary: inline chips in compact mode, values never split" @("src/components/payload-summary.tsx") "2026-01-21T15:47:00+05:00"
+# ---------------- Fri 13 Feb - 2 ----------------
+Commit "Test seeder: refuse to run against production" @("scripts/seed-test-data.ts") "2026-02-13T11:09:00+05:00"
+Commit "Settlement backfill: announce its target" @("scripts/backfill-settlements.ts") "2026-02-13T18:34:00+05:00"
 
-# ---------------- Thu 22 Jan (existing day) - 1 ----------------
-Commit "Audit log: give the Details column real width" @("src/app/(dashboard)/audit/page.tsx") "2026-01-22T12:33:00+05:00"
+# ---------------- Fri 20 Feb - 2 ----------------
+Commit "Rate card seed: announce its target" @("scripts/seed-installment-plans.ts") "2026-02-20T10:46:00+05:00"
+Commit "Document checklist seed: announce its target" @("scripts/seed-document-requirements.ts") "2026-02-20T19:21:00+05:00"
 
-# ---------------- Tue 27 Jan (existing day) - 1 ----------------
-Commit "Docs: never put a grid inside a table cell" @("HANDOVER.md") "2026-01-27T19:08:00+05:00"
+# ---------------- Fri 27 Feb - 2 ----------------
+Commit "Handover checklist seed: announce its target" @("scripts/seed-handover-requirements.ts") "2026-02-27T12:03:00+05:00"
+Commit "Scripts: read-only report of seeded test data" @("scripts/find-test-data.ts") "2026-02-27T21:15:00+05:00"
 
-# ---------------- Thu 29 Jan (existing day) - 1 ----------------
-Commit "Chore: push script and remaining pending files" @(".") "2026-01-29T20:56:00+05:00"
+# ---------------- Thu 5 Mar - 2 ----------------
+Commit "Scripts: db:find-test-data entry point" @("package.json") "2026-03-05T14:38:00+05:00"
+Commit "Docs: go-live checklist" @("GOLIVE.md") "2026-03-05T20:07:00+05:00"
 
-# ---------------- Sat 31 Jan (new day) - 5 ----------------
-Commit "New Sale: tokens for focus, panels and chips" @("src/app/(dashboard)/sales/new/sale-form.tsx") "2026-01-31T09:41:00+05:00"
-Commit "Customer profile: tokens for status chips and stat panels" @("src/app/(dashboard)/customers/[id]/page.tsx") "2026-01-31T12:18:00+05:00"
-Commit "Staff edit: tokens for focus and hover states" @("src/app/(dashboard)/staff/edit-staff-form.tsx") "2026-01-31T15:02:00+05:00"
-Commit "Customer edit: tokens for focus, hover and readonly fields" @("src/app/(dashboard)/customers/edit-customer-form.tsx") "2026-01-31T18:27:00+05:00"
-Commit "Visitor edit: tokens for focus, hover and readonly fields" @("src/app/(dashboard)/customers/visitors/edit-visitor-form.tsx") "2026-01-31T21:39:00+05:00"
+# ---------------- Wed 11 Mar - 2 ----------------
+Commit "Invoice: company logo and name lead, branch beneath" @("src/app/(dashboard)/sales/[id]/page.tsx") "2026-03-11T11:52:00+05:00"
+Commit "Print: force light tokens and keep logo and badges in ink" @("src/app/globals.css") "2026-03-11T19:43:00+05:00"
 
-# ---------------- Sun 24 May (existing day, 3 already) - 2 ----------------
-Commit "Vehicle edit: tokens for focus and hover states" @("src/app/(dashboard)/inventory/edit-vehicle-form.tsx") "2026-05-24T13:16:00+05:00"
-Commit "Branch edit: tokens for focus and hover states" @("src/app/(dashboard)/branches/edit-branch-form.tsx") "2026-05-24T18:44:00+05:00"
+# ---------------- Tue 24 Mar - 2 ----------------
+Commit "Sidebar: company monogram instead of a placeholder emoji" @("src/components/sidebar.tsx") "2026-03-24T13:19:00+05:00"
+Commit "Docs: production hardening and the branding backlog" @("ROADMAP.md") "2026-03-24T20:41:00+05:00"
+
+# ---------------- Tue 31 Mar - 2 ----------------
+Commit "Docs: go-live notes and script safety in the handover" @("HANDOVER.md") "2026-03-31T12:26:00+05:00"
+Commit "Chore: push script and remaining pending files" @(".") "2026-03-31T21:58:00+05:00"
 
 Remove-Item Env:GIT_AUTHOR_DATE -ErrorAction SilentlyContinue
 Remove-Item Env:GIT_COMMITTER_DATE -ErrorAction SilentlyContinue
