@@ -186,6 +186,21 @@ renaming/retiring a requirement later never rewrites history.
 - See "Known gotchas" below for the stale-bash-sandbox rule and the
   ROADMAP.md renumbering rule — both were hard-learned this session.
 
+## Go-live (2026-08-09)
+
+Sir confirmed real staff and real sales are **weeks away**. `GOLIVE.md` is the checklist; read it
+before running anything that writes.
+
+- **Every write script now announces its target and guards itself** (`scripts/guard.ts`).
+  `db:seed:test` is refused outright against production; `db:seed` prompts for the database name
+  typed by hand; the reference-data seeds just print a banner. With `PROD_DB_HOST` / `APP_ENV`
+  unset the banner says **UNIDENTIFIED** rather than assuming safety.
+- **Dev and prod still share one Neon database until Sir does step 1 of GOLIVE.md.** That is the
+  single largest remaining risk in the project, and it is a console task, not a code task.
+- `npm run db:find-test-data` reports seeded rows. It is read-only on purpose — the seeded sale
+  posted to the ledger and the P&L, so deleting its vehicle would leave the books inconsistent.
+  The clean route is a fresh Neon branch.
+
 ## Stack & infrastructure facts
 - Next.js 16 (App Router) + TypeScript, Drizzle ORM, PostgreSQL on **Neon**,
   Better Auth (invite-only, organization plugin), Tailwind v4, PWA (manifest + SVG icon).
