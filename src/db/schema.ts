@@ -17,6 +17,7 @@ export * from "../modules/assets/schema";
 export * from "../modules/sales/schema";
 export * from "../modules/installment-plans/schema";
 export * from "../modules/document-requirements/schema";
+export * from "../modules/handover-requirements/schema";
 export * from "../modules/ledger/schema";
 export * from "../modules/bookings/schema";
 export * from "../modules/parts/schema";
