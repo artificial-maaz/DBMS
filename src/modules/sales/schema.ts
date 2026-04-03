@@ -13,6 +13,7 @@ import {
 import { branches } from "../branches/schema";
 import { customers } from "../customers/schema";
 import { documentRequirements } from "../document-requirements/schema";
+import { handoverRequirements } from "../handover-requirements/schema";
 import { vehicles } from "../inventory/schema";
 
 export const settlementPlan = pgEnum("settlement_plan", ["cash", "installment"]);
@@ -123,6 +124,27 @@ export const invoiceDocuments = pgTable("invoice_documents", {
   custody: documentCustody("custody").notNull().default("pending"),
   compensationAmount: numeric("compensation_amount", { precision: 12, scale: 2 }),
   compensationNote: text("compensation_note"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+/**
+ * #13 (Sir, 2026-08-09) — what physically went out with the bike, per sale.
+ * Applies to CASH sales as well as installment: mirrors and a charger are owed
+ * to every buyer, however they paid.
+ *
+ * `requirementName` is snapshotted at sale time (same reason as
+ * `invoice_documents`): retiring or renaming an item later must never rewrite
+ * what a past invoice says was handed over. Not a hard gate — an unticked item
+ * records a note ("mirrors on order, collect Friday") rather than blocking the
+ * sale, matching how the document checklist behaves.
+ */
+export const invoiceHandovers = pgTable("invoice_handovers", {
+  id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+  invoiceId: integer("invoice_id").notNull().references(() => invoices.id),
+  requirementId: integer("requirement_id").notNull().references(() => handoverRequirements.id),
+  requirementName: varchar("requirement_name", { length: 120 }).notNull(),
+  handedOver: boolean("handed_over").notNull().default(true),
+  note: text("note"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
