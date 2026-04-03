@@ -50,6 +50,27 @@ const documentsField = z.preprocess((v) => {
   }
 }, z.array(invoiceDocumentSchema));
 
+/**
+ * #13 (2026-08-09): physical handover checklist, EVERY sale (unlike documents,
+ * which are installment-only). Same deliberate looseness — an unticked item
+ * carries a note instead of blocking the sale.
+ */
+const invoiceHandoverSchema = z.object({
+  requirementId: z.coerce.number().int().positive(),
+  requirementName: z.string().trim().min(1).max(120),
+  handedOver: z.boolean(),
+  note: z.string().trim().max(500).optional().or(z.literal("")),
+});
+
+const handoversField = z.preprocess((v) => {
+  if (typeof v !== "string" || v.trim() === "") return [];
+  try {
+    return JSON.parse(v);
+  } catch {
+    return v;
+  }
+}, z.array(invoiceHandoverSchema));
+
 export const createSaleSchema = z
   .object({
     customerId: z.coerce.number().int().positive("Customer is required"),
@@ -77,6 +98,8 @@ export const createSaleSchema = z
     guarantors: guarantorsField,
     /** #20 (2026-07-06): optional checklist snapshot, installment sales only; never required. */
     documents: documentsField,
+    /** #13 (2026-08-09): physical handover snapshot, every sale; never required. */
+    handovers: handoversField,
   })
   .superRefine((v, ctx) => {
     if (v.settlementPlan === "installment") {
