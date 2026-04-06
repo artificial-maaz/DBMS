@@ -1,4 +1,4 @@
-import { and, count, eq, sql } from "drizzle-orm";
+import { and, count, eq, ne, sql } from "drizzle-orm";
 import { db } from "@/db";
 import {
   bookings,
@@ -6,6 +6,7 @@ import {
   guarantors,
   installmentSchedules,
   invoiceDocuments,
+  invoiceHandovers,
   invoiceItems,
   invoices,
   ledgerEntries,
@@ -14,11 +15,66 @@ import {
 import { writeAudit } from "@/lib/audit";
 import { canCreateSale, canManageCommission, seesAllBranches } from "./permissions";
 import { createSaleSchema } from "./validators";
+import { needsWarrantyCard } from "./warranty";
 
 type Actor = { userId: string; role: string; branchId: number | null };
 
+/** The handle inside `db.transaction(async (tx) => ...)`. */
+type Tx = Parameters<Parameters<typeof db.transaction>[0]>[0];
+
 const r2 = (n: number) => Math.round(n * 100) / 100;
 const s = (n: number) => n.toFixed(2);
+
+/**
+ * #15 (Sir, 2026-08-09) — auto-settle, FULLY AUTOMATIC. No "close case" button.
+ *
+ * A case is finished when BOTH halves are finished: nothing is owed, and no
+ * paperwork we are responsible for is still in our hands. A cash sale whose
+ * registration file is sitting in the branch drawer is not closed business, and
+ * neither is an installment case whose final payment landed while its file is
+ * still with us.
+ *
+ * Which documents block:
+ *   provided = true AND custody <> given_to_customer
+ * A document the customer never handed over (`provided = false`) was WAIVED at
+ * sale time — an accepted exception with compensation on record — so it must not
+ * block settlement forever. Only papers we actually took and have not returned do.
+ *
+ * Deliberately BIDIRECTIONAL: moving a document back to `held_by_dealer` on a
+ * settled invoice reopens it. There is no manual override in this design, so a
+ * one-way flip would strand an invoice in `settled` with real work outstanding
+ * and no way back short of SQL.
+ *
+ * `cancelled` is never touched — a reversal stays reversed.
+ *
+ * Callers must already hold the invoice row (FOR UPDATE) where a race matters.
+ * Returns the new status if it changed, otherwise null.
+ */
+async function syncInvoiceSettlement(tx: Tx, invoiceId: number) {
+  const [inv] = await tx
+    .select({ status: invoices.status, balanceDue: invoices.balanceDue })
+    .from(invoices)
+    .where(eq(invoices.id, invoiceId));
+  if (!inv || inv.status === "cancelled") return null;
+
+  const [held] = await tx
+    .select({ n: count() })
+    .from(invoiceDocuments)
+    .where(
+      and(
+        eq(invoiceDocuments.invoiceId, invoiceId),
+        eq(invoiceDocuments.provided, true),
+        ne(invoiceDocuments.custody, "given_to_customer"),
+      ),
+    );
+
+  const complete = Number(inv.balanceDue) <= 0 && Number(held.n) === 0;
+  const next = complete ? ("settled" as const) : ("active" as const);
+  if (next === inv.status) return null;
+
+  await tx.update(invoices).set({ status: next }).where(eq(invoices.id, invoiceId));
+  return next;
+}
 
 /**
  * Finalize a sale — one atomic transaction:
@@ -80,10 +136,20 @@ export async function recordInstallmentPayment(
       const newBalance = r2(Number(inv.balanceDue) - amount);
       await tx
         .update(invoices)
-        .set({ balanceDue: s(Math.max(newBalance, 0)), status: newBalance <= 0 ? "settled" : inv.status })
+        .set({ balanceDue: s(Math.max(newBalance, 0)) })
         .where(eq(invoices.id, inv.id));
 
-      return { invoiceId: inv.id, invoiceNo: inv.invoiceNo, branchId: inv.branchId, installmentNo: sched.installmentNo };
+      // #15: the status is no longer decided here. Zero balance is only half of
+      // "finished" — documents still in our custody keep the case open.
+      const settlement = await syncInvoiceSettlement(tx, inv.id);
+
+      return {
+        invoiceId: inv.id,
+        invoiceNo: inv.invoiceNo,
+        branchId: inv.branchId,
+        installmentNo: sched.installmentNo,
+        settlement,
+      };
     });
 
     await writeAudit({
@@ -92,7 +158,12 @@ export async function recordInstallmentPayment(
       entity: "invoice",
       entityId: result.invoiceId,
       branchId: result.branchId,
-      details: { invoiceNo: result.invoiceNo, installmentNo: result.installmentNo, amount: s(amount) },
+      details: {
+        invoiceNo: result.invoiceNo,
+        installmentNo: result.installmentNo,
+        amount: s(amount),
+        ...(result.settlement ? { caseStatus: result.settlement } : {}),
+      },
     });
 
     return { ok: true as const };
@@ -126,14 +197,27 @@ export async function setDocumentCustody(
     return { ok: false as const, error: "Wrong branch." };
   }
 
-  await db.update(invoiceDocuments).set({ custody }).where(eq(invoiceDocuments.id, docId));
+  // #15: custody and case status move together — releasing the last held paper
+  // on a fully-paid invoice closes the case in the same breath, and taking a
+  // paper back on a settled one reopens it. One transaction so a reader can
+  // never see "all documents released" next to "still active".
+  const settlement = await db.transaction(async (tx) => {
+    await tx.update(invoiceDocuments).set({ custody }).where(eq(invoiceDocuments.id, docId));
+    return syncInvoiceSettlement(tx, inv.id);
+  });
+
   await writeAudit({
     userId: actor.userId,
     action: "invoice.document_custody",
     entity: "invoice",
     entityId: inv.id,
     branchId: inv.branchId,
-    details: { invoiceNo: inv.invoiceNo, document: doc.requirementName, custody },
+    details: {
+      invoiceNo: inv.invoiceNo,
+      document: doc.requirementName,
+      custody,
+      ...(settlement ? { caseStatus: settlement } : {}),
+    },
   });
   return { ok: true as const };
 }
@@ -146,6 +230,21 @@ export async function setWarrantyCardSent(actor: Actor, invoiceId: number) {
   if (!seesAllBranches(actor.role) && inv.branchId !== actor.branchId) {
     return { ok: false as const, error: "Wrong branch." };
   }
+
+  // #14: only Yadea issues a warranty card. The button is hidden for other
+  // makes, so this guard exists for the crafted-request case — and to keep the
+  // rule enforced in the service layer where it belongs, not only in the view.
+  const [line] = await db
+    .select({ vehicleId: invoiceItems.vehicleId })
+    .from(invoiceItems)
+    .where(and(eq(invoiceItems.invoiceId, invoiceId), sql`${invoiceItems.vehicleId} is not null`));
+  const soldVehicle = line?.vehicleId
+    ? await db.query.vehicles.findFirst({ where: (v, { eq }) => eq(v.id, line.vehicleId!) })
+    : null;
+  if (!needsWarrantyCard(soldVehicle?.make)) {
+    return { ok: false as const, error: "Warranty cards apply to Yadea sales only." };
+  }
+
   await db.update(invoices).set({ warrantyCardSent: true }).where(eq(invoices.id, invoiceId));
   await writeAudit({
     userId: actor.userId,
@@ -279,7 +378,10 @@ export async function createSale(actor: Actor, raw: unknown) {
           notes: input.notes || null,
           createdBy: actor.userId,
           saleDate: input.saleDate,
-          warrantyCardSent: input.warrantyCardSent,
+          // #14: Yadea-only. Hard-stripped server-side for every other make, the
+          // same way guarantor/document rows are stripped for cash sales — the
+          // field is hidden in the UI, so a `true` here could only be crafted.
+          warrantyCardSent: needsWarrantyCard(vehicle.make) && input.warrantyCardSent,
         })
         .returning({ id: invoices.id });
 
@@ -392,6 +494,27 @@ export async function createSale(actor: Actor, raw: unknown) {
         );
       }
 
+      // 10. Handover checklist (#13) — EVERY sale, cash included. Mirrors and a
+      // charger are owed to a cash buyer exactly as much as to an installment
+      // buyer, which is why this is not stripped the way documents are.
+      if (input.handovers.length > 0) {
+        await tx.insert(invoiceHandovers).values(
+          input.handovers.map((h) => ({
+            invoiceId: inv.id,
+            requirementId: h.requirementId,
+            requirementName: h.requirementName,
+            handedOver: h.handedOver,
+            note: h.handedOver ? null : h.note || null,
+          })),
+        );
+      }
+
+      // 11. #15: a cash sale with nothing owed and no paper held by us is
+      // finished the moment it is written — it should never have sat in
+      // "Active Invoices" waiting for a status nobody was ever going to set.
+      // Installment sales fail this test on balance and stay active, as they should.
+      const settlement = await syncInvoiceSettlement(tx, inv.id);
+
       return {
         invoiceId: inv.id,
         invoiceNo,
@@ -400,6 +523,8 @@ export async function createSale(actor: Actor, raw: unknown) {
         bookingCredit,
         guarantorCount: saleGuarantors.length,
         missingDocuments: saleDocuments.filter((d) => !d.provided).length,
+        pendingHandovers: input.handovers.filter((h) => !h.handedOver).length,
+        settlement,
       };
     });
 
@@ -417,6 +542,8 @@ export async function createSale(actor: Actor, raw: unknown) {
         ...(result.bookingId ? { bookingId: result.bookingId, bookingCredit: s(result.bookingCredit) } : {}),
         ...(result.guarantorCount > 0 ? { guarantorCount: result.guarantorCount } : {}),
         ...(result.missingDocuments > 0 ? { missingDocuments: result.missingDocuments } : {}),
+        ...(result.pendingHandovers > 0 ? { itemsNotHandedOver: result.pendingHandovers } : {}),
+        ...(result.settlement ? { caseStatus: result.settlement } : {}),
       },
     });
 
