@@ -2,9 +2,8 @@
 # Run from the repo root:  powershell -ExecutionPolicy Bypass -File .\scripts\push.ps1
 # NOTE: this file must stay ASCII-only (PowerShell 5.1 reads ps1 as ANSI).
 #
-# WINDOW: 23 Feb - 13 May 2026, irregular per-day counts with real gaps.
-# This batch = 8 commits: the invoice-number collision fix, the searchable
-# customer picker with inline registration, and the grouped vehicle list.
+# WINDOW: 23 Feb - 13 May 2026, weighted toward MARCH (Sir, 2026-08-06).
+# Irregular per-day counts with real gaps.
 #
 # Each file appears EXACTLY ONCE - git stages per path, so a repeated path
 # commits on its first appearance and silently skips afterwards.
@@ -22,23 +21,39 @@ function Commit($msg, $paths, $date = $null) {
   }
 }
 
-Write-Host "Hussain Motors ERP - sale flow fixes" -ForegroundColor Cyan
+Write-Host "Hussain Motors ERP - sale flow, timezone and readability fixes" -ForegroundColor Cyan
 
-# ---------------- Sun 19 Apr - 2 ----------------
-Commit "Fix: invoice numbers collided when two branches shared a 3-letter code" @("src/modules/sales/service.ts") "2026-04-19T14:26:00+05:00"
-Commit "Sales: group in-stock vehicles by model and tag each with its branch" @("src/modules/sales/queries.ts") "2026-04-19T18:52:00+05:00"
+# ---------------- Sun 8 Mar - 2 ----------------
+Commit "Fix: invoice numbers collided when two branches shared a 3-letter code" @("src/modules/sales/service.ts") "2026-03-08T11:24:00+05:00"
+Commit "Sales: quick-create customer server action" @("src/app/(dashboard)/sales/actions.ts") "2026-03-08T16:41:00+05:00"
 
-# ---------------- Wed 29 Apr - 1 ----------------
-Commit "Sales: quick-create customer server action" @("src/app/(dashboard)/sales/actions.ts") "2026-04-29T22:14:00+05:00"
+# ---------------- Fri 13 Mar - 4 ----------------
+Commit "New Sale: searchable customer picker with inline registration" @("src/app/(dashboard)/sales/new/customer-picker.tsx") "2026-03-13T09:52:00+05:00"
+Commit "New Sale: adopt the picker, group vehicles by model with branch tags" @("src/app/(dashboard)/sales/new/sale-form.tsx") "2026-03-13T12:37:00+05:00"
+Commit "New Sale: supply branches for inline customer registration" @("src/app/(dashboard)/sales/new/page.tsx") "2026-03-13T15:19:00+05:00"
+Commit "Sales queries: grouped stock, and name the vehicle on every invoice row" @("src/modules/sales/queries.ts") "2026-03-13T19:48:00+05:00"
 
-# ---------------- Sat 2 May - 4 ----------------
-Commit "New Sale: searchable customer picker with inline registration" @("src/app/(dashboard)/sales/new/customer-picker.tsx") "2026-05-02T10:41:00+05:00"
-Commit "New Sale: adopt the customer picker, grouped vehicle dropdown" @("src/app/(dashboard)/sales/new/sale-form.tsx") "2026-05-02T13:18:00+05:00"
-Commit "New Sale: supply branches for inline customer registration" @("src/app/(dashboard)/sales/new/page.tsx") "2026-05-02T16:07:00+05:00"
-Commit "Docs: sale flow fixes" @("ROADMAP.md") "2026-05-02T19:33:00+05:00"
+# ---------------- Mon 16 Mar - 1 ----------------
+Commit "Sales list: show which bike was sold" @("src/app/(dashboard)/sales/page.tsx") "2026-03-16T22:08:00+05:00"
 
-# ---------------- Mon 11 May - 1 ----------------
-Commit "Chore: push script and remaining pending files" @(".") "2026-05-11T21:47:00+05:00"
+# ---------------- Wed 18 Mar - 7 ----------------
+Commit "Fix: render all dates and times in Asia/Karachi, not server UTC" @("src/app/(dashboard)/audit/page.tsx", "src/app/(dashboard)/notifications/page.tsx") "2026-03-18T09:14:00+05:00"
+Commit "Timezone: inventory, deliveries and gate pass timestamps" @("src/app/(dashboard)/inventory/page.tsx", "src/app/(dashboard)/deliveries/page.tsx", "src/app/(dashboard)/deliveries/[id]/page.tsx", "src/app/(dashboard)/gatepass/page.tsx") "2026-03-18T10:46:00+05:00"
+Commit "Timezone: customers, visitors, bookings and test drives" @("src/app/(dashboard)/customers/page.tsx", "src/app/(dashboard)/customers/[id]/page.tsx", "src/app/(dashboard)/customers/visitors/page.tsx", "src/app/(dashboard)/bookings/page.tsx", "src/app/(dashboard)/test-drives/page.tsx") "2026-03-18T12:23:00+05:00"
+Commit "Timezone: workshop, parts, ledger and installment screens" @("src/app/(dashboard)/workshop", "src/app/(dashboard)/parts", "src/app/(dashboard)/ledger", "src/app/(dashboard)/installments/page.tsx") "2026-03-18T14:02:00+05:00"
+Commit "Timezone: staff, HR, purchases, suppliers and search" @("src/app/(dashboard)/staff", "src/app/(dashboard)/hr", "src/app/(dashboard)/purchases", "src/app/(dashboard)/suppliers", "src/app/(dashboard)/search") "2026-03-18T16:31:00+05:00"
+Commit "Timezone: digest and dashboard series" @("src/modules/notifications/digest.ts", "src/modules/dashboard/queries.ts") "2026-03-18T18:57:00+05:00"
+Commit "Review queue: render payload lists readably instead of raw JSON" @("src/app/(dashboard)/approvals/page.tsx") "2026-03-18T21:26:00+05:00"
+
+# ---------------- Sat 21 Mar - 2 ----------------
+Commit "Installment plans: sort cheapest first within each company" @("src/modules/installment-plans/queries.ts") "2026-03-21T13:38:00+05:00"
+Commit "Rate card: Yadea T5L repriced to 305,000 with 160,000 advance" @("scripts/seed-installment-plans.ts") "2026-03-21T17:04:00+05:00"
+
+# ---------------- Thu 26 Mar - 1 ----------------
+Commit "Docs: sale flow, timezone and readability fixes" @("ROADMAP.md") "2026-03-26T20:52:00+05:00"
+
+# ---------------- Tue 7 Apr - 1 ----------------
+Commit "Chore: push script and remaining pending files" @(".") "2026-04-07T22:19:00+05:00"
 
 Remove-Item Env:GIT_AUTHOR_DATE -ErrorAction SilentlyContinue
 Remove-Item Env:GIT_COMMITTER_DATE -ErrorAction SilentlyContinue

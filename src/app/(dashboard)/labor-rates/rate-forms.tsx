@@ -96,7 +96,7 @@ export function RateRow({ rate, canManage }: { rate: Rate; canManage: boolean })
   return (
     <tr className={`border-t border-line row-hover ${!rate.isActive ? "opacity-50" : ""}`}>
       <td className="px-4 py-2.5 font-medium">{rate.serviceName}</td>
-      <td className="px-4 py-2.5 text-right">Rs. {Number(rate.price).toLocaleString("en-PK", { timeZone: "Asia/Karachi" })}</td>
+      <td className="px-4 py-2.5 text-right">Rs. {Number(rate.price).toLocaleString("en-PK")}</td>
       <td className="px-4 py-2.5 text-ink-faint">{rate.equipment ?? "—"}</td>
       <td className="px-4 py-2.5">
         <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${rate.isActive ? "bg-emerald-100 text-emerald-700" : "bg-slate-100 text-ink-faint"}`}>

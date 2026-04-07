@@ -10,7 +10,7 @@ export default async function AssetsPage() {
   const manager = canManageAssets(profile.role);
 
   const [rows, branches] = await Promise.all([listAssets(), listActiveBranches()]);
-  const fmt = (v: string | number) => `Rs. ${Number(v).toLocaleString("en-PK", { timeZone: "Asia/Karachi" })}`;
+  const fmt = (v: string | number) => `Rs. ${Number(v).toLocaleString("en-PK")}`;
   const totalValue = rows.filter((r) => r.isActive).reduce((a, r) => a + r.qty * Number(r.unitValue), 0);
 
   return (

@@ -21,7 +21,7 @@ export default async function InvoiceDetailPage({ params }: { params: Promise<{ 
   if (!data) notFound();
   const { invoice, customer, branch, items, schedule, guarantors, documents } = data;
 
-  const fmt = (v: string | null) => (v == null ? "—" : `Rs. ${Number(v).toLocaleString("en-PK", { timeZone: "Asia/Karachi" })}`);
+  const fmt = (v: string | null) => (v == null ? "—" : `Rs. ${Number(v).toLocaleString("en-PK")}`);
   const d = (v: Date | string) => new Date(v).toLocaleDateString("en-PK", { timeZone: "Asia/Karachi" });
   const today = new Date().toISOString().slice(0, 10);
   const collector = canCreateSale(profile.role);
