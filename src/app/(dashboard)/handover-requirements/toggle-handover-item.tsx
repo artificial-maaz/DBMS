@@ -4,10 +4,9 @@ import { useTransition } from "react";
 import { toggleHandoverItemAction } from "./actions";
 
 /**
- * The raw `red-*` / `emerald-*` classes here match the Document Checklist
- * toggle deliberately. Both should move to the semantic status ramp together
- * when queue item C lands — a lone exception would just be a third pattern to
- * chase down later.
+ * On the semantic status ramp (added 2026-08-09) along with the Document
+ * Checklist and Installment Plan toggles — they were moved together, as the
+ * note that used to sit here said they should be.
  */
 export function ToggleHandoverItem({ id, isActive }: { id: number; isActive: boolean }) {
   const [pending, start] = useTransition();
@@ -20,7 +19,7 @@ export function ToggleHandoverItem({ id, isActive }: { id: number; isActive: boo
         })
       }
       className={`rounded-md px-2.5 py-1 text-xs font-medium transition-colors disabled:opacity-50 ${
-        isActive ? "bg-red-50 text-red-700 hover:bg-red-100" : "bg-emerald-50 text-emerald-700 hover:bg-emerald-100"
+        isActive ? "bg-danger-soft text-danger hover:brightness-95" : "bg-ok-soft text-ok hover:brightness-95"
       }`}
     >
       {pending ? "…" : isActive ? "Retire" : "Reactivate"}
