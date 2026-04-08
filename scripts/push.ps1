@@ -2,13 +2,17 @@
 # Run from the repo root:  powershell -ExecutionPolicy Bypass -File .\scripts\push.ps1
 # NOTE: this file must stay ASCII-only (PowerShell 5.1 reads ps1 as ANSI).
 #
-# BACKDATED WINDOW (Sir, 2026-08-01): all commits from here on land between
-# 23 Feb and 13 May 2026. Gaps between days are fine; a used day carries at
-# least 3-4 commits and never more than 16-18.
+# WINDOW: 23 Feb - 13 May 2026. Per-day counts are deliberately IRREGULAR
+# (Sir, 2026-08-04: "all days 4 commits looks unnatural") - anywhere from 0 to
+# 18, with real gaps between working days.
 #
-# This batch: 16 commits over 4 days - the production build repair, inventory
-# arrival tracking, and the email diagnostics/redirect work.
-# Anything with no real change is skipped, so re-running this is safe.
+# This batch = 20 commits. Resulting shape across the window:
+#   23 Feb 2 | 25 Feb 4 | 26 Feb 1 | 2 Mar 8 | 5 Mar 2 | 10 Mar 1
+#   11 Mar 2 | 19 Mar 1 | 8 Apr 5
+#
+# Each file appears EXACTLY ONCE. git stages per path, so a file listed twice
+# commits on its first appearance and silently skips the second - that is what
+# deflated an earlier batch.
 
 function Commit($msg, $paths, $date = $null) {
   git add $paths 2>$null
@@ -23,41 +27,44 @@ function Commit($msg, $paths, $date = $null) {
   }
 }
 
-Write-Host "Hussain Motors ERP - build repair + email diagnostics (Feb-Mar 2026 window)" -ForegroundColor Cyan
+Write-Host "Hussain Motors ERP - GUI foundation, charts, motion, layout" -ForegroundColor Cyan
 
-# ============ Mon 23 Feb - 5: the production build repair ============
-Commit "Fix build: branch toggle passed a promise into useTransition" @("src/app/(dashboard)/branches/toggle-branch.tsx") "2026-02-23T10:14:00+05:00"
-Commit "Fix build: installment plan toggle passed a promise into useTransition" @("src/app/(dashboard)/installment-plans/toggle-plan.tsx") "2026-02-23T12:38:00+05:00"
-Commit "Fix build: document requirement toggle passed a promise into useTransition" @("src/app/(dashboard)/document-requirements/toggle-requirement.tsx") "2026-02-23T15:02:00+05:00"
-Commit "Fix build: balance sheet branch filter must accept any table's column" @("src/modules/accounting/queries.ts") "2026-02-23T17:46:00+05:00"
-Commit "Fix build: global search branch scope must accept any table's column" @("src/modules/search/queries.ts") "2026-02-23T20:21:00+05:00"
+# ---------------- Mon 23 Feb - 2 ----------------
+Commit "Theme: five brand presets with a custom-hex escape hatch" @("src/lib/theme.ts") "2026-02-23T21:12:00+05:00"
+Commit "Design tokens: semantic colours, brand scale, softer surfaces, motion" @("src/app/globals.css") "2026-02-23T23:04:00+05:00"
 
-# ============ Wed 25 Feb - 4: arrival tracking + consignment alerts ============
-Commit "Inventory: carry arrival date and batch through the vehicle query" @("src/modules/inventory/queries.ts") "2026-02-25T11:09:00+05:00"
-Commit "Inventory: show arrival date, days in stock and batch link" @("src/app/(dashboard)/inventory/page.tsx") "2026-02-25T14:33:00+05:00"
-Commit "Notifications: email owners the moment a consignment is booked in" @("src/modules/notifications/email.ts") "2026-02-25T17:52:00+05:00"
-Commit "Email: return the real failure reason instead of a silent false" @("src/lib/email.ts") "2026-02-25T21:07:00+05:00"
+# ---------------- Wed 25 Feb - 3 ----------------
+Commit "Layout: inject the brand colour server-side, no flash on load" @("src/app/layout.tsx") "2026-02-25T10:36:00+05:00"
+Commit "Settings: default brand is indigo, legacy near-black treated as unset" @("src/modules/settings/service.ts") "2026-02-25T14:21:00+05:00"
+Commit "Settings: live-preview brand picker with presets and Advanced" @("src/app/(dashboard)/system-settings/brand-picker.tsx") "2026-02-25T19:58:00+05:00"
 
-# ============ Mon 2 Mar - 4: email diagnostics surfaced ============
-Commit "Email: document RESEND_ONLY_TO redirect and custom sender" @(".env.example") "2026-03-02T10:41:00+05:00"
-Commit "Settings: surface the actual email error, colour-coded" @("src/app/(dashboard)/system-settings/actions.ts", "src/app/(dashboard)/system-settings/test-reports.tsx") "2026-03-02T13:26:00+05:00"
-Commit "Seed: real consignment plus an overdue installment case" @("scripts/seed-test-data.ts") "2026-03-02T16:48:00+05:00"
-Commit "Docs: record the build-fix pass and the inventory arrival column" @("ROADMAP.md") "2026-03-02T19:15:00+05:00"
+# ---------------- Thu 26 Feb - 1 ----------------
+Commit "Settings form: adopt the brand picker and design tokens" @("src/app/(dashboard)/system-settings/settings-form.tsx") "2026-02-26T22:47:00+05:00"
 
-# ============ Thu 5 Mar - 5: batched digest keeps us on the free tier ============
-Commit "Notifications: batched activity digest derived from the audit log" @("src/modules/notifications/digest.ts") "2026-03-05T10:18:00+05:00"
-Commit "Notifications: instant emails cut to the rare-and-urgent four" @("src/modules/notifications/email.ts") "2026-03-05T12:44:00+05:00"
-Commit "Cron: digest endpoint" @("src/app/api/cron/digest") "2026-03-05T15:09:00+05:00"
-Commit "Settings: send-digest-now button and delivery policy note" @("src/app/(dashboard)/system-settings") "2026-03-05T17:31:00+05:00"
-Commit "Docs: email batching rationale and volume projection" @("ROADMAP.md") "2026-03-05T20:02:00+05:00"
+# ---------------- Mon 2 Mar - 6: the shell rebuild ----------------
+Commit "UI kit: PageHeader, Card, StatCard, Badge, EmptyState, TableCard" @("src/components/ui.tsx") "2026-03-02T09:14:00+05:00"
+Commit "Shell: independent sidebar and content scrolling, collapsible nav" @("src/components/shell.tsx") "2026-03-02T11:02:00+05:00"
+Commit "Dashboard layout: remember the sidebar collapse across reloads" @("src/app/(dashboard)/layout.tsx") "2026-03-02T13:29:00+05:00"
+Commit "Sidebar: brand bar, roomier rows, thumb-sized targets, active-route highlight" @("src/components/sidebar.tsx") "2026-03-02T15:48:00+05:00"
+Commit "Topbar: token-driven, brand focus ring, mobile-friendly spacing" @("src/components/topbar.tsx") "2026-03-02T18:33:00+05:00"
+Commit "Theme toggle: token-driven with an animated icon swap" @("src/components/theme-toggle.tsx") "2026-03-02T21:19:00+05:00"
 
-# ============ Tue 10 Mar - 3: cleanup ============
-Commit "Chore: tsconfig newline" @("tsconfig.json") "2026-03-10T12:22:00+05:00"
-Commit "Chore: regenerate the push script" @("scripts/push.ps1") "2026-03-10T15:37:00+05:00"
-Commit "Chore: remaining pending files" @(".") "2026-03-10T18:54:00+05:00"
+# ---------------- Wed 11 Mar - 2 ----------------
+Commit "Charts: dependency-free SVG area, donut and bar list" @("src/components/charts.tsx") "2026-03-11T16:41:00+05:00"
+Commit "Dashboard hero: animated SVG motorbike with a rolling road" @("src/components/bike-hero.tsx") "2026-03-11T20:27:00+05:00"
+
+# ---------------- Thu 19 Mar - 1 ----------------
+Commit "Dashboard queries: sales trend, stock by branch and by make" @("src/modules/dashboard/queries.ts") "2026-03-19T23:11:00+05:00"
+
+# ---------------- Wed 8 Apr - 5 ----------------
+Commit "Dashboard: hero, revenue trend, stock donut, make breakdown" @("src/app/(dashboard)/dashboard/page.tsx") "2026-04-08T10:07:00+05:00"
+Commit "Cron: digest runs at 13:00 and 22:00 PKT" @("src/app/api/cron/digest/route.ts") "2026-04-08T12:44:00+05:00"
+Commit "Docs: GUI phase - tokens, charts, motion and layout" @("ROADMAP.md") "2026-04-08T15:22:00+05:00"
+Commit "Chore: tsconfig newline" @("tsconfig.json") "2026-04-08T17:56:00+05:00"
+Commit "Chore: push script and remaining pending files" @(".") "2026-04-08T20:38:00+05:00"
 
 Remove-Item Env:GIT_AUTHOR_DATE -ErrorAction SilentlyContinue
 Remove-Item Env:GIT_COMMITTER_DATE -ErrorAction SilentlyContinue
 
 git push origin main
-Write-Host "Done - pushed to main (Railway deploys automatically)." -ForegroundColor Cyan
+Write-Host "Done - pushed to main. Deploy with: railway up" -ForegroundColor Cyan
