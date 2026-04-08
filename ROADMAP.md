@@ -94,6 +94,60 @@ No migration needed — logic-only changes.
 5. ~~System Settings & Branding (#29)~~ ✅ **Done 2026-07-11:** singleton `system_settings` table (id=1), Creator-only `/system-settings` page. Company name + logo (≤200KB, stored as inline data URL — no blob storage needed) drive the sidebar; browser tab title via `generateMetadata` (config.ts = first-boot fallback); default excise fee + showroom profit pre-fill New Sale's registration-fee split. Commission rate %, warranty days, timezone stored for upcoming consumers (commission auto-suggest, warranty checks, date rendering). Theme color stored; full UI theming deferred to the polish pass (#31) — applying it properly means replacing hardcoded Tailwind palette classes across every page, a polish-phase job. **Needs migration** (new `system_settings` table).
 6. ~~Notifications (#27)~~ ✅ **Done 2026-07-14 (in-app):** 🔔 bell in the topbar (Creator only) with unread badge; `/notifications` feed DERIVED from the audit log (no second event pipeline) filtered to ~25 important actions (approvals, sales, payments, ledger, stock, staff changes, payroll, settings, imports, warranty-card marks). Per-user `notification_state` watermark — visiting the page marks all seen; your own actions never notify you. Workshop "Deliver & Collect" also gated through the approval queue this pass (was the noted gap). *Email/WhatsApp delivery of the same IMPORTANT_ACTIONS list = future, needs a provider.* **Needs migration** (`notification_state`).
 
+## 🎨 IN PROGRESS — GUI phase (2026-08-01, chunk 36)
+Sir's direction: **A3** (five brand presets + custom hex behind Advanced) and **B2**
+(warmer, softer, roomier) plus animation throughout.
+
+**Foundation — done:**
+- **Semantic design tokens** (`globals.css`): `surface / raised / line / ink / ink-soft /
+  ink-faint / brand-50..900`. Colours now say what they MEAN, so each resolves per mode.
+  This fixes the two root problems at once — the theme colour never applied, and dark mode
+  was faked by intercepting light-mode classes.
+- **Brand scale from one hex** via `color-mix()`; the server injects `--brand` onto `<html>`
+  from System Settings, so there is no flash of the wrong colour. Dark mode uses a separate
+  derivation so brand shades stay legible on deep navy.
+- **B2 warmth:** base font 15px, `--radius-card: 1rem`, two-layer soft shadows, roomier padding.
+- **Motion:** `rise / fade / slide-left / pop` keyframes, `.stagger` for cascading children,
+  `.skeleton` shimmer, global colour transitions, page-transition on route change, and a
+  `prefers-reduced-motion` guard that disables all of it for anyone who needs that.
+- **Brand picker:** five presets (Indigo, Emerald, Royal Blue, Crimson, Graphite) that
+  **repaint the app live** as you click, with a custom hex under Advanced.
+- **UI kit** (`components/ui.tsx`): PageHeader, Card, StatCard (gradient + hover-lift),
+  Badge, EmptyState, TableCard, Th — so screens stop hand-rolling markup.
+- **Shell/sidebar/topbar:** token-driven, 44px thumb targets, sticky blurred topbar,
+  drawer with backdrop blur, animated notification badge.
+- **Dashboard:** gradient KPI tiles with staggered entrance, time-aware greeting,
+  leaderboards with real empty states.
+- A **legacy bridge** in `globals.css` keeps unmigrated screens correct in dark mode and
+  brand-ifies old `indigo-*` accents. It shrinks as screens migrate; delete it when empty.
+
+**Charts + motion pass (2026-08-04) — done:**
+- **Root cause of the "black boxes":** the stored `themeColor` was still `#0f172a` (the pre-GUI
+  default, near-black), so brand-toned cards rendered black-on-black. `#0f172a` is now treated as
+  "never chosen" and falls back to indigo; the stored default changed too.
+- **Softer surfaces (Sir's feedback):** borders reduced to near-invisible hairlines in both modes —
+  depth now comes from layered shadows, not drawn outlines. Dark borders lift rather than stroke.
+- **Charts, dependency-free** (`components/charts.tsx`): `AreaTrend` (Catmull-Rom smoothed area with
+  gradient fill and a self-drawing line), `Donut` (sweeping slices), `BarList` (growing bars).
+  Deliberately NOT Recharts/Chart.js — ~150KB on staff phones, and neither can read our CSS tokens,
+  so they'd ignore the brand colour and dark mode. These render server-side with zero client JS.
+- **BikeHero:** pure-SVG motorbike that rides in, bobs, spins its wheels over a streaming road —
+  brand-coloured, no image assets.
+- **Dashboard rebuilt:** hero + KPI tiles + 6-month revenue/sales trend + stock-by-branch donut +
+  stock-by-make bars + leaderboards, all with staggered entrances and real empty states.
+
+**Layout fixes (2026-08-04, Sir):**
+- **Independent scrolling.** The shell used to be one page-level scroll container, so dragging the
+  content dragged the nav out of view. Now `h-screen + overflow-hidden` on the shell and each column
+  owns its own scrollbar. The subtle part is `min-h-0` on the flex children — without it a flex item
+  refuses to shrink below its content height and the inner overflow never engages.
+- **Collapsible sidebar.** « / » button in the topbar hides the nav entirely for wide tables;
+  the choice is stored in a `sidebar` cookie and read server-side, so it never flashes open on load
+  (same pattern as the theme).
+
+**Still to do:** migrate remaining screens to tokens/UI kit, empty states everywhere,
+login + invoice branding pass, simplified role-home for phones.
+
 ## ✅ Done — Email batching for the free tier (2026-08-01, chunk 35)
 Resend's free plan is **3,000 emails/month capped at 100/day**. Instant-per-action emails would
 have broken that within a week of go-live: 4 branches x ~10 approvals x 4 recipients ~= 160/day.
@@ -106,6 +160,7 @@ have broken that within a week of go-live: 4 branches x ~10 approvals x 4 recipi
   no second event pipeline. Watermark reuses `notification_state` under a reserved key, so
   **no migration is needed**. Sends nothing when there's nothing new; only advances the watermark on
   a successful send, so a failed run retries instead of losing a batch.
+- **Schedule (Sir, 2026-08-01):** digest at **13:00 and 22:00 PKT**; daily report 21:00; monthly on the 1st.
 - **Projected volume:** ~2 digests + 1 daily report per day, plus a handful of instants ≈ **100/month**
   against a 3,000 allowance. Free indefinitely.
 - **`RESEND_ONLY_TO`** redirects all mail to one verified address while no domain is verified
