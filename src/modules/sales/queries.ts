@@ -3,6 +3,7 @@ import { db } from "@/db";
 import { branches, customers, invoices, vehicles } from "@/db/schema";
 import { listOpenBookingsForSale } from "@/modules/bookings/queries";
 import { listActiveRequirements } from "@/modules/document-requirements/queries";
+import { listActiveHandoverItems } from "@/modules/handover-requirements/queries";
 import { listActivePlansForSale } from "@/modules/installment-plans/queries";
 import { seesAllBranches } from "./permissions";
 
@@ -59,7 +60,7 @@ export async function getInvoiceDetail(opts: { id: number; role: string; ownBran
   if (!inv) return null;
   if (!seesAllBranches(opts.role) && inv.branchId !== opts.ownBranchId) return null;
 
-  const [customer, branch, items, schedule, invoiceGuarantors, documents] = await Promise.all([
+  const [customer, branch, items, schedule, invoiceGuarantors, documents, handovers] = await Promise.all([
     db.query.customers.findFirst({ where: (c, { eq }) => eq(c.id, inv.customerId) }),
     db.query.branches.findFirst({ where: (b, { eq }) => eq(b.id, inv.branchId) }),
     db.query.invoiceItems.findMany({ where: (it, { eq }) => eq(it.invoiceId, inv.id) }),
@@ -69,9 +70,18 @@ export async function getInvoiceDetail(opts: { id: number; role: string; ownBran
     }),
     db.query.guarantors.findMany({ where: (g, { eq }) => eq(g.invoiceId, inv.id) }),
     db.query.invoiceDocuments.findMany({ where: (dc, { eq }) => eq(dc.invoiceId, inv.id) }),
+    db.query.invoiceHandovers.findMany({ where: (h, { eq }) => eq(h.invoiceId, inv.id) }),
   ]);
 
-  return { invoice: inv, customer, branch, items, schedule, guarantors: invoiceGuarantors, documents };
+  // #14: the warranty card is Yadea-only, so the invoice needs to know what was
+  // sold. Read it off the vehicle row rather than parsing the line description —
+  // the description is display text and is free to change.
+  const vehicleId = items.find((it) => it.vehicleId != null)?.vehicleId ?? null;
+  const vehicle = vehicleId
+    ? await db.query.vehicles.findFirst({ where: (v, { eq }) => eq(v.id, vehicleId) })
+    : null;
+
+  return { invoice: inv, customer, branch, items, schedule, guarantors: invoiceGuarantors, documents, handovers, vehicle };
 }
 
 /** Data the "New Sale" form needs: sellable stock + customers, branch-scoped. */
@@ -82,7 +92,7 @@ export async function getSaleFormData(opts: { role: string; ownBranchId: number 
   // (labels carry the branch name; purchase prices are never in this query).
   const stockWhere = eq(vehicles.status, "in_stock");
 
-  const [stock, customerList, openBookings, plans, requirements] = await Promise.all([
+  const [stock, customerList, openBookings, plans, requirements, handoverItems] = await Promise.all([
     db
       .select({
         id: vehicles.id,
@@ -104,6 +114,7 @@ export async function getSaleFormData(opts: { role: string; ownBranchId: number 
     listOpenBookingsForSale({ role: opts.role, ownBranchId: opts.ownBranchId }),
     listActivePlansForSale(),
     listActiveRequirements(),
+    listActiveHandoverItems(),
   ]);
 
   return {
@@ -137,5 +148,6 @@ export async function getSaleFormData(opts: { role: string; ownBranchId: number 
     })),
     plans,
     requirements,
+    handoverItems,
   };
 }
