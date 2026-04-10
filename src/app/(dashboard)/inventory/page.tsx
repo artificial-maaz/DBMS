@@ -42,7 +42,7 @@ export default async function InventoryPage({
         <h1 className="text-xl font-semibold">Showroom Inventory</h1>
         <div className="flex items-center gap-2">
         {["creator", "owner", "branch_manager"].includes(profile.role) && (
-          <a href="/inventory/audit" className="rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium hover:bg-slate-50">
+          <a href="/inventory/audit" className="rounded-lg border border-line bg-surface px-4 py-2 text-sm font-medium row-hover">
             ⟳ Stock Audit
           </a>
         )}
@@ -58,7 +58,7 @@ export default async function InventoryPage({
 
       {/* Filters — plain GET form, server does the filtering */}
       <form className="flex flex-wrap gap-3" method="get">
-        <select name="status" defaultValue={params.status ?? ""} className="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm">
+        <select name="status" defaultValue={params.status ?? ""} className="rounded-lg border border-line bg-surface px-3 py-1.5 text-sm">
           <option value="">All statuses</option>
           <option value="in_stock">In stock</option>
           <option value="sold">Sold</option>
@@ -66,21 +66,21 @@ export default async function InventoryPage({
           <option value="in_repair">In repair</option>
         </select>
         {allBranches && (
-          <select name="branch" defaultValue={params.branch ?? ""} className="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm">
+          <select name="branch" defaultValue={params.branch ?? ""} className="rounded-lg border border-line bg-surface px-3 py-1.5 text-sm">
             <option value="">All branches</option>
             {branches.map((b) => (
               <option key={b.id} value={b.id}>{b.name}</option>
             ))}
           </select>
         )}
-        <button className="rounded-lg bg-slate-900 px-4 py-1.5 text-sm text-white hover:bg-slate-700">
+        <button className="rounded-lg bg-brand-600 px-4 py-1.5 text-sm text-white hover:bg-brand-500">
           Filter
         </button>
       </form>
 
-      <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white">
+      <div className="overflow-x-auto card">
         <table className="w-full text-sm">
-          <thead className="bg-slate-50 text-left text-xs uppercase tracking-wide text-slate-500">
+          <thead className="bg-raised text-left text-xs uppercase tracking-wide text-ink-faint">
             <tr>
               <Th>Vehicle</Th>
               <Th>Color</Th>
@@ -97,16 +97,16 @@ export default async function InventoryPage({
           <tbody>
             {rows.length === 0 && (
               <tr>
-                <td colSpan={showPrice ? (editable ? 10 : 9) : (editable ? 9 : 8)} className="px-4 py-10 text-center text-slate-400">
+                <td colSpan={showPrice ? (editable ? 10 : 9) : (editable ? 9 : 8)} className="px-4 py-10 text-center text-ink-faint">
                   No vehicles registered yet.
                 </td>
               </tr>
             )}
             {rows.map((v) => (
-              <tr key={v.id} className="border-t border-slate-100 hover:bg-slate-50">
+              <tr key={v.id} className="border-t border-line row-hover">
                 <td className="px-4 py-2.5 font-medium">
                   {v.make} {v.model}
-                  {v.variant && <span className="block text-xs font-normal text-slate-500">{v.variant}</span>}
+                  {v.variant && <span className="block text-xs font-normal text-ink-faint">{v.variant}</span>}
                 </td>
                 <td className="px-4 py-2.5">{v.color ?? "—"}</td>
                 <td className="px-4 py-2.5 font-mono text-xs">{v.chassisNo}</td>
@@ -116,14 +116,14 @@ export default async function InventoryPage({
                 <td className="px-4 py-2.5 text-xs">
                   {v.arrivedOn ? (
                     <>
-                      <span className="text-slate-600">{new Date(v.arrivedOn).toLocaleDateString("en-PK")}</span>
+                      <span className="text-ink-soft">{new Date(v.arrivedOn).toLocaleDateString("en-PK")}</span>
                       {v.status === "in_stock" && (
-                        <span className="block text-slate-400">
+                        <span className="block text-ink-faint">
                           {Math.max(0, Math.floor((Date.now() - new Date(v.arrivedOn).getTime()) / 86_400_000))} days in stock
                         </span>
                       )}
                       {v.deliveryId && (
-                        <a href={`/deliveries/${v.deliveryId}`} className="block font-mono text-indigo-600 hover:underline">
+                        <a href={`/deliveries/${v.deliveryId}`} className="block font-mono text-brand-600 hover:underline">
                           {v.deliveryNo}
                         </a>
                       )}
@@ -158,7 +158,7 @@ export default async function InventoryPage({
                         showPurchasePrice={showPrice}
                       />
                     ) : (
-                      <span className="text-xs text-slate-400">locked</span>
+                      <span className="text-xs text-ink-faint">locked</span>
                     )}
                   </td>
                 )}
