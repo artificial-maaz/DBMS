@@ -29,7 +29,7 @@ export function AddVehicleForm({
     <div>
       <button
         onClick={() => setOpen((v) => !v)}
-        className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-500"
+        className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-500"
       >
         {open ? "Close" : "+ Add Vehicle"}
       </button>
@@ -38,7 +38,7 @@ export function AddVehicleForm({
         <form
           ref={formRef}
           action={formAction}
-          className="mt-4 grid grid-cols-1 gap-4 rounded-xl border border-slate-200 bg-white p-6 sm:grid-cols-2 lg:grid-cols-3"
+          className="mt-4 grid grid-cols-1 gap-4 card p-6 sm:grid-cols-2 lg:grid-cols-3"
         >
           <Field name="make" label="Make *" placeholder="e.g. Yadea" />
           <Field name="model" label="Model *" placeholder="e.g. G5 Pro" />
@@ -59,14 +59,14 @@ export function AddVehicleForm({
                 <input
                   disabled
                   value={branches.find((b) => b.id === fixedBranchId)?.name ?? "Your branch"}
-                  className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2"
+                  className="w-full rounded-lg border border-line bg-slate-50 px-3 py-2"
                 />
               </>
             ) : (
               <select
                 name="branchId"
                 required
-                className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2"
+                className="w-full rounded-lg border border-line bg-surface px-3 py-2"
               >
                 <option value="">Select branch…</option>
                 {branches.map((b) => (
@@ -81,7 +81,7 @@ export function AddVehicleForm({
             <textarea
               name="notes"
               rows={2}
-              className="w-full rounded-lg border border-slate-300 px-3 py-2"
+              className="w-full rounded-lg border border-line px-3 py-2"
               placeholder="Battery warranty, condition, observations…"
             />
           </label>
@@ -94,7 +94,7 @@ export function AddVehicleForm({
             <button
               type="submit"
               disabled={pending}
-              className="rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-700 disabled:opacity-50"
+              className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-500 disabled:opacity-50"
             >
               {pending ? "Saving…" : "Save Vehicle"}
             </button>
@@ -113,7 +113,7 @@ function Field({ name, label, placeholder }: { name: string; label: string; plac
         name={name}
         required={label.includes("*")}
         placeholder={placeholder}
-        className="w-full rounded-lg border border-slate-300 px-3 py-2 outline-none focus:border-slate-500"
+        className="w-full rounded-lg border border-line px-3 py-2 outline-none focus:border-slate-500"
       />
     </label>
   );
