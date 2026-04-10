@@ -35,7 +35,7 @@ export function EditVehicleForm({
     return (
       <button
         onClick={() => setOpen(true)}
-        className="rounded-md px-2.5 py-1 text-xs font-medium text-slate-600 hover:bg-slate-100"
+        className="rounded-md px-2.5 py-1 text-xs font-medium text-ink-soft hover:bg-slate-100"
       >
         Edit
       </button>
@@ -46,7 +46,7 @@ export function EditVehicleForm({
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 p-4">
       <form
         action={formAction}
-        className="w-full max-w-2xl rounded-xl border border-slate-200 bg-white p-6 shadow-lg"
+        className="w-full max-w-2xl card p-6 shadow-lg"
       >
         <h2 className="mb-4 text-sm font-semibold">Edit Vehicle — {row.make} {row.model}</h2>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -67,7 +67,7 @@ export function EditVehicleForm({
               name="notes"
               rows={2}
               defaultValue={row.notes ?? ""}
-              className="w-full rounded-lg border border-slate-300 px-3 py-2"
+              className="w-full rounded-lg border border-line px-3 py-2"
             />
           </label>
         </div>
@@ -78,19 +78,19 @@ export function EditVehicleForm({
           <button
             type="submit"
             disabled={pending}
-            className="rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-700 disabled:opacity-50"
+            className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-500 disabled:opacity-50"
           >
             {pending ? "Saving…" : "Save Changes"}
           </button>
           <button
             type="button"
             onClick={() => setOpen(false)}
-            className="rounded-lg px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100"
+            className="rounded-lg px-4 py-2 text-sm font-medium text-ink-soft hover:bg-slate-100"
           >
             Cancel
           </button>
         </div>
-        <p className="mt-2 text-xs text-slate-400">
+        <p className="mt-2 text-xs text-ink-faint">
           Branch is not editable here — inter-branch moves go through Gate Pass so the transfer trail stays intact.
         </p>
       </form>
@@ -106,7 +106,7 @@ function Field({ name, label, defaultValue }: { name: string; label: string; def
         name={name}
         required={label.includes("*")}
         defaultValue={defaultValue}
-        className="w-full rounded-lg border border-slate-300 px-3 py-2 outline-none focus:border-slate-500"
+        className="w-full rounded-lg border border-line px-3 py-2 outline-none focus:border-slate-500"
       />
     </label>
   );
