@@ -14,26 +14,26 @@ export function StockAuditForm({ branchId, branchName, stock }: { branchId: numb
 
   return (
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-      <form action={formAction} className="space-y-4 rounded-xl border border-slate-200 bg-white p-6">
+      <form action={formAction} className="space-y-4 card p-6">
         <div className="flex items-center justify-between">
           <h2 className="font-medium">System Stock — {branchName}</h2>
-          <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-medium text-slate-600">
+          <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-medium text-ink-soft">
             {stock.length} expected
           </span>
         </div>
         <input type="hidden" name="branchId" value={branchId} />
 
         {stock.length === 0 ? (
-          <p className="py-8 text-center text-sm text-slate-400">No vehicles in stock at this branch.</p>
+          <p className="py-8 text-center text-sm text-ink-faint">No vehicles in stock at this branch.</p>
         ) : (
-          <ul className="max-h-[28rem] divide-y divide-slate-100 overflow-y-auto rounded-lg border border-slate-100">
+          <ul className="max-h-[28rem] divide-y divide-line overflow-y-auto rounded-lg border border-line">
             {stock.map((v) => (
               <li key={v.id}>
-                <label className="flex cursor-pointer items-center gap-3 px-3 py-2.5 text-sm hover:bg-slate-50">
+                <label className="flex cursor-pointer items-center gap-3 px-3 py-2.5 text-sm row-hover">
                   <input type="checkbox" name="present" value={v.id} className="h-5 w-5 accent-emerald-600" />
                   <span className="flex-1">
                     <span className="font-medium">{v.label}</span>
-                    <span className="block font-mono text-xs text-slate-400">{v.chassisNo}</span>
+                    <span className="block font-mono text-xs text-ink-faint">{v.chassisNo}</span>
                   </span>
                 </label>
               </li>
@@ -41,7 +41,7 @@ export function StockAuditForm({ branchId, branchName, stock }: { branchId: numb
           </ul>
         )}
 
-        <p className="text-xs text-slate-400">
+        <p className="text-xs text-ink-faint">
           Walk the floor with this list. Tick every bike you can physically see, leave the rest unticked, then submit.
         </p>
 
@@ -50,7 +50,7 @@ export function StockAuditForm({ branchId, branchName, stock }: { branchId: numb
         <button
           type="submit"
           disabled={pending || stock.length === 0}
-          className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-500 disabled:opacity-50"
+          className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-500 disabled:opacity-50"
         >
           {pending ? "Reconciling…" : "Submit Audit"}
         </button>
@@ -75,7 +75,7 @@ export function StockAuditForm({ branchId, branchName, stock }: { branchId: numb
             />
           </>
         ) : (
-          <div className="rounded-xl border border-slate-200 bg-white p-6 text-sm text-slate-400">
+          <div className="card p-6 text-sm text-ink-faint">
             Results appear here after submitting: verified stock and anything missing from the floor.
           </div>
         )}
@@ -106,9 +106,9 @@ function ResultCard({
   return (
     <div className={`rounded-xl border p-5 ${t.box}`}>
       <p className={`font-semibold ${t.head}`}>{title}</p>
-      <p className="mt-0.5 text-xs text-slate-500">{subtitle}</p>
+      <p className="mt-0.5 text-xs text-ink-faint">{subtitle}</p>
       {items.length === 0 ? (
-        <p className="mt-2 text-sm text-slate-500">{empty}</p>
+        <p className="mt-2 text-sm text-ink-faint">{empty}</p>
       ) : (
         <ul className="mt-2 max-h-48 space-y-1 overflow-y-auto font-mono text-xs text-slate-700">
           {items.map((i) => (
