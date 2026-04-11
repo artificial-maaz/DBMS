@@ -33,17 +33,17 @@ export default async function StockAuditPage({
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-semibold">Physical Stock Audit</h1>
-        <Link href="/inventory" className="text-sm text-slate-500 hover:text-slate-800">← Back to Inventory</Link>
+        <Link href="/inventory" className="text-sm text-ink-faint hover:text-slate-800">← Back to Inventory</Link>
       </div>
 
       {all && (
         <form method="get" className="flex gap-3">
-          <select name="branch" defaultValue={String(branchId ?? "")} className="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm">
+          <select name="branch" defaultValue={String(branchId ?? "")} className="rounded-lg border border-line bg-surface px-3 py-1.5 text-sm">
             {branches.map((b) => (
               <option key={b.id} value={b.id}>{b.name}</option>
             ))}
           </select>
-          <button className="rounded-lg bg-slate-900 px-4 py-1.5 text-sm text-white hover:bg-slate-700">Load Stock</button>
+          <button className="rounded-lg bg-brand-600 px-4 py-1.5 text-sm text-white hover:bg-brand-500">Load Stock</button>
         </form>
       )}
 
@@ -58,7 +58,7 @@ export default async function StockAuditPage({
           }))}
         />
       ) : (
-        <p className="text-sm text-slate-400">No branch available.</p>
+        <p className="text-sm text-ink-faint">No branch available.</p>
       )}
     </div>
   );
