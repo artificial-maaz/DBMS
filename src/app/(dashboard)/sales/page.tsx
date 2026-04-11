@@ -26,16 +26,16 @@ export default async function SalesPage() {
         {canCreateSale(profile.role) && (
           <Link
             href="/sales/new"
-            className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-500"
+            className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-500"
           >
             + New Sale
           </Link>
         )}
       </div>
 
-      <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white">
+      <div className="overflow-x-auto card">
         <table className="w-full text-sm">
-          <thead className="bg-slate-50 text-left text-xs uppercase tracking-wide text-slate-500">
+          <thead className="bg-raised text-left text-xs uppercase tracking-wide text-ink-faint">
             <tr>
               <th className="px-4 py-3">Invoice #</th>
               <th className="px-4 py-3">Customer</th>
@@ -51,15 +51,15 @@ export default async function SalesPage() {
           <tbody>
             {rows.length === 0 && (
               <tr>
-                <td colSpan={9} className="px-4 py-10 text-center text-slate-400">
+                <td colSpan={9} className="px-4 py-10 text-center text-ink-faint">
                   No sales yet — hit “New Sale” to make history.
                 </td>
               </tr>
             )}
             {rows.map((r) => (
-              <tr key={r.id} className="border-t border-slate-100 hover:bg-slate-50">
+              <tr key={r.id} className="border-t border-line row-hover">
                 <td className="px-4 py-2.5 font-mono text-xs font-medium">
-                  <Link href={`/sales/${r.id}`} className="text-indigo-700 hover:underline">
+                  <Link href={`/sales/${r.id}`} className="text-brand-700 hover:underline">
                     {r.invoiceNo}
                   </Link>
                 </td>
@@ -78,7 +78,7 @@ export default async function SalesPage() {
                     {r.status}
                   </span>
                 </td>
-                <td className="px-4 py-2.5 text-slate-500">
+                <td className="px-4 py-2.5 text-ink-faint">
                   {new Date(r.saleDate).toLocaleDateString("en-PK")}
                 </td>
               </tr>
