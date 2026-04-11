@@ -29,22 +29,22 @@ export default async function InvoiceDetailPage({ params }: { params: Promise<{ 
   return (
     <div className="mx-auto max-w-4xl space-y-6">
       <div className="flex items-center justify-between print:hidden">
-        <Link href="/sales" className="text-sm text-slate-500 hover:text-slate-800">← Back to Sales</Link>
+        <Link href="/sales" className="text-sm text-ink-faint hover:text-slate-800">← Back to Sales</Link>
         <PrintButton />
       </div>
 
       {/* Printable document */}
-      <div className="rounded-xl border border-slate-200 bg-white p-8 print:border-0 print:p-0">
-        <div className="flex items-start justify-between border-b border-slate-200 pb-6">
+      <div className="card p-8 print:border-0 print:p-0">
+        <div className="flex items-start justify-between border-b border-line pb-6">
           <div>
             <h1 className="text-2xl font-bold">⚡ {branch?.name ?? "Dealership"}</h1>
-            <p className="text-sm text-slate-500">Official Sale Invoice</p>
-            {branch?.address && <p className="text-sm text-slate-500">{branch.address}, {branch.city}</p>}
-            {branch?.phone && <p className="text-sm text-slate-500">{branch.phone}</p>}
+            <p className="text-sm text-ink-faint">Official Sale Invoice</p>
+            {branch?.address && <p className="text-sm text-ink-faint">{branch.address}, {branch.city}</p>}
+            {branch?.phone && <p className="text-sm text-ink-faint">{branch.phone}</p>}
           </div>
           <div className="text-right">
             <p className="font-mono text-lg font-semibold">{invoice.invoiceNo}</p>
-            <p className="text-sm text-slate-500">Date: {d(invoice.saleDate)}</p>
+            <p className="text-sm text-ink-faint">Date: {d(invoice.saleDate)}</p>
             <p className="mt-1 flex flex-wrap justify-end gap-1.5">
               <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-medium capitalize text-emerald-700">
                 {invoice.status} · {invoice.settlementPlan}
@@ -56,20 +56,20 @@ export default async function InvoiceDetailPage({ params }: { params: Promise<{ 
 
         <div className="grid grid-cols-2 gap-6 py-6 text-sm">
           <div>
-            <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-slate-400">Customer</p>
+            <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-ink-faint">Customer</p>
             <p className="font-medium">{customer?.fullName}</p>
-            <p className="text-slate-600">{customer?.phone}</p>
-            {customer?.cnic && <p className="text-slate-600">CNIC: {customer.cnic}</p>}
-            {customer?.address && <p className="text-slate-600">{customer.address}</p>}
+            <p className="text-ink-soft">{customer?.phone}</p>
+            {customer?.cnic && <p className="text-ink-soft">CNIC: {customer.cnic}</p>}
+            {customer?.address && <p className="text-ink-soft">{customer.address}</p>}
           </div>
           <div className="text-right">
-            <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-slate-400">Issued by</p>
+            <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-ink-faint">Issued by</p>
             <p className="font-medium">{branch?.name}</p>
           </div>
         </div>
 
         <table className="w-full text-sm">
-          <thead className="border-y border-slate-200 text-left text-xs uppercase tracking-wide text-slate-500">
+          <thead className="border-y border-line text-left text-xs uppercase tracking-wide text-ink-faint">
             <tr>
               <th className="py-2">Description</th>
               <th className="py-2 text-right">Amount</th>
@@ -77,7 +77,7 @@ export default async function InvoiceDetailPage({ params }: { params: Promise<{ 
           </thead>
           <tbody>
             {items.map((it) => (
-              <tr key={it.id} className="border-b border-slate-100">
+              <tr key={it.id} className="border-b border-line">
                 <td className="py-2.5">{it.description}</td>
                 <td className="py-2.5 text-right">{fmt(it.amount)}</td>
               </tr>
@@ -88,7 +88,7 @@ export default async function InvoiceDetailPage({ params }: { params: Promise<{ 
         <div className="ml-auto mt-4 w-64 space-y-1.5 text-sm">
           <Row k="Subtotal" v={fmt(invoice.subtotal)} />
           {Number(invoice.discount) > 0 && <Row k="Discount" v={`− ${fmt(invoice.discount)}`} />}
-          <div className="border-t border-slate-200 pt-1.5">
+          <div className="border-t border-line pt-1.5">
             <Row k="Total" v={fmt(invoice.total)} bold />
           </div>
           <Row k="Paid / Downpayment" v={fmt(invoice.downpayment)} />
@@ -99,7 +99,7 @@ export default async function InvoiceDetailPage({ params }: { params: Promise<{ 
           <div className="mt-8">
             <h2 className="mb-2 text-sm font-semibold">Installment Schedule ({schedule.length} months)</h2>
             <table className="w-full text-sm">
-              <thead className="border-y border-slate-200 text-left text-xs uppercase tracking-wide text-slate-500">
+              <thead className="border-y border-line text-left text-xs uppercase tracking-wide text-ink-faint">
                 <tr>
                   <th className="py-2">#</th>
                   <th className="py-2">Due Date</th>
@@ -117,7 +117,7 @@ export default async function InvoiceDetailPage({ params }: { params: Promise<{ 
                   const display = overdue ? "overdue" : r.status;
                   const remaining = Number(r.totalDue) + Number(r.lateFee) - Number(r.paidAmount);
                   return (
-                    <tr key={r.id} className="border-b border-slate-100">
+                    <tr key={r.id} className="border-b border-line">
                       <td className="py-2">{r.installmentNo}</td>
                       <td className="py-2">{d(r.dueDate)}</td>
                       <td className="py-2 text-right">{fmt(r.principal)}</td>
@@ -155,11 +155,11 @@ export default async function InvoiceDetailPage({ params }: { params: Promise<{ 
             <h2 className="mb-2 text-sm font-semibold">Guarantor{guarantors.length > 1 ? "s" : ""}</h2>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               {guarantors.map((g) => (
-                <div key={g.id} className="rounded-lg border border-slate-200 p-3 text-sm">
+                <div key={g.id} className="rounded-lg border border-line p-3 text-sm">
                   <p className="font-medium">{g.fullName}</p>
-                  <p className="text-slate-600">CNIC: {g.cnic}</p>
-                  <p className="text-slate-600">{g.phone}</p>
-                  {g.address && <p className="text-slate-600">{g.address}</p>}
+                  <p className="text-ink-soft">CNIC: {g.cnic}</p>
+                  <p className="text-ink-soft">{g.phone}</p>
+                  {g.address && <p className="text-ink-soft">{g.address}</p>}
                 </div>
               ))}
             </div>
@@ -170,7 +170,7 @@ export default async function InvoiceDetailPage({ params }: { params: Promise<{ 
           <div className="mt-8">
             <h2 className="mb-2 text-sm font-semibold">Document Checklist</h2>
             <table className="w-full text-sm">
-              <thead className="border-y border-slate-200 text-left text-xs uppercase tracking-wide text-slate-500">
+              <thead className="border-y border-line text-left text-xs uppercase tracking-wide text-ink-faint">
                 <tr>
                   <th className="py-2">Requirement</th>
                   <th className="py-2">Status</th>
@@ -179,7 +179,7 @@ export default async function InvoiceDetailPage({ params }: { params: Promise<{ 
               </thead>
               <tbody>
                 {documents.map((doc) => (
-                  <tr key={doc.id} className="border-b border-slate-100">
+                  <tr key={doc.id} className="border-b border-line">
                     <td className="py-2">{doc.requirementName}</td>
                     <td className="py-2">
                       <DocumentCustody docId={doc.id} custody={doc.custody} canManage={collector} />
@@ -189,7 +189,7 @@ export default async function InvoiceDetailPage({ params }: { params: Promise<{ 
                         </span>
                       )}
                     </td>
-                    <td className="py-2 text-slate-600">
+                    <td className="py-2 text-ink-soft">
                       {doc.compensationAmount && <span>{fmt(doc.compensationAmount)}</span>}
                       {doc.compensationNote && (
                         <span className={doc.compensationAmount ? "ml-2" : ""}>{doc.compensationNote}</span>
@@ -203,7 +203,7 @@ export default async function InvoiceDetailPage({ params }: { params: Promise<{ 
           </div>
         )}
 
-        <p className="mt-10 border-t border-slate-100 pt-4 text-center text-xs text-slate-400">
+        <p className="mt-10 border-t border-line pt-4 text-center text-xs text-ink-faint">
           Generated by {APP_NAME} · {d(new Date())}
         </p>
       </div>
@@ -213,7 +213,7 @@ export default async function InvoiceDetailPage({ params }: { params: Promise<{ 
 
 function Row({ k, v, bold, red }: { k: string; v: string; bold?: boolean; red?: boolean }) {
   return (
-    <div className={`flex justify-between ${bold ? "font-semibold" : "text-slate-600"} ${red ? "text-red-600" : ""}`}>
+    <div className={`flex justify-between ${bold ? "font-semibold" : "text-ink-soft"} ${red ? "text-red-600" : ""}`}>
       <span>{k}</span>
       <span>{v}</span>
     </div>
