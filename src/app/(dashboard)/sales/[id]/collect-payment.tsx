@@ -11,7 +11,7 @@ export function CollectPayment({ scheduleId, remaining }: { scheduleId: number; 
     return (
       <button
         onClick={() => setOpen(true)}
-        className="rounded-md bg-indigo-600 px-2.5 py-1 text-xs font-medium text-white hover:bg-indigo-500 print:hidden"
+        className="rounded-md bg-brand-600 px-2.5 py-1 text-xs font-medium text-white hover:bg-brand-500 print:hidden"
       >
         Collect
       </button>
@@ -25,7 +25,7 @@ export function CollectPayment({ scheduleId, remaining }: { scheduleId: number; 
         name="amount"
         defaultValue={remaining}
         inputMode="decimal"
-        className="w-24 rounded-md border border-slate-300 px-2 py-1 text-xs"
+        className="w-24 rounded-md border border-line px-2 py-1 text-xs"
       />
       <button
         type="submit"
@@ -34,7 +34,7 @@ export function CollectPayment({ scheduleId, remaining }: { scheduleId: number; 
       >
         {pending ? "…" : "✔"}
       </button>
-      <button type="button" onClick={() => setOpen(false)} className="text-xs text-slate-400 hover:text-slate-600">
+      <button type="button" onClick={() => setOpen(false)} className="text-xs text-ink-faint hover:text-ink-soft">
         ✕
       </button>
       {state && !state.ok && <span className="text-xs text-red-600">{state.error}</span>}
