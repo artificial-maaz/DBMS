@@ -172,7 +172,7 @@ export function SaleForm({
   return (
     <form action={formAction} className="grid grid-cols-1 gap-6 lg:grid-cols-3">
       {/* Left: inputs */}
-      <div className="space-y-4 rounded-xl border border-slate-200 bg-white p-6 lg:col-span-2">
+      <div className="space-y-4 card p-6 lg:col-span-2">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <label className="text-sm">
             <span className="mb-1 block font-medium">Customer *</span>
@@ -184,7 +184,7 @@ export function SaleForm({
                 setCustomerId(e.target.value);
                 setBookingId(""); // bookings list changes with the customer — don't carry a stale pick
               }}
-              className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2"
+              className="w-full rounded-lg border border-line bg-surface px-3 py-2"
             >
               <option value="">Select customer…</option>
               {customers.map((c) => (
@@ -232,7 +232,7 @@ export function SaleForm({
                 if (p) setSalePrice(p.cashPrice);
                 else if (v?.salePrice) setSalePrice(v.salePrice);
               }}
-              className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2"
+              className="w-full rounded-lg border border-line bg-surface px-3 py-2"
             >
               <option value="">Select vehicle…</option>
               {vehicles.map((v) => (
@@ -254,9 +254,9 @@ export function SaleForm({
               required
               defaultValue={today}
               max={today}
-              className="w-full rounded-lg border border-slate-300 px-3 py-2 outline-none focus:border-slate-500"
+              className="w-full rounded-lg border border-line px-3 py-2 outline-none focus:border-slate-500"
             />
-            <span className="mt-1 block text-xs text-slate-400">Backdate this to record a past sale.</span>
+            <span className="mt-1 block text-xs text-ink-faint">Backdate this to record a past sale.</span>
           </label>
           <Money name="salePrice" label="Sale Price (Rs.) *" value={salePrice} onChange={setSalePrice} required />
           <Money name="discount" label="Discount (Rs.)" value={discount} onChange={setDiscount} />
@@ -267,14 +267,14 @@ export function SaleForm({
           )}
         </div>
 
-        <div className="border-t border-slate-100 pt-4">
+        <div className="border-t border-line pt-4">
           <span className="mb-2 block text-sm font-medium">Settlement Plan *</span>
           <div className="flex gap-3">
             {(["cash", "installment"] as const).map((p) => (
               <label
                 key={p}
                 className={`cursor-pointer rounded-lg border px-4 py-2 text-sm capitalize ${
-                  plan === p ? "border-indigo-600 bg-indigo-50 font-medium text-indigo-700" : "border-slate-300"
+                  plan === p ? "border-brand-500 bg-brand-50 font-medium text-brand-700" : "border-line"
                 }`}
               >
                 <input
@@ -299,7 +299,7 @@ export function SaleForm({
                 <select
                   value={planDuration}
                   onChange={(e) => applyPlanDuration(e.target.value as typeof planDuration)}
-                  className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 sm:w-64"
+                  className="w-full rounded-lg border border-line bg-surface px-3 py-2 sm:w-64"
                 >
                   <option value="">Custom (fill manually)</option>
                   <option value="3">3 Months</option>
@@ -307,7 +307,7 @@ export function SaleForm({
                   <option value="9">9 Months</option>
                   <option value="12">12 Months</option>
                 </select>
-                <span className="mt-1 block text-xs text-slate-500">
+                <span className="mt-1 block text-xs text-ink-faint">
                   Fills advance/monthly/markup below from the rate card — still fully editable after.
                 </span>
               </label>
@@ -322,7 +322,7 @@ export function SaleForm({
                 max={60}
                 value={months}
                 onChange={(e) => setMonths(e.target.value)}
-                className="w-full rounded-lg border border-slate-300 px-3 py-2"
+                className="w-full rounded-lg border border-line px-3 py-2"
               />
             </label>
             <Money name="totalMarkup" label="Total Markup (Rs.)" value={totalMarkup} onChange={setTotalMarkup} />
@@ -330,11 +330,11 @@ export function SaleForm({
         )}
 
         {plan === "installment" && (
-          <div className="rounded-lg border border-slate-200 p-4">
+          <div className="rounded-lg border border-line p-4">
             <div className="mb-3 flex items-center justify-between">
               <div>
                 <span className="block text-sm font-medium">Guarantor(s) *</span>
-                <span className="block text-xs text-slate-500">At least one required for an installment sale.</span>
+                <span className="block text-xs text-ink-faint">At least one required for an installment sale.</span>
               </div>
               <button
                 type="button"
@@ -359,7 +359,7 @@ export function SaleForm({
                     <input
                       value={g.fullName}
                       onChange={(e) => updateGuarantor(i, "fullName", e.target.value)}
-                      className="w-full rounded-lg border border-slate-300 px-3 py-2"
+                      className="w-full rounded-lg border border-line px-3 py-2"
                     />
                   </label>
                   <label className="text-sm">
@@ -368,7 +368,7 @@ export function SaleForm({
                       value={g.cnic}
                       onChange={(e) => updateGuarantor(i, "cnic", e.target.value)}
                       placeholder="42201-1234567-1"
-                      className="w-full rounded-lg border border-slate-300 px-3 py-2"
+                      className="w-full rounded-lg border border-line px-3 py-2"
                     />
                   </label>
                   <label className="text-sm">
@@ -377,7 +377,7 @@ export function SaleForm({
                       value={g.phone}
                       onChange={(e) => updateGuarantor(i, "phone", e.target.value)}
                       placeholder="03001234567"
-                      className="w-full rounded-lg border border-slate-300 px-3 py-2"
+                      className="w-full rounded-lg border border-line px-3 py-2"
                     />
                   </label>
                   <div className="flex items-end gap-2">
@@ -386,7 +386,7 @@ export function SaleForm({
                       <input
                         value={g.address}
                         onChange={(e) => updateGuarantor(i, "address", e.target.value)}
-                        className="w-full rounded-lg border border-slate-300 px-3 py-2"
+                        className="w-full rounded-lg border border-line px-3 py-2"
                       />
                     </label>
                     <button
@@ -407,9 +407,9 @@ export function SaleForm({
         )}
 
         {plan === "installment" && docChecklist.length > 0 && (
-          <div className="rounded-lg border border-slate-200 p-4">
+          <div className="rounded-lg border border-line p-4">
             <span className="mb-1 block text-sm font-medium">Document Checklist</span>
-            <span className="mb-3 block text-xs text-slate-500">
+            <span className="mb-3 block text-xs text-ink-faint">
               Uncheck anything the customer doesn&apos;t have yet — not required to finalize, but note a
               compensation if you&apos;re granting the deal anyway.
             </span>
@@ -424,22 +424,22 @@ export function SaleForm({
                   {!d.provided && (
                     <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-2">
                       <label className="text-sm">
-                        <span className="mb-1 block text-xs font-medium text-slate-500">Compensation (Rs., optional)</span>
+                        <span className="mb-1 block text-xs font-medium text-ink-faint">Compensation (Rs., optional)</span>
                         <input
                           value={d.compensationAmount}
                           onChange={(e) => updateDocField(i, "compensationAmount", e.target.value)}
                           inputMode="decimal"
                           placeholder="0"
-                          className="w-full rounded-lg border border-slate-300 px-3 py-2"
+                          className="w-full rounded-lg border border-line px-3 py-2"
                         />
                       </label>
                       <label className="text-sm">
-                        <span className="mb-1 block text-xs font-medium text-slate-500">Note</span>
+                        <span className="mb-1 block text-xs font-medium text-ink-faint">Note</span>
                         <input
                           value={d.compensationNote}
                           onChange={(e) => updateDocField(i, "compensationNote", e.target.value)}
                           placeholder="e.g. will bring utility bill next week"
-                          className="w-full rounded-lg border border-slate-300 px-3 py-2"
+                          className="w-full rounded-lg border border-line px-3 py-2"
                         />
                       </label>
                     </div>
@@ -451,11 +451,11 @@ export function SaleForm({
           </div>
         )}
 
-        <label className="flex cursor-pointer items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm">
+        <label className="flex cursor-pointer items-center gap-2 rounded-lg border border-line bg-slate-50 px-3 py-2.5 text-sm">
           <input type="checkbox" name="warrantyCardSent" className="h-4 w-4 accent-emerald-600" />
           <span>
             <span className="font-medium">Warranty card photo sent to company</span>
-            <span className="block text-xs text-slate-400">
+            <span className="block text-xs text-ink-faint">
               Required to start the warranty clock — the owner sees this during review.
             </span>
           </span>
@@ -463,7 +463,7 @@ export function SaleForm({
 
         <label className="block text-sm">
           <span className="mb-1 block font-medium">Notes</span>
-          <textarea name="notes" rows={2} className="w-full rounded-lg border border-slate-300 px-3 py-2" />
+          <textarea name="notes" rows={2} className="w-full rounded-lg border border-line px-3 py-2" />
         </label>
 
         {creditExceedsDue && (
@@ -478,19 +478,19 @@ export function SaleForm({
         <button
           type="submit"
           disabled={pending || creditExceedsDue || (plan === "installment" && guarantorList.length === 0)}
-          className="rounded-lg bg-slate-900 px-5 py-2.5 text-sm font-medium text-white hover:bg-slate-700 disabled:opacity-50"
+          className="rounded-lg bg-brand-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-brand-500 disabled:opacity-50"
         >
           {pending ? "Finalizing…" : "Finalize Sale"}
         </button>
       </div>
 
       {/* Right: live preview */}
-      <div className="h-fit space-y-3 rounded-xl border border-slate-200 bg-white p-6 text-sm">
+      <div className="h-fit space-y-3 card p-6 text-sm">
         <h2 className="font-semibold">Live Summary</h2>
         <Row k="Subtotal" v={fmt(n(salePrice))} />
         <Row k="Discount" v={`− ${fmt(n(discount))}`} />
         <Row k="Registration fee" v={fmt(n(regGovt) + n(regProfit))} />
-        <div className="border-t border-slate-100 pt-2">
+        <div className="border-t border-line pt-2">
           <Row k="Total" v={fmt(total)} bold />
         </div>
         {plan === "installment" && (
@@ -538,7 +538,7 @@ function Money({
         inputMode="decimal"
         placeholder="0"
         {...(onChange ? { value: value ?? "", onChange: (e) => onChange(e.target.value) } : {})}
-        className="w-full rounded-lg border border-slate-300 px-3 py-2 outline-none focus:border-slate-500"
+        className="w-full rounded-lg border border-line px-3 py-2 outline-none focus:border-slate-500"
       />
     </label>
   );
@@ -546,7 +546,7 @@ function Money({
 
 function Row({ k, v, bold }: { k: string; v: string; bold?: boolean }) {
   return (
-    <div className={`flex justify-between ${bold ? "font-semibold" : "text-slate-600"}`}>
+    <div className={`flex justify-between ${bold ? "font-semibold" : "text-ink-soft"}`}>
       <span>{k}</span>
       <span>{v}</span>
     </div>
