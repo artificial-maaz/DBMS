@@ -58,7 +58,7 @@ export default async function InstallmentCasesPage({
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-semibold">Installment Cases</h1>
-        <Link href="/sales" className="text-sm text-slate-500 hover:text-slate-800">
+        <Link href="/sales" className="text-sm text-ink-faint hover:text-slate-800">
           Sales &amp; Invoices →
         </Link>
       </div>
@@ -71,10 +71,10 @@ export default async function InstallmentCasesPage({
       </div>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <div className="rounded-xl border border-slate-200 bg-white px-5 py-4">
-          <p className="text-xs uppercase tracking-wide text-slate-400">Outstanding Receivable</p>
+        <div className="card px-5 py-4">
+          <p className="text-xs uppercase tracking-wide text-ink-faint">Outstanding Receivable</p>
           <p className="mt-1 text-2xl font-semibold">{fmt(kpi.receivable)}</p>
-          <p className="mt-1 text-xs text-slate-400">Everything still owed to us across these cases.</p>
+          <p className="mt-1 text-xs text-ink-faint">Everything still owed to us across these cases.</p>
         </div>
         <div className="rounded-xl border border-red-200 bg-red-50 px-5 py-4">
           <p className="text-xs uppercase tracking-wide text-red-500">Past Due Right Now</p>
@@ -87,7 +87,7 @@ export default async function InstallmentCasesPage({
         <select
           name="status"
           defaultValue={params.status ?? ""}
-          className="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm"
+          className="rounded-lg border border-line bg-surface px-3 py-1.5 text-sm"
         >
           <option value="">All statuses</option>
           <option value="overdue">Overdue</option>
@@ -98,7 +98,7 @@ export default async function InstallmentCasesPage({
           <select
             name="branch"
             defaultValue={params.branch ?? ""}
-            className="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm"
+            className="rounded-lg border border-line bg-surface px-3 py-1.5 text-sm"
           >
             <option value="">All branches</option>
             {branches.map((b) => (
@@ -106,12 +106,12 @@ export default async function InstallmentCasesPage({
             ))}
           </select>
         )}
-        <button className="rounded-lg bg-slate-900 px-4 py-1.5 text-sm text-white hover:bg-slate-700">Filter</button>
+        <button className="rounded-lg bg-brand-600 px-4 py-1.5 text-sm text-white hover:bg-brand-500">Filter</button>
       </form>
 
-      <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white">
+      <div className="overflow-x-auto card">
         <table className="w-full text-sm">
-          <thead className="bg-slate-50 text-left text-xs uppercase tracking-wide text-slate-500">
+          <thead className="bg-raised text-left text-xs uppercase tracking-wide text-ink-faint">
             <tr>
               <th className="px-4 py-3">Invoice #</th>
               <th className="px-4 py-3">Customer</th>
@@ -127,27 +127,27 @@ export default async function InstallmentCasesPage({
           <tbody>
             {cases.length === 0 && (
               <tr>
-                <td colSpan={9} className="px-4 py-10 text-center text-slate-400">
+                <td colSpan={9} className="px-4 py-10 text-center text-ink-faint">
                   No installment cases match this filter.
                 </td>
               </tr>
             )}
             {cases.map((c) => (
-              <tr key={c.id} className={`border-t border-slate-100 hover:bg-slate-50 ${c.status === "overdue" ? "bg-red-50/40" : ""}`}>
+              <tr key={c.id} className={`border-t border-line row-hover ${c.status === "overdue" ? "bg-red-50/40" : ""}`}>
                 <td className="px-4 py-2.5 font-mono text-xs font-medium">
-                  <Link href={`/sales/${c.id}`} className="text-indigo-700 hover:underline">{c.invoiceNo}</Link>
-                  <span className="block text-slate-400">{new Date(c.saleDate).toLocaleDateString("en-PK")}</span>
+                  <Link href={`/sales/${c.id}`} className="text-brand-700 hover:underline">{c.invoiceNo}</Link>
+                  <span className="block text-ink-faint">{new Date(c.saleDate).toLocaleDateString("en-PK")}</span>
                 </td>
                 <td className="px-4 py-2.5">
-                  <Link href={`/customers/${c.customerId}`} className="font-medium text-indigo-700 hover:underline">
+                  <Link href={`/customers/${c.customerId}`} className="font-medium text-brand-700 hover:underline">
                     {c.customerName}
                   </Link>
-                  <span className="block text-xs text-slate-400">{c.customerPhone}</span>
+                  <span className="block text-xs text-ink-faint">{c.customerPhone}</span>
                 </td>
                 <td className="px-4 py-2.5">{c.branchName}</td>
                 <td className="px-4 py-2.5">
                   <span className="font-medium">{c.paidInstallments}/{c.totalInstallments}</span>
-                  <span className="block text-xs text-slate-400">instalments paid</span>
+                  <span className="block text-xs text-ink-faint">instalments paid</span>
                 </td>
                 <td className="px-4 py-2.5 text-right">{fmt(c.total)}</td>
                 <td className="px-4 py-2.5 text-right text-emerald-700">
@@ -163,12 +163,12 @@ export default async function InstallmentCasesPage({
                       </span>
                     </span>
                   ) : c.nextDueDate ? (
-                    <span className="text-slate-600">
+                    <span className="text-ink-soft">
                       {new Date(c.nextDueDate).toLocaleDateString("en-PK")}
-                      <span className="block text-xs text-slate-400">next due</span>
+                      <span className="block text-xs text-ink-faint">next due</span>
                     </span>
                   ) : (
-                    <span className="text-slate-400">—</span>
+                    <span className="text-ink-faint">—</span>
                   )}
                 </td>
                 <td className="px-4 py-2.5">
@@ -182,7 +182,7 @@ export default async function InstallmentCasesPage({
         </table>
       </div>
 
-      <p className="text-xs text-slate-400">
+      <p className="text-xs text-ink-faint">
         Status is computed live: <span className="font-medium">cleared</span> = nothing left owed ·{" "}
         <span className="font-medium">overdue</span> = at least one instalment past its due date and unpaid ·{" "}
         <span className="font-medium">on track</span> = everything due so far has been collected. Collect payments from
