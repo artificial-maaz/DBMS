@@ -33,6 +33,7 @@ const NAV: Group[] = [
       { label: "Installment Cases", href: "/installments", roles: ["creator", "owner", "silent_partner", "branch_manager"] },
       { label: "Installment Plans", href: "/installment-plans", roles: ["creator", "owner", "branch_manager", "salesperson"] },
       { label: "Document Checklist", href: "/document-requirements", roles: ["creator", "owner", "branch_manager", "salesperson"] },
+      { label: "Handover Checklist", href: "/handover-requirements", roles: ["creator", "owner", "branch_manager", "salesperson"] },
     ],
   },
   {
