@@ -36,7 +36,7 @@ export function EditCustomerForm({
     return (
       <button
         onClick={() => setOpen(true)}
-        className="rounded-md px-2.5 py-1 text-xs font-medium text-slate-600 hover:bg-slate-100"
+        className="rounded-md px-2.5 py-1 text-xs font-medium text-ink-soft hover:bg-slate-100"
       >
         Edit
       </button>
@@ -47,7 +47,7 @@ export function EditCustomerForm({
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 p-4">
       <form
         action={formAction}
-        className="w-full max-w-2xl rounded-xl border border-slate-200 bg-white p-6 shadow-lg"
+        className="w-full max-w-2xl card p-6 shadow-lg"
       >
         <h2 className="mb-4 text-sm font-semibold">Edit Customer — {row.fullName}</h2>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -65,7 +65,7 @@ export function EditCustomerForm({
                 <input
                   disabled
                   value={branches.find((b) => b.id === fixedBranchId)?.name ?? "Your branch"}
-                  className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2"
+                  className="w-full rounded-lg border border-line bg-slate-50 px-3 py-2"
                 />
               </>
             ) : (
@@ -73,7 +73,7 @@ export function EditCustomerForm({
                 name="branchId"
                 required
                 defaultValue={row.branchId}
-                className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2"
+                className="w-full rounded-lg border border-line bg-surface px-3 py-2"
               >
                 {branches.map((b) => (
                   <option key={b.id} value={b.id}>{b.name}</option>
@@ -88,7 +88,7 @@ export function EditCustomerForm({
               name="address"
               rows={2}
               defaultValue={row.address ?? ""}
-              className="w-full rounded-lg border border-slate-300 px-3 py-2"
+              className="w-full rounded-lg border border-line px-3 py-2"
             />
           </label>
         </div>
@@ -99,14 +99,14 @@ export function EditCustomerForm({
           <button
             type="submit"
             disabled={pending}
-            className="rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-700 disabled:opacity-50"
+            className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-500 disabled:opacity-50"
           >
             {pending ? "Saving…" : "Save Changes"}
           </button>
           <button
             type="button"
             onClick={() => setOpen(false)}
-            className="rounded-lg px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100"
+            className="rounded-lg px-4 py-2 text-sm font-medium text-ink-soft hover:bg-slate-100"
           >
             Cancel
           </button>
@@ -124,7 +124,7 @@ function Field({ name, label, defaultValue }: { name: string; label: string; def
         name={name}
         required={label.includes("*")}
         defaultValue={defaultValue}
-        className="w-full rounded-lg border border-slate-300 px-3 py-2 outline-none focus:border-slate-500"
+        className="w-full rounded-lg border border-line px-3 py-2 outline-none focus:border-slate-500"
       />
     </label>
   );
