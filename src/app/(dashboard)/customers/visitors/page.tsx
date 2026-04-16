@@ -17,9 +17,9 @@ const SOURCE_LABEL: Record<string, string> = {
 const STATUS_BADGE: Record<string, string> = {
   new: "bg-sky-100 text-sky-700",
   contacted: "bg-amber-100 text-amber-700",
-  follow_up: "bg-indigo-100 text-indigo-700",
+  follow_up: "bg-brand-100 text-brand-700",
   converted: "bg-emerald-100 text-emerald-700",
-  lost: "bg-slate-100 text-slate-500",
+  lost: "bg-slate-100 text-ink-faint",
 };
 
 export default async function VisitorsPage({
@@ -60,14 +60,14 @@ export default async function VisitorsPage({
           name="q"
           defaultValue={params.q ?? ""}
           placeholder="Search name, phone, interest…"
-          className="w-72 rounded-lg border border-slate-300 px-3 py-1.5 text-sm outline-none focus:border-slate-500"
+          className="w-72 rounded-lg border border-line px-3 py-1.5 text-sm outline-none focus:border-slate-500"
         />
-        <button className="rounded-lg bg-slate-900 px-4 py-1.5 text-sm text-white hover:bg-slate-700">Search</button>
+        <button className="rounded-lg bg-brand-600 px-4 py-1.5 text-sm text-white hover:bg-brand-500">Search</button>
       </form>
 
-      <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white">
+      <div className="overflow-x-auto card">
         <table className="w-full text-sm">
-          <thead className="bg-slate-50 text-left text-xs uppercase tracking-wide text-slate-500">
+          <thead className="bg-raised text-left text-xs uppercase tracking-wide text-ink-faint">
             <tr>
               <th className="px-4 py-3">Name</th>
               <th className="px-4 py-3">Phone</th>
@@ -83,7 +83,7 @@ export default async function VisitorsPage({
           <tbody>
             {rows.length === 0 && (
               <tr>
-                <td colSpan={9} className="px-4 py-10 text-center text-slate-400">
+                <td colSpan={9} className="px-4 py-10 text-center text-ink-faint">
                   No visitors logged yet — walk-ins and event leads go here, separate from customers.
                 </td>
               </tr>
@@ -91,13 +91,13 @@ export default async function VisitorsPage({
             {rows.map((v) => {
               const overdue = !!v.followUpDate && v.followUpDate < today && !["converted", "lost"].includes(v.status);
               return (
-                <tr key={v.id} className="border-t border-slate-100 hover:bg-slate-50">
+                <tr key={v.id} className="border-t border-line row-hover">
                   <td className="px-4 py-2.5 font-medium">{v.fullName}</td>
                   <td className="px-4 py-2.5">{v.phone}</td>
                   <td className="px-4 py-2.5">{v.interest ?? "—"}</td>
                   <td className="px-4 py-2.5">{fmt(v.budget)}</td>
                   <td className="px-4 py-2.5">{SOURCE_LABEL[v.source]}</td>
-                  <td className={`px-4 py-2.5 ${overdue ? "font-medium text-red-600" : "text-slate-500"}`}>
+                  <td className={`px-4 py-2.5 ${overdue ? "font-medium text-red-600" : "text-ink-faint"}`}>
                     {v.followUpDate ? new Date(v.followUpDate).toLocaleDateString("en-PK") : "—"}
                     {overdue && " (overdue)"}
                   </td>
@@ -110,7 +110,7 @@ export default async function VisitorsPage({
                   <td className="px-4 py-2.5 text-right">
                     <span className="inline-flex items-center gap-1">
                       {v.status === "converted" ? (
-                        <span className="text-xs text-slate-400">converted ✓</span>
+                        <span className="text-xs text-ink-faint">converted ✓</span>
                       ) : (
                         <>
                           {editable && (
