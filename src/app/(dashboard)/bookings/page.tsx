@@ -11,7 +11,7 @@ import { BookingStatusActions } from "./booking-status-actions";
 const STATUS_BADGE: Record<string, string> = {
   open: "bg-amber-100 text-amber-700",
   converted: "bg-emerald-100 text-emerald-700",
-  cancelled: "bg-slate-100 text-slate-500",
+  cancelled: "bg-slate-100 text-ink-faint",
   refunded: "bg-red-100 text-red-700",
 };
 const METHOD_LABEL: Record<string, string> = {
@@ -61,9 +61,9 @@ export default async function BookingsPage() {
         demand before placing a stock order.
       </div>
 
-      <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white">
+      <div className="overflow-x-auto card">
         <table className="w-full text-sm">
-          <thead className="bg-slate-50 text-left text-xs uppercase tracking-wide text-slate-500">
+          <thead className="bg-raised text-left text-xs uppercase tracking-wide text-ink-faint">
             <tr>
               <th className="px-4 py-3">From</th>
               <th className="px-4 py-3">Model Wanted</th>
@@ -78,22 +78,22 @@ export default async function BookingsPage() {
           <tbody>
             {rows.length === 0 && (
               <tr>
-                <td colSpan={cancellable ? 8 : 7} className="px-4 py-10 text-center text-slate-400">
+                <td colSpan={cancellable ? 8 : 7} className="px-4 py-10 text-center text-ink-faint">
                   No bookings registered yet — tokens go here so you can see demand before ordering stock.
                 </td>
               </tr>
             )}
             {rows.map((r) => (
-              <tr key={r.id} className="border-t border-slate-100 hover:bg-slate-50">
+              <tr key={r.id} className="border-t border-line row-hover">
                 <td className="px-4 py-2.5 font-medium">
                   {r.customerName ?? r.visitorName ?? "—"}
-                  {!r.customerId && r.visitorId && <span className="ml-1 text-xs font-normal text-slate-400">(lead)</span>}
+                  {!r.customerId && r.visitorId && <span className="ml-1 text-xs font-normal text-ink-faint">(lead)</span>}
                 </td>
                 <td className="px-4 py-2.5">{r.modelWanted}</td>
                 <td className="px-4 py-2.5">{fmt(r.tokenAmount)}</td>
                 <td className="px-4 py-2.5">{METHOD_LABEL[r.paymentMethod]}</td>
                 <td className="px-4 py-2.5">{r.branchName}</td>
-                <td className="px-4 py-2.5 text-slate-500">{new Date(r.createdAt).toLocaleDateString("en-PK")}</td>
+                <td className="px-4 py-2.5 text-ink-faint">{new Date(r.createdAt).toLocaleDateString("en-PK")}</td>
                 <td className="px-4 py-2.5">
                   <span className={`whitespace-nowrap rounded-full px-2.5 py-0.5 text-xs font-medium ${STATUS_BADGE[r.status]}`}>
                     {r.status}
@@ -101,7 +101,7 @@ export default async function BookingsPage() {
                 </td>
                 {cancellable && (
                   <td className="px-4 py-2.5 text-right">
-                    {r.status === "open" ? <BookingStatusActions id={r.id} /> : <span className="text-xs text-slate-400">—</span>}
+                    {r.status === "open" ? <BookingStatusActions id={r.id} /> : <span className="text-xs text-ink-faint">—</span>}
                   </td>
                 )}
               </tr>
