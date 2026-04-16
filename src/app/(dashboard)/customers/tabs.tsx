@@ -8,15 +8,15 @@ export function CustomerTabs({ active }: { active: "customers" | "visitors" }) {
   ] as const;
 
   return (
-    <div className="flex gap-1 border-b border-slate-200">
+    <div className="flex gap-1 border-b border-line">
       {tabs.map((t) => (
         <Link
           key={t.key}
           href={t.href}
           className={`rounded-t-lg px-4 py-2 text-sm font-medium ${
             active === t.key
-              ? "border border-b-0 border-slate-200 bg-white text-slate-900"
-              : "text-slate-500 hover:text-slate-800"
+              ? "border border-b-0 border-line bg-surface text-slate-900"
+              : "text-ink-faint hover:text-slate-800"
           }`}
         >
           {t.label}
