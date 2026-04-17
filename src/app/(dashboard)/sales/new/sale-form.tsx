@@ -3,6 +3,7 @@
 import { useActionState, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createSaleAction, type SaleActionState } from "../actions";
+import { needsWarrantyCard } from "@/modules/sales/warranty";
 import { CustomerPicker } from "./customer-picker";
 
 type Opt = {
@@ -25,6 +26,12 @@ type DocRow = {
   provided: boolean;
   compensationAmount: string;
   compensationNote: string;
+};
+type HandoverRow = {
+  requirementId: number;
+  requirementName: string;
+  handedOver: boolean;
+  note: string;
 };
 type Plan = {
   id: number;
@@ -49,6 +56,7 @@ export function SaleForm({
   plans,
   feeDefaults,
   requirements,
+  handoverItems,
   branches,
   defaultBranchId,
 }: {
@@ -64,6 +72,8 @@ export function SaleForm({
   /** #29: system-settings defaults pre-filling the registration fee split. */
   feeDefaults?: { excise: string; profit: string };
   requirements: Requirement[];
+  /** #13: physical handover checklist master list — every sale, not just installment. */
+  handoverItems: Requirement[];
 }) {
   const router = useRouter();
   const [state, formAction, pending] = useActionState<SaleActionState, FormData>(createSaleAction, null);
@@ -114,6 +124,27 @@ export function SaleForm({
     );
   const updateDocField = (i: number, field: "compensationAmount" | "compensationNote", value: string) =>
     setDocChecklist((rows) => rows.map((row, idx) => (idx === i ? { ...row, [field]: value } : row)));
+
+  // #13: physical handover checklist. Same "default everything ticked, untick
+  // what is actually missing" behaviour as the documents above — but shown for
+  // EVERY sale, because a cash buyer is owed their mirrors too.
+  const [handoverList, setHandoverList] = useState<HandoverRow[]>(() =>
+    handoverItems.map((h) => ({
+      requirementId: h.id,
+      requirementName: h.name,
+      handedOver: true,
+      note: "",
+    })),
+  );
+  const toggleHandover = (i: number) =>
+    setHandoverList((rows) =>
+      rows.map((row, idx) =>
+        idx === i ? { ...row, handedOver: !row.handedOver, ...(row.handedOver ? {} : { note: "" }) } : row,
+      ),
+    );
+  const updateHandoverNote = (i: number, value: string) =>
+    setHandoverList((rows) => rows.map((row, idx) => (idx === i ? { ...row, note: value } : row)));
+  const pendingHandovers = handoverList.filter((h) => !h.handedOver).length;
 
   // #16: does the selected vehicle match an active company rate card?
   const selectedVehicle = vehicles.find((v) => String(v.id) === vehicleId);
@@ -472,15 +503,67 @@ export function SaleForm({
           </div>
         )}
 
-        <label className="flex cursor-pointer items-center gap-2 rounded-lg border border-line bg-slate-50 px-3 py-2.5 text-sm">
-          <input type="checkbox" name="warrantyCardSent" className="h-4 w-4 accent-emerald-600" />
-          <span>
-            <span className="font-medium">Warranty card photo sent to company</span>
-            <span className="block text-xs text-ink-faint">
-              Required to start the warranty clock — the owner sees this during review.
+        {/* #13: shown for EVERY sale — cash buyers are owed their mirrors and
+            charger too. Unticking records what is still owed instead of
+            blocking the sale, same as the document checklist above. */}
+        {handoverList.length > 0 && (
+          <div className="rounded-lg border border-line p-4">
+            <span className="mb-1 block text-sm font-medium">
+              Handover Checklist
+              {pendingHandovers > 0 && (
+                <span className="ml-2 rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-700">
+                  {pendingHandovers} still owed
+                </span>
+              )}
             </span>
-          </span>
-        </label>
+            <span className="mb-3 block text-xs text-ink-faint">
+              Tick what actually goes out with the bike. Untick anything still owed to the customer and say why —
+              this does not block the sale, it records the promise.
+            </span>
+            <div className="space-y-2">
+              {handoverList.map((h, i) => (
+                <div key={h.requirementId} className="rounded-lg bg-raised p-3">
+                  <label className="flex items-center gap-2 text-sm">
+                    <input
+                      type="checkbox"
+                      checked={h.handedOver}
+                      onChange={() => toggleHandover(i)}
+                      className="h-4 w-4"
+                    />
+                    <span className="font-medium">{h.requirementName}</span>
+                    {!h.handedOver && <span className="text-xs text-amber-600">not handed over</span>}
+                  </label>
+                  {!h.handedOver && (
+                    <label className="mt-2 block text-sm">
+                      <span className="mb-1 block text-xs font-medium text-ink-faint">Note</span>
+                      <input
+                        value={h.note}
+                        onChange={(e) => updateHandoverNote(i, e.target.value)}
+                        placeholder="e.g. mirrors on order, collect Friday"
+                        className="w-full rounded-lg border border-line px-3 py-2"
+                      />
+                    </label>
+                  )}
+                </div>
+              ))}
+            </div>
+            <input type="hidden" name="handovers" value={JSON.stringify(handoverList)} readOnly />
+          </div>
+        )}
+
+        {/* #14: Yadea-only. Other makes have no card to send, so asking is noise
+            that made the Review Queue warning meaningless. */}
+        {needsWarrantyCard(selectedVehicle?.make) && (
+          <label className="flex cursor-pointer items-center gap-2 rounded-lg border border-line bg-raised px-3 py-2.5 text-sm">
+            <input type="checkbox" name="warrantyCardSent" className="h-4 w-4 accent-emerald-600" />
+            <span>
+              <span className="font-medium">Warranty card photo sent to company</span>
+              <span className="block text-xs text-ink-faint">
+                Yadea requirement — starts the warranty clock. The owner sees this during review.
+              </span>
+            </span>
+          </label>
+        )}
 
         <label className="block text-sm">
           <span className="mb-1 block font-medium">Notes</span>
