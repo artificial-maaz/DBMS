@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { APP_NAME } from "@/lib/config";
 import { canCreateSale } from "@/modules/sales/permissions";
 import { getInvoiceDetail } from "@/modules/sales/queries";
+import { needsWarrantyCard } from "@/modules/sales/warranty";
 import { requireStaff } from "@/lib/session";
 import { CollectPayment } from "./collect-payment";
 import { DocumentCustody } from "./document-custody";
@@ -19,7 +20,7 @@ export default async function InvoiceDetailPage({ params }: { params: Promise<{ 
     ownBranchId: profile.branchId,
   });
   if (!data) notFound();
-  const { invoice, customer, branch, items, schedule, guarantors, documents } = data;
+  const { invoice, customer, branch, items, schedule, guarantors, documents, handovers, vehicle } = data;
 
   const fmt = (v: string | null) => (v == null ? "—" : `Rs. ${Number(v).toLocaleString("en-PK")}`);
   const d = (v: Date | string) => new Date(v).toLocaleDateString("en-PK", { timeZone: "Asia/Karachi" });
@@ -49,7 +50,10 @@ export default async function InvoiceDetailPage({ params }: { params: Promise<{ 
               <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-medium capitalize text-emerald-700">
                 {invoice.status} · {invoice.settlementPlan}
               </span>
-              <WarrantyCard invoiceId={invoice.id} sent={invoice.warrantyCardSent} canManage={collector} />
+              {/* #14: Yadea-only — no other make issues a warranty card. */}
+              {needsWarrantyCard(vehicle?.make) && (
+                <WarrantyCard invoiceId={invoice.id} sent={invoice.warrantyCardSent} canManage={collector} />
+              )}
             </p>
           </div>
         </div>
@@ -196,6 +200,42 @@ export default async function InvoiceDetailPage({ params }: { params: Promise<{ 
                       )}
                       {!doc.compensationAmount && !doc.compensationNote && "—"}
                     </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+
+        {/* #13: what physically left with the bike. Printed with the invoice on
+            purpose — the customer's copy is the record of what they are owed. */}
+        {handovers.length > 0 && (
+          <div className="mt-8">
+            <h2 className="mb-2 text-sm font-semibold">Handover Checklist</h2>
+            <table className="w-full text-sm">
+              <thead className="border-y border-line text-left text-xs uppercase tracking-wide text-ink-faint">
+                <tr>
+                  <th className="py-2">Item</th>
+                  <th className="py-2">Status</th>
+                  <th className="py-2">Note</th>
+                </tr>
+              </thead>
+              <tbody>
+                {handovers.map((h) => (
+                  <tr key={h.id} className="border-b border-line">
+                    <td className="py-2">{h.requirementName}</td>
+                    <td className="py-2">
+                      {h.handedOver ? (
+                        <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-medium text-emerald-700">
+                          handed over
+                        </span>
+                      ) : (
+                        <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-700">
+                          still owed
+                        </span>
+                      )}
+                    </td>
+                    <td className="py-2 text-ink-soft">{h.note || "—"}</td>
                   </tr>
                 ))}
               </tbody>
