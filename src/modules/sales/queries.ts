@@ -92,16 +92,27 @@ export async function getSaleFormData(opts: { role: string; ownBranchId: number 
   ]);
 
   return {
-    vehicles: stock.map((v) => ({
-      id: v.id,
-      label:
-        !all && v.branchId !== opts.ownBranchId
-          ? `${v.make} ${v.model} — ${v.chassisNo} (${v.branchName})`
-          : `${v.make} ${v.model} — ${v.chassisNo}`,
-      make: v.make,
-      model: v.model,
-      salePrice: v.salePrice,
-    })),
+    // Sir (2026-08-06): sorted so identical models sit together instead of
+    // scattering down the list, and EVERY row names its branch so staff can see
+    // what is available and where — not just the ones outside their own branch.
+    vehicles: stock
+      .slice()
+      .sort(
+        (a, b) =>
+          a.make.localeCompare(b.make) ||
+          a.model.localeCompare(b.model) ||
+          a.chassisNo.localeCompare(b.chassisNo),
+      )
+      .map((v) => ({
+        id: v.id,
+        label: `${v.make} ${v.model} — ${v.chassisNo}`,
+        group: `${v.make} ${v.model}`,
+        branchName: v.branchName,
+        ownBranch: v.branchId === opts.ownBranchId,
+        make: v.make,
+        model: v.model,
+        salePrice: v.salePrice,
+      })),
     customers: customerList.map((c) => ({ id: c.id, label: `${c.fullName} (${c.phone})` })),
     openBookings: openBookings.map((b) => ({
       id: b.id,
