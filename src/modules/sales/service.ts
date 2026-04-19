@@ -235,15 +235,29 @@ export async function createSale(actor: Actor, raw: unknown) {
       // Cash already sitting in the ledger from the booking — only the difference is new money today.
       const newCashToCollect = r2(downpayment - bookingCredit);
 
-      // 2. Per-branch invoice number: <BRANCHCODE>-<YEAR>-<SEQ>
+      // 2. Invoice number: <BRANCHCODE>-<YEAR>-<SEQ>
       // Keyed off saleDate (not createdAt) so a backdated sale lands in its own year's sequence.
+      //
+      // BUG FIX (Sir, 2026-08-06): this used to COUNT invoices for the branch,
+      // which produced duplicates whenever two branches share a 3-letter code —
+      // "Test Branch Lahore" and "Test Branch Kasur" both yield "TES", so each
+      // branch counted itself to 0 and both tried to insert TES-2026-0001,
+      // violating the unique index. Real branch names collide the same way
+      // ("Lahore Main" / "Lahore Road" -> "LAH").
+      //
+      // Now the sequence is derived from the highest number ALREADY ISSUED under
+      // that exact prefix, so it is unique by construction and immune to gaps
+      // left by deleted or cancelled rows.
       const year = new Date(input.saleDate).getFullYear();
-      const [{ n }] = await tx
-        .select({ n: count() })
-        .from(invoices)
-        .where(and(eq(invoices.branchId, vehicle.branchId), sql`extract(year from ${invoices.saleDate}) = ${year}`));
       const code = vehicle.branchName.replace(/[^A-Za-z]/g, "").slice(0, 3).toUpperCase() || "BRN";
-      const invoiceNo = `${code}-${year}-${String(n + 1).padStart(4, "0")}`;
+      const prefix = `${code}-${year}-`;
+      const [{ maxSeq }] = await tx
+        .select({
+          maxSeq: sql<number>`coalesce(max(cast(split_part(${invoices.invoiceNo}, '-', 3) as integer)), 0)`,
+        })
+        .from(invoices)
+        .where(sql`${invoices.invoiceNo} like ${prefix + "%"}`);
+      const invoiceNo = `${prefix}${String(Number(maxSeq) + 1).padStart(4, "0")}`;
 
       // 3. Invoice
       const [inv] = await tx
@@ -408,6 +422,17 @@ export async function createSale(actor: Actor, raw: unknown) {
 
     return { ok: true as const, ...result };
   } catch (e) {
-    return { ok: false as const, error: e instanceof Error ? e.message : "Failed to create sale." };
+    // Raw driver text ("Failed query: insert into invoices...") is meaningless
+    // to a salesperson. Translate the ones we can, keep the rest short.
+    const raw = e instanceof Error ? e.message : "";
+    if (raw.includes("duplicate key") && raw.includes("invoice_no")) {
+      return { ok: false as const, error: "Two sales were finalised at the same moment. Try again — a fresh invoice number will be issued." };
+    }
+    if (raw.includes("duplicate key")) {
+      return { ok: false as const, error: "That record already exists. Refresh the page and check before retrying." };
+    }
+    // Business-rule errors thrown inside the transaction are already friendly.
+    const friendly = raw && !raw.startsWith("Failed query") ? raw : "Could not complete the sale. Nothing was saved — please try again.";
+    return { ok: false as const, error: friendly };
   }
 }
