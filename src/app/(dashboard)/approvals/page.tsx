@@ -1,4 +1,8 @@
+import { inArray } from "drizzle-orm";
+import { db } from "@/db";
+import { vehicles } from "@/db/schema";
 import { canReview, listApprovals } from "@/modules/approvals/service";
+import { needsWarrantyCard } from "@/modules/sales/warranty";
 import { requireStaff } from "@/lib/session";
 import { ReviewControls } from "./review-controls";
 
@@ -26,7 +30,7 @@ const STATUS_BADGE: Record<string, string> = {
 };
 
 /** Hide noisy/technical keys when summarizing a payload for review. */
-const HIDDEN_KEYS = new Set(["guarantors", "documents", "items", "notes"]);
+const HIDDEN_KEYS = new Set(["guarantors", "documents", "handovers", "items", "notes"]);
 
 export default async function ApprovalsPage() {
   const { user, profile } = await requireStaff();
@@ -35,6 +39,26 @@ export default async function ApprovalsPage() {
 
   const pending = rows.filter((r) => r.status === "pending");
   const history = rows.filter((r) => r.status !== "pending");
+
+  // #14: the warranty-card pill is Yadea-only. A pending sale carries only a
+  // vehicleId in its payload, so resolve the makes in ONE query for the whole
+  // page — a per-row lookup would turn a busy queue into N round trips.
+  const pendingVehicleIds = [
+    ...new Set(
+      pending
+        .filter((r) => r.actionType === "sale.create")
+        .map((r) => Number((r.payload as Record<string, unknown>)?.vehicleId))
+        .filter((n) => Number.isFinite(n) && n > 0),
+    ),
+  ];
+  const makeByVehicleId = new Map<number, string>();
+  if (pendingVehicleIds.length > 0) {
+    const found = await db
+      .select({ id: vehicles.id, make: vehicles.make })
+      .from(vehicles)
+      .where(inArray(vehicles.id, pendingVehicleIds));
+    for (const v of found) makeByVehicleId.set(v.id, v.make);
+  }
 
   return (
     <div className="space-y-6">
@@ -71,6 +95,7 @@ export default async function ApprovalsPage() {
               </div>
               <span className="flex items-center gap-2">
                 {r.actionType === "sale.create" &&
+                  needsWarrantyCard(makeByVehicleId.get(Number((r.payload as Record<string, unknown>)?.vehicleId))) &&
                   ((r.payload as Record<string, unknown>)?.warrantyCardSent === "on" ? (
                     <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-medium text-emerald-700">
                       ✔ warranty card sent
