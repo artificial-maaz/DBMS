@@ -37,7 +37,7 @@ export function BookTestDriveForm({
     <div>
       <button
         onClick={() => setOpen((v) => !v)}
-        className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-500"
+        className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-500"
       >
         {open ? "Close" : "+ Book Test Drive"}
       </button>
@@ -46,14 +46,14 @@ export function BookTestDriveForm({
         <form
           ref={formRef}
           action={formAction}
-          className="mt-4 grid grid-cols-1 gap-4 rounded-xl border border-slate-200 bg-white p-6 sm:grid-cols-2 lg:grid-cols-3"
+          className="mt-4 grid grid-cols-1 gap-4 card p-6 sm:grid-cols-2 lg:grid-cols-3"
         >
           <Field name="personName" label="Rider Name *" placeholder="full name" />
           <Field name="phone" label="Phone *" placeholder="03001234567" />
 
           <label className="text-sm">
             <span className="mb-1 block font-medium">Link Existing Customer</span>
-            <select name="customerId" className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2">
+            <select name="customerId" className="w-full rounded-lg border border-line bg-surface px-3 py-2">
               <option value="">Walk-in / not registered</option>
               {customers.map((c) => (
                 <option key={c.id} value={c.id}>{c.label}</option>
@@ -63,7 +63,7 @@ export function BookTestDriveForm({
 
           <label className="text-sm">
             <span className="mb-1 block font-medium">Vehicle (in stock)</span>
-            <select name="vehicleId" className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2">
+            <select name="vehicleId" className="w-full rounded-lg border border-line bg-surface px-3 py-2">
               <option value="">Not specified</option>
               {vehicles.map((v) => (
                 <option key={v.id} value={v.id}>{v.label}</option>
@@ -81,7 +81,7 @@ export function BookTestDriveForm({
               required
               value={when}
               onChange={(e) => setWhen(e.target.value)}
-              className={`w-full rounded-lg border px-3 py-2 ${isFriday ? "border-red-400 bg-red-50" : "border-slate-300"}`}
+              className={`w-full rounded-lg border px-3 py-2 ${isFriday ? "border-red-400 bg-red-50" : "border-line"}`}
             />
             {isFriday && (
               <span className="mt-1 block text-xs font-medium text-red-600">
@@ -98,11 +98,11 @@ export function BookTestDriveForm({
                 <input
                   disabled
                   value={branches.find((b) => b.id === fixedBranchId)?.label ?? "Your branch"}
-                  className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2"
+                  className="w-full rounded-lg border border-line bg-slate-50 px-3 py-2"
                 />
               </>
             ) : (
-              <select name="branchId" required defaultValue={defaultBranchId ?? ""} className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2">
+              <select name="branchId" required defaultValue={defaultBranchId ?? ""} className="w-full rounded-lg border border-line bg-surface px-3 py-2">
                 <option value="">Select branch…</option>
                 {branches.map((b) => (
                   <option key={b.id} value={b.id}>{b.label}</option>
@@ -113,7 +113,7 @@ export function BookTestDriveForm({
 
           <label className="text-sm sm:col-span-2 lg:col-span-3">
             <span className="mb-1 block font-medium">Notes</span>
-            <input name="notes" placeholder="license shown, deposit, remarks…" className="w-full rounded-lg border border-slate-300 px-3 py-2" />
+            <input name="notes" placeholder="license shown, deposit, remarks…" className="w-full rounded-lg border border-line px-3 py-2" />
           </label>
 
           {state && !state.ok && (
@@ -124,7 +124,7 @@ export function BookTestDriveForm({
             <button
               type="submit"
               disabled={pending || isFriday}
-              className="rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-700 disabled:opacity-50"
+              className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-500 disabled:opacity-50"
             >
               {pending ? "Booking…" : "Book Test Drive"}
             </button>
@@ -173,7 +173,7 @@ function Field({ name, label, placeholder }: { name: string; label: string; plac
         name={name}
         required={label.includes("*")}
         placeholder={placeholder}
-        className="w-full rounded-lg border border-slate-300 px-3 py-2 outline-none focus:border-slate-500"
+        className="w-full rounded-lg border border-line px-3 py-2 outline-none focus:border-slate-500"
       />
     </label>
   );
