@@ -33,21 +33,21 @@ export default async function DeliveryDetailPage({ params }: { params: Promise<{
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <Link href="/deliveries" className="text-sm text-slate-500 hover:text-slate-800">← Back to Deliveries</Link>
-        <span className="text-sm text-slate-400">
+        <Link href="/deliveries" className="text-sm text-ink-faint hover:text-slate-800">← Back to Deliveries</Link>
+        <span className="text-sm text-ink-faint">
           {sold} of {units.length} sold
         </span>
       </div>
 
-      <div className="rounded-xl border border-slate-200 bg-white p-6">
-        <div className="flex items-start justify-between border-b border-slate-100 pb-4">
+      <div className="card p-6">
+        <div className="flex items-start justify-between border-b border-line pb-4">
           <div>
-            <h1 className="font-mono text-lg font-semibold text-indigo-700">{delivery.deliveryNo}</h1>
-            <p className="text-sm text-slate-500">
+            <h1 className="font-mono text-lg font-semibold text-brand-700">{delivery.deliveryNo}</h1>
+            <p className="text-sm text-ink-faint">
               {supplier?.name ?? delivery.companyName ?? "—"} → {branch?.name}
             </p>
           </div>
-          <div className="text-right text-sm text-slate-500">
+          <div className="text-right text-sm text-ink-faint">
             <p className="font-medium text-slate-700">
               {new Date(delivery.deliveredOn).toLocaleDateString("en-PK", { dateStyle: "medium" })}
             </p>
@@ -63,16 +63,16 @@ export default async function DeliveryDetailPage({ params }: { params: Promise<{
         </div>
 
         {delivery.notes && (
-          <div className="rounded-lg bg-slate-50 p-3 text-sm text-slate-600">
-            <span className="text-xs font-semibold uppercase text-slate-400">Notes: </span>
+          <div className="rounded-lg bg-slate-50 p-3 text-sm text-ink-soft">
+            <span className="text-xs font-semibold uppercase text-ink-faint">Notes: </span>
             {delivery.notes}
           </div>
         )}
       </div>
 
-      <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white">
+      <div className="overflow-x-auto card">
         <table className="w-full text-sm">
-          <thead className="bg-slate-50 text-left text-xs uppercase tracking-wide text-slate-500">
+          <thead className="bg-raised text-left text-xs uppercase tracking-wide text-ink-faint">
             <tr>
               <th className="px-4 py-3">Vehicle</th>
               <th className="px-4 py-3">Chassis / Engine</th>
@@ -87,35 +87,35 @@ export default async function DeliveryDetailPage({ params }: { params: Promise<{
             {units.map((u) => {
               const held = daysHeld(u);
               return (
-                <tr key={u.id} className="border-t border-slate-100 hover:bg-slate-50">
+                <tr key={u.id} className="border-t border-line row-hover">
                   <td className="px-4 py-2.5">
                     <span className="font-medium">{u.make} {u.model}</span>
-                    <span className="block text-xs text-slate-400">
+                    <span className="block text-xs text-ink-faint">
                       {[u.variant, u.color].filter(Boolean).join(" · ") || "—"}
                     </span>
                   </td>
                   <td className="px-4 py-2.5 font-mono text-xs">
                     {u.chassisNo}
-                    <span className="block text-slate-400">{u.engineNo}</span>
+                    <span className="block text-ink-faint">{u.engineNo}</span>
                   </td>
-                  <td className="px-4 py-2.5 text-slate-500">
+                  <td className="px-4 py-2.5 text-ink-faint">
                     {u.arrivedOn ? new Date(u.arrivedOn).toLocaleDateString("en-PK") : "—"}
                   </td>
                   <td className="px-4 py-2.5">
                     {u.saleDate && u.invoiceId ? (
                       <>
-                        <span className="text-slate-600">{new Date(u.saleDate).toLocaleDateString("en-PK")}</span>
-                        <Link href={`/sales/${u.invoiceId}`} className="block font-mono text-xs text-indigo-700 hover:underline">
+                        <span className="text-ink-soft">{new Date(u.saleDate).toLocaleDateString("en-PK")}</span>
+                        <Link href={`/sales/${u.invoiceId}`} className="block font-mono text-xs text-brand-700 hover:underline">
                           {u.invoiceNo}
                         </Link>
                       </>
                     ) : (
-                      <span className="text-slate-400">—</span>
+                      <span className="text-ink-faint">—</span>
                     )}
                   </td>
-                  <td className="px-4 py-2.5 text-slate-500">
+                  <td className="px-4 py-2.5 text-ink-faint">
                     {held == null ? "—" : `${held} days`}
-                    {u.status !== "sold" && held != null && <span className="block text-xs text-slate-400">and counting</span>}
+                    {u.status !== "sold" && held != null && <span className="block text-xs text-ink-faint">and counting</span>}
                   </td>
                   {showCost && <td className="px-4 py-2.5 text-right">{fmt(u.purchasePrice)}</td>}
                   <td className="px-4 py-2.5">
@@ -136,7 +136,7 @@ export default async function DeliveryDetailPage({ params }: { params: Promise<{
 function Info({ k, v }: { k: string; v: string }) {
   return (
     <div>
-      <p className="text-xs font-semibold uppercase text-slate-400">{k}</p>
+      <p className="text-xs font-semibold uppercase text-ink-faint">{k}</p>
       <p className="font-medium">{v}</p>
     </div>
   );
