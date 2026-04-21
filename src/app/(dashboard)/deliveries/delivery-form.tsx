@@ -61,13 +61,13 @@ export function AddDeliveryForm({
     <div>
       <button
         onClick={() => setOpen((v) => !v)}
-        className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-500"
+        className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-500"
       >
         {open ? "Close" : "+ Record Delivery"}
       </button>
 
       {open && (
-        <form ref={formRef} action={formAction} className="mt-4 space-y-6 rounded-xl border border-slate-200 bg-white p-6">
+        <form ref={formRef} action={formAction} className="mt-4 space-y-6 card p-6">
           <div>
             <h3 className="mb-3 text-sm font-semibold">Consignment Details</h3>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -77,7 +77,7 @@ export function AddDeliveryForm({
                   name="branchId"
                   required
                   defaultValue={defaultBranchId ?? ""}
-                  className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2"
+                  className="w-full rounded-lg border border-line bg-surface px-3 py-2"
                 >
                   <option value="">Select branch…</option>
                   {branches.map((b) => (
@@ -88,7 +88,7 @@ export function AddDeliveryForm({
 
               <label className="text-sm">
                 <span className="mb-1 block font-medium">Supplier / Company</span>
-                <select name="supplierId" className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2">
+                <select name="supplierId" className="w-full rounded-lg border border-line bg-surface px-3 py-2">
                   <option value="">Not in the list…</option>
                   {suppliers.map((s) => (
                     <option key={s.id} value={s.id}>{s.name}</option>
@@ -98,7 +98,7 @@ export function AddDeliveryForm({
 
               <label className="text-sm">
                 <span className="mb-1 block font-medium">…or type Company Name</span>
-                <input name="companyName" placeholder="e.g. Yadea Pakistan" className="w-full rounded-lg border border-slate-300 px-3 py-2" />
+                <input name="companyName" placeholder="e.g. Yadea Pakistan" className="w-full rounded-lg border border-line px-3 py-2" />
               </label>
 
               <label className="text-sm">
@@ -109,28 +109,28 @@ export function AddDeliveryForm({
                   required
                   defaultValue={today}
                   max={today}
-                  className="w-full rounded-lg border border-slate-300 px-3 py-2"
+                  className="w-full rounded-lg border border-line px-3 py-2"
                 />
               </label>
 
               <label className="text-sm">
                 <span className="mb-1 block font-medium">Challan / Invoice No.</span>
-                <input name="challanNo" placeholder="supplier's own doc no." className="w-full rounded-lg border border-slate-300 px-3 py-2" />
+                <input name="challanNo" placeholder="supplier's own doc no." className="w-full rounded-lg border border-line px-3 py-2" />
               </label>
 
               <label className="text-sm">
                 <span className="mb-1 block font-medium">Batch Reference</span>
-                <input name="batchRef" placeholder="e.g. B-2026-07" className="w-full rounded-lg border border-slate-300 px-3 py-2" />
+                <input name="batchRef" placeholder="e.g. B-2026-07" className="w-full rounded-lg border border-line px-3 py-2" />
               </label>
 
               <label className="text-sm">
                 <span className="mb-1 block font-medium">Driver Name</span>
-                <input name="driverName" className="w-full rounded-lg border border-slate-300 px-3 py-2" />
+                <input name="driverName" className="w-full rounded-lg border border-line px-3 py-2" />
               </label>
 
               <label className="text-sm">
                 <span className="mb-1 block font-medium">Transport Plate</span>
-                <input name="transportPlate" placeholder="e.g. LES-2026" className="w-full rounded-lg border border-slate-300 px-3 py-2" />
+                <input name="transportPlate" placeholder="e.g. LES-2026" className="w-full rounded-lg border border-line px-3 py-2" />
               </label>
             </div>
           </div>
@@ -138,7 +138,7 @@ export function AddDeliveryForm({
           <div>
             <div className="mb-3 flex items-center justify-between">
               <h3 className="text-sm font-semibold">
-                Units Received <span className="font-normal text-slate-400">({lines.length})</span>
+                Units Received <span className="font-normal text-ink-faint">({lines.length})</span>
               </h3>
               <button
                 type="button"
@@ -151,9 +151,9 @@ export function AddDeliveryForm({
 
             <div className="space-y-3">
               {lines.map((l, i) => (
-                <div key={i} className="rounded-lg border border-slate-200 bg-slate-50 p-3">
+                <div key={i} className="rounded-lg border border-line bg-slate-50 p-3">
                   <div className="mb-2 flex items-center justify-between">
-                    <span className="text-xs font-semibold uppercase text-slate-400">Unit {i + 1}</span>
+                    <span className="text-xs font-semibold uppercase text-ink-faint">Unit {i + 1}</span>
                     {lines.length > 1 && (
                       <button
                         type="button"
@@ -184,7 +184,7 @@ export function AddDeliveryForm({
 
           <label className="block text-sm">
             <span className="mb-1 block font-medium">Notes</span>
-            <textarea name="notes" rows={2} placeholder="damage on arrival, short shipment, anything worth recording…" className="w-full rounded-lg border border-slate-300 px-3 py-2" />
+            <textarea name="notes" rows={2} placeholder="damage on arrival, short shipment, anything worth recording…" className="w-full rounded-lg border border-line px-3 py-2" />
           </label>
 
           {state && !state.ok && <p className="text-sm text-red-600">{state.error}</p>}
@@ -196,11 +196,11 @@ export function AddDeliveryForm({
             <button
               type="submit"
               disabled={pending}
-              className="rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-700 disabled:opacity-50"
+              className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-500 disabled:opacity-50"
             >
               {pending ? "Saving…" : `Record Delivery (${lines.length} unit${lines.length === 1 ? "" : "s"})`}
             </button>
-            <p className="mt-2 text-xs text-slate-400">
+            <p className="mt-2 text-xs text-ink-faint">
               All units register into inventory together — if one chassis is a duplicate, nothing is saved.
             </p>
           </div>
@@ -225,13 +225,13 @@ function Cell({
 }) {
   return (
     <label className="text-xs">
-      <span className="mb-1 block font-medium text-slate-600">{label}</span>
+      <span className="mb-1 block font-medium text-ink-soft">{label}</span>
       <input
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
         required={label.includes("*")}
-        className={`w-full rounded-lg border border-slate-300 px-2.5 py-1.5 text-sm outline-none focus:border-slate-500 ${mono ? "font-mono" : ""}`}
+        className={`w-full rounded-lg border border-line px-2.5 py-1.5 text-sm outline-none focus:border-slate-500 ${mono ? "font-mono" : ""}`}
       />
     </label>
   );
