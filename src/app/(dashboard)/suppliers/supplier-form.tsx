@@ -148,7 +148,7 @@ export function SupplierRow({ supplier, columns }: { supplier: SupplierData; col
       <td className="px-4 py-2.5 font-mono text-xs">{supplier.ntn ?? "—"}</td>
       <td className="px-4 py-2.5">
         {supplier.isActive ? (
-          <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-xs text-emerald-700">active</span>
+          <span className="rounded-full bg-ok-soft px-2 py-0.5 text-xs text-ok">active</span>
         ) : (
           <span className="rounded-full bg-raised px-2 py-0.5 text-xs text-ink-faint">retired</span>
         )}
@@ -172,8 +172,8 @@ export function SupplierRow({ supplier, columns }: { supplier: SupplierData; col
             }
             className={`rounded-md px-2.5 py-1 text-xs font-medium transition-colors disabled:opacity-50 ${
               supplier.isActive
-                ? "bg-red-50 text-red-700 hover:bg-red-100"
-                : "bg-emerald-50 text-emerald-700 hover:bg-emerald-100"
+                ? "bg-danger-soft text-danger hover:brightness-95"
+                : "bg-ok-soft text-ok hover:brightness-95"
             }`}
           >
             {togglePending ? "…" : supplier.isActive ? "Retire" : "Reactivate"}
