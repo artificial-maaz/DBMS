@@ -14,6 +14,8 @@
     "db:seed:test": "tsx --env-file=.env scripts/seed-test-data.ts",
     "db:seed:plans": "tsx --env-file=.env scripts/seed-installment-plans.ts",
     "db:seed:docs": "tsx --env-file=.env scripts/seed-document-requirements.ts",
+    "db:seed:handover": "tsx --env-file=.env scripts/seed-handover-requirements.ts",
+    "db:settle": "tsx --env-file=.env scripts/backfill-settlements.ts",
     "auth:generate": "npx @better-auth/cli@latest generate --config src/auth/auth.ts --output src/db/auth-schema.ts"
   },
   "dependencies": {
