@@ -27,7 +27,7 @@ export function IssuePassForm({ vehicles, branches }: { vehicles: VehicleOpt[]; 
     <div>
       <button
         onClick={() => setOpen((v) => !v)}
-        className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-500"
+        className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-500"
       >
         {open ? "Close" : "+ Issue Gate Pass"}
       </button>
@@ -36,7 +36,7 @@ export function IssuePassForm({ vehicles, branches }: { vehicles: VehicleOpt[]; 
         <form
           ref={formRef}
           action={formAction}
-          className="mt-4 grid grid-cols-1 gap-4 rounded-xl border border-slate-200 bg-white p-6 sm:grid-cols-2 lg:grid-cols-3"
+          className="mt-4 grid grid-cols-1 gap-4 card p-6 sm:grid-cols-2 lg:grid-cols-3"
         >
           <label className="text-sm">
             <span className="mb-1 block font-medium">Vehicle (in stock) *</span>
@@ -45,7 +45,7 @@ export function IssuePassForm({ vehicles, branches }: { vehicles: VehicleOpt[]; 
               required
               value={vehicleId}
               onChange={(e) => setVehicleId(e.target.value)}
-              className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2"
+              className="w-full rounded-lg border border-line bg-surface px-3 py-2"
             >
               <option value="">Select vehicle…</option>
               {vehicles.map((v) => (
@@ -59,14 +59,14 @@ export function IssuePassForm({ vehicles, branches }: { vehicles: VehicleOpt[]; 
             <input
               disabled
               value={sourceName ?? "— select a vehicle first —"}
-              className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2"
+              className="w-full rounded-lg border border-line bg-slate-50 px-3 py-2"
             />
-            <span className="mt-1 block text-xs text-slate-400">Where the vehicle currently sits — it ships FROM here.</span>
+            <span className="mt-1 block text-xs text-ink-faint">Where the vehicle currently sits — it ships FROM here.</span>
           </label>
 
           <label className="text-sm">
             <span className="mb-1 block font-medium">Destination Branch *</span>
-            <select name="destBranchId" required className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2">
+            <select name="destBranchId" required className="w-full rounded-lg border border-line bg-surface px-3 py-2">
               <option value="">Select destination…</option>
               {branches
                 .filter((b) => b.id !== sourceBranchId)
@@ -89,7 +89,7 @@ export function IssuePassForm({ vehicles, branches }: { vehicles: VehicleOpt[]; 
             <button
               type="submit"
               disabled={pending}
-              className="rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-700 disabled:opacity-50"
+              className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-500 disabled:opacity-50"
             >
               {pending ? "Issuing…" : "Issue Gate Pass"}
             </button>
@@ -143,7 +143,7 @@ function Field({ name, label, placeholder }: { name: string; label: string; plac
         name={name}
         required={label.includes("*")}
         placeholder={placeholder}
-        className="w-full rounded-lg border border-slate-300 px-3 py-2 outline-none focus:border-slate-500"
+        className="w-full rounded-lg border border-line px-3 py-2 outline-none focus:border-slate-500"
       />
     </label>
   );
