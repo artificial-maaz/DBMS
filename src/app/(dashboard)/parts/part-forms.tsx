@@ -29,7 +29,7 @@ export function AddPartForm({
     <div>
       <button
         onClick={() => setOpen((v) => !v)}
-        className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-500"
+        className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-500"
       >
         {open ? "Close" : "+ Add Part"}
       </button>
@@ -38,7 +38,7 @@ export function AddPartForm({
         <form
           ref={formRef}
           action={formAction}
-          className="mt-4 grid grid-cols-1 gap-4 rounded-xl border border-slate-200 bg-white p-6 sm:grid-cols-2 lg:grid-cols-3"
+          className="mt-4 grid grid-cols-1 gap-4 card p-6 sm:grid-cols-2 lg:grid-cols-3"
         >
           <Field name="name" label="Part Name *" placeholder="e.g. 60V Battery Pack" />
           <Field name="partNo" label="Part No." placeholder="e.g. SP-E-102" />
@@ -56,11 +56,11 @@ export function AddPartForm({
                 <input
                   disabled
                   value={branches.find((b) => b.id === fixedBranchId)?.name ?? "Your branch"}
-                  className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2"
+                  className="w-full rounded-lg border border-line bg-slate-50 px-3 py-2"
                 />
               </>
             ) : (
-              <select name="branchId" required className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2">
+              <select name="branchId" required className="w-full rounded-lg border border-line bg-surface px-3 py-2">
                 <option value="">Select branch…</option>
                 {branches.map((b) => (
                   <option key={b.id} value={b.id}>{b.name}</option>
@@ -77,7 +77,7 @@ export function AddPartForm({
             <button
               type="submit"
               disabled={pending}
-              className="rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-700 disabled:opacity-50"
+              className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-500 disabled:opacity-50"
             >
               {pending ? "Saving…" : "Save Part"}
             </button>
@@ -100,7 +100,7 @@ export function AdjustStock({ partId, currentQty }: { partId: number; currentQty
     return (
       <button
         onClick={() => setOpen(true)}
-        className="rounded-md bg-indigo-50 px-2.5 py-1 text-xs font-medium text-indigo-700 hover:bg-indigo-100"
+        className="rounded-md bg-brand-50 px-2.5 py-1 text-xs font-medium text-brand-700 hover:bg-brand-100"
       >
         Adjust
       </button>
@@ -114,14 +114,14 @@ export function AdjustStock({ partId, currentQty }: { partId: number; currentQty
         name="delta"
         placeholder="+5 / -2"
         required
-        className="w-20 rounded-md border border-slate-300 px-2 py-1 text-xs"
+        className="w-20 rounded-md border border-line px-2 py-1 text-xs"
         title={`Current: ${currentQty}. Positive adds, negative deducts.`}
       />
-      <select name="reason" className="rounded-md border border-slate-300 bg-white px-1.5 py-1 text-xs">
+      <select name="reason" className="rounded-md border border-line bg-surface px-1.5 py-1 text-xs">
         <option value="restock">restock</option>
         <option value="adjustment">adjustment</option>
       </select>
-      <input name="note" placeholder="note" className="w-24 rounded-md border border-slate-300 px-2 py-1 text-xs" />
+      <input name="note" placeholder="note" className="w-24 rounded-md border border-line px-2 py-1 text-xs" />
       <button
         type="submit"
         disabled={pending}
@@ -129,7 +129,7 @@ export function AdjustStock({ partId, currentQty }: { partId: number; currentQty
       >
         {pending ? "…" : "✔"}
       </button>
-      <button type="button" onClick={() => setOpen(false)} className="text-xs text-slate-400 hover:text-slate-600">✕</button>
+      <button type="button" onClick={() => setOpen(false)} className="text-xs text-ink-faint hover:text-ink-soft">✕</button>
       {state && !state.ok && <span className="text-xs text-red-600">{state.error}</span>}
     </form>
   );
@@ -143,7 +143,7 @@ function Field({ name, label, placeholder }: { name: string; label: string; plac
         name={name}
         required={label.includes("*")}
         placeholder={placeholder}
-        className="w-full rounded-lg border border-slate-300 px-3 py-2 outline-none focus:border-slate-500"
+        className="w-full rounded-lg border border-line px-3 py-2 outline-none focus:border-slate-500"
       />
     </label>
   );
