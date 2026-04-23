@@ -10,7 +10,7 @@ const STATUS_BADGE: Record<string, string> = {
   open: "bg-slate-100 text-slate-700",
   in_progress: "bg-sky-100 text-sky-700",
   completed: "bg-emerald-100 text-emerald-700",
-  delivered: "bg-indigo-100 text-indigo-700",
+  delivered: "bg-brand-100 text-brand-700",
   cancelled: "bg-red-100 text-red-700",
 };
 
@@ -59,18 +59,18 @@ export default async function WorkshopPage({
       </div>
 
       <form method="get" className="flex gap-3">
-        <select name="status" defaultValue={params.status ?? ""} className="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm">
+        <select name="status" defaultValue={params.status ?? ""} className="rounded-lg border border-line bg-surface px-3 py-1.5 text-sm">
           <option value="">All statuses</option>
           {Object.keys(STATUS_BADGE).map((s) => (
             <option key={s} value={s}>{s.replace("_", " ")}</option>
           ))}
         </select>
-        <button className="rounded-lg bg-slate-900 px-4 py-1.5 text-sm text-white hover:bg-slate-700">Filter</button>
+        <button className="rounded-lg bg-brand-600 px-4 py-1.5 text-sm text-white hover:bg-brand-500">Filter</button>
       </form>
 
-      <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white">
+      <div className="overflow-x-auto card">
         <table className="w-full text-sm">
-          <thead className="bg-slate-50 text-left text-xs uppercase tracking-wide text-slate-500">
+          <thead className="bg-raised text-left text-xs uppercase tracking-wide text-ink-faint">
             <tr>
               <th className="px-4 py-3">Job #</th>
               <th className="px-4 py-3">Customer / Bike</th>
@@ -85,24 +85,24 @@ export default async function WorkshopPage({
           <tbody>
             {jobs.length === 0 && (
               <tr>
-                <td colSpan={8} className="px-4 py-10 text-center text-slate-400">
+                <td colSpan={8} className="px-4 py-10 text-center text-ink-faint">
                   No job cards yet — the bench is clean.
                 </td>
               </tr>
             )}
             {jobs.map((j) => (
-              <tr key={j.id} className="border-t border-slate-100 align-top hover:bg-slate-50">
+              <tr key={j.id} className="border-t border-line align-top row-hover">
                 <td className="px-4 py-2.5 font-mono text-xs font-medium">
-                  <a href={`/workshop/${j.id}`} className="text-indigo-700 hover:underline">{j.jobNo}</a>
+                  <a href={`/workshop/${j.id}`} className="text-brand-700 hover:underline">{j.jobNo}</a>
                 </td>
                 <td className="px-4 py-2.5">
                   <span className="font-medium">{j.customerName}</span>
-                  <span className="block font-mono text-xs text-slate-400">{j.chassisNo}</span>
+                  <span className="block font-mono text-xs text-ink-faint">{j.chassisNo}</span>
                 </td>
                 <td className="max-w-xs px-4 py-2.5">
-                  <span className="line-clamp-2 text-slate-600">{j.complaints}</span>
+                  <span className="line-clamp-2 text-ink-soft">{j.complaints}</span>
                 </td>
-                <td className="px-4 py-2.5">{j.mechanicName ?? <span className="text-slate-400">—</span>}</td>
+                <td className="px-4 py-2.5">{j.mechanicName ?? <span className="text-ink-faint">—</span>}</td>
                 <td className="px-4 py-2.5">
                   <span
                     className={`rounded-full px-2 py-0.5 text-xs font-medium ${
@@ -110,7 +110,7 @@ export default async function WorkshopPage({
                         ? "bg-amber-100 text-amber-700"
                         : j.warrantyStatus === "in_warranty"
                           ? "bg-sky-100 text-sky-700"
-                          : "bg-slate-100 text-slate-600"
+                          : "bg-slate-100 text-ink-soft"
                     }`}
                   >
                     {j.warrantyStatus === "free_coupon" ? `coupon #${j.couponNo}` : j.warrantyStatus.replace(/_/g, " ")}
