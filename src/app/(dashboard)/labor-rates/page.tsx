@@ -16,9 +16,9 @@ export default async function LaborRatesPage() {
         {manager && <AddRateForm />}
       </div>
 
-      <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white">
+      <div className="overflow-x-auto card">
         <table className="w-full text-sm">
-          <thead className="bg-slate-50 text-left text-xs uppercase tracking-wide text-slate-500">
+          <thead className="bg-raised text-left text-xs uppercase tracking-wide text-ink-faint">
             <tr>
               <th className="px-4 py-3">Service / Repair</th>
               <th className="px-4 py-3 text-right">Labor Price</th>
@@ -30,7 +30,7 @@ export default async function LaborRatesPage() {
           <tbody>
             {rates.length === 0 && (
               <tr>
-                <td colSpan={5} className="px-4 py-10 text-center text-slate-400">
+                <td colSpan={5} className="px-4 py-10 text-center text-ink-faint">
                   No services defined yet — add your standard price list.
                 </td>
               </tr>
@@ -41,7 +41,7 @@ export default async function LaborRatesPage() {
           </tbody>
         </table>
       </div>
-      <p className="text-xs text-slate-400">
+      <p className="text-xs text-ink-faint">
         These rates pre-fill the labor charge when completing a workshop job (still adjustable per job).
         Retire instead of delete — past jobs keep the price they were actually charged.
       </p>
