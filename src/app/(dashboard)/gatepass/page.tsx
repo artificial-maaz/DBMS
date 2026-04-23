@@ -60,9 +60,9 @@ export default async function GatePassPage() {
         <Card title="Cancelled" value={counts.cancelled} cls="bg-red-600" />
       </div>
 
-      <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white">
+      <div className="overflow-x-auto card">
         <table className="w-full text-sm">
-          <thead className="bg-slate-50 text-left text-xs uppercase tracking-wide text-slate-500">
+          <thead className="bg-raised text-left text-xs uppercase tracking-wide text-ink-faint">
             <tr>
               <th className="px-4 py-3">Pass #</th>
               <th className="px-4 py-3">Vehicle</th>
@@ -76,7 +76,7 @@ export default async function GatePassPage() {
           <tbody>
             {passes.length === 0 && (
               <tr>
-                <td colSpan={7} className="px-4 py-10 text-center text-slate-400">
+                <td colSpan={7} className="px-4 py-10 text-center text-ink-faint">
                   No gate passes yet — issue one to move a vehicle between branches.
                 </td>
               </tr>
@@ -87,22 +87,22 @@ export default async function GatePassPage() {
               const canCancel =
                 p.status === "in_transit" && (all || p.sourceBranchId === profile.branchId);
               return (
-                <tr key={p.id} className="border-t border-slate-100 hover:bg-slate-50">
-                  <td className="px-4 py-2.5 font-mono text-xs font-medium text-indigo-700">{p.passNo}</td>
+                <tr key={p.id} className="border-t border-line row-hover">
+                  <td className="px-4 py-2.5 font-mono text-xs font-medium text-brand-700">{p.passNo}</td>
                   <td className="px-4 py-2.5">
                     <span className="font-medium">{p.vehicleLabel}</span>
-                    <span className="block font-mono text-xs text-slate-400">{p.chassisNo}</span>
+                    <span className="block font-mono text-xs text-ink-faint">{p.chassisNo}</span>
                   </td>
                   <td className="px-4 py-2.5">
-                    {p.sourceName} <span className="text-slate-400">→</span> {p.destName}
+                    {p.sourceName} <span className="text-ink-faint">→</span> {p.destName}
                   </td>
                   <td className="px-4 py-2.5">
                     {p.driverName}
                     {p.transportPlate && (
-                      <span className="block font-mono text-xs text-slate-400">{p.transportPlate}</span>
+                      <span className="block font-mono text-xs text-ink-faint">{p.transportPlate}</span>
                     )}
                   </td>
-                  <td className="px-4 py-2.5 text-slate-500">
+                  <td className="px-4 py-2.5 text-ink-faint">
                     {new Date(p.issuedAt).toLocaleDateString("en-PK")}
                   </td>
                   <td className="px-4 py-2.5">
