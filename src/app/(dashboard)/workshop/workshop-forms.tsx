@@ -31,7 +31,7 @@ export function CreateJobForm({
     <div>
       <button
         onClick={() => setOpen((v) => !v)}
-        className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-500"
+        className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-500"
       >
         {open ? "Close" : "+ New Job Card"}
       </button>
@@ -40,11 +40,11 @@ export function CreateJobForm({
         <form
           ref={formRef}
           action={formAction}
-          className="mt-4 grid grid-cols-1 gap-4 rounded-xl border border-slate-200 bg-white p-6 sm:grid-cols-2 lg:grid-cols-3"
+          className="mt-4 grid grid-cols-1 gap-4 card p-6 sm:grid-cols-2 lg:grid-cols-3"
         >
           <label className="text-sm">
             <span className="mb-1 block font-medium">Customer *</span>
-            <select name="customerId" required className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2">
+            <select name="customerId" required className="w-full rounded-lg border border-line bg-surface px-3 py-2">
               <option value="">Select customer…</option>
               {customers.map((c) => (
                 <option key={c.id} value={c.id}>{c.label}</option>
@@ -57,7 +57,7 @@ export function CreateJobForm({
 
           <label className="text-sm">
             <span className="mb-1 block font-medium">Warranty Status *</span>
-            <select name="warrantyStatus" required className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2">
+            <select name="warrantyStatus" required className="w-full rounded-lg border border-line bg-surface px-3 py-2">
               <option value="out_of_warranty">Out of warranty (chargeable)</option>
               <option value="free_coupon">Free maintenance coupon</option>
               <option value="in_warranty">In warranty</option>
@@ -66,7 +66,7 @@ export function CreateJobForm({
 
           <label className="text-sm">
             <span className="mb-1 block font-medium">Assign Mechanic</span>
-            <select name="mechanicId" className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2">
+            <select name="mechanicId" className="w-full rounded-lg border border-line bg-surface px-3 py-2">
               <option value="">Unassigned</option>
               {mechanics.map((m) => (
                 <option key={m.id} value={m.id}>{m.label}</option>
@@ -82,11 +82,11 @@ export function CreateJobForm({
                 <input
                   disabled
                   value={branches.find((b) => Number(b.id) === fixedBranchId)?.label ?? "Your branch"}
-                  className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2"
+                  className="w-full rounded-lg border border-line bg-slate-50 px-3 py-2"
                 />
               </>
             ) : (
-              <select name="branchId" required className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2">
+              <select name="branchId" required className="w-full rounded-lg border border-line bg-surface px-3 py-2">
                 <option value="">Select branch…</option>
                 {branches.map((b) => (
                   <option key={b.id} value={b.id}>{b.label}</option>
@@ -102,7 +102,7 @@ export function CreateJobForm({
               required
               rows={2}
               placeholder="e.g. rear brake squeaking, battery draining too fast…"
-              className="w-full rounded-lg border border-slate-300 px-3 py-2"
+              className="w-full rounded-lg border border-line px-3 py-2"
             />
           </label>
 
@@ -114,7 +114,7 @@ export function CreateJobForm({
             <button
               type="submit"
               disabled={pending}
-              className="rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-700 disabled:opacity-50"
+              className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-500 disabled:opacity-50"
             >
               {pending ? "Creating…" : "Create Job Card"}
             </button>
@@ -161,7 +161,7 @@ export function JobActions({
             <select
               defaultValue=""
               onChange={(e) => e.target.value && setLabor(e.target.value)}
-              className="max-w-40 rounded-md border border-slate-300 bg-white px-1.5 py-1 text-xs"
+              className="max-w-40 rounded-md border border-line bg-surface px-1.5 py-1 text-xs"
               title="Pick a standard service to fill the labor charge"
             >
               <option value="">standard service…</option>
@@ -176,7 +176,7 @@ export function JobActions({
             value={labor}
             onChange={(e) => setLabor(e.target.value)}
             placeholder="labor Rs."
-            className="w-20 rounded-md border border-slate-300 px-2 py-1 text-xs"
+            className="w-20 rounded-md border border-line px-2 py-1 text-xs"
           />
           <Btn onClick={() => run("completed", labor)} pending={pending} cls="bg-emerald-50 text-emerald-700 hover:bg-emerald-100">
             Complete
@@ -184,7 +184,7 @@ export function JobActions({
         </span>
       )}
       {status === "completed" && isManager && (
-        <Btn onClick={() => run("delivered")} pending={pending} cls="bg-indigo-600 text-white hover:bg-indigo-500">
+        <Btn onClick={() => run("delivered")} pending={pending} cls="bg-brand-600 text-white hover:bg-brand-500">
           Deliver & Collect
         </Btn>
       )}
@@ -223,7 +223,7 @@ function Field({ name, label, placeholder }: { name: string; label: string; plac
         name={name}
         required={label.includes("*")}
         placeholder={placeholder}
-        className="w-full rounded-lg border border-slate-300 px-3 py-2 outline-none focus:border-slate-500"
+        className="w-full rounded-lg border border-line px-3 py-2 outline-none focus:border-slate-500"
       />
     </label>
   );
