@@ -29,7 +29,7 @@ export function AddEntryForm({
     <div>
       <button
         onClick={() => setOpen((v) => !v)}
-        className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-500"
+        className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-500"
       >
         {open ? "Close" : "+ Record Entry"}
       </button>
@@ -38,11 +38,11 @@ export function AddEntryForm({
         <form
           ref={formRef}
           action={formAction}
-          className="mt-4 grid grid-cols-1 gap-4 rounded-xl border border-slate-200 bg-white p-6 sm:grid-cols-2 lg:grid-cols-3"
+          className="mt-4 grid grid-cols-1 gap-4 card p-6 sm:grid-cols-2 lg:grid-cols-3"
         >
           <label className="text-sm">
             <span className="mb-1 block font-medium">Direction *</span>
-            <select name="direction" required className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2">
+            <select name="direction" required className="w-full rounded-lg border border-line bg-surface px-3 py-2">
               <option value="cash_out">Cash Out (expense)</option>
               <option value="cash_in">Cash In</option>
             </select>
@@ -50,7 +50,7 @@ export function AddEntryForm({
 
           <label className="text-sm">
             <span className="mb-1 block font-medium">Payment Method *</span>
-            <select name="paymentMethod" required className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2">
+            <select name="paymentMethod" required className="w-full rounded-lg border border-line bg-surface px-3 py-2">
               <option value="cash">Cash</option>
               <option value="online">Online payment</option>
               <option value="bank_transfer">Bank transfer</option>
@@ -60,7 +60,7 @@ export function AddEntryForm({
 
           <label className="text-sm">
             <span className="mb-1 block font-medium">Category *</span>
-            <select name="category" required className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2">
+            <select name="category" required className="w-full rounded-lg border border-line bg-surface px-3 py-2">
               {categories.map((c) => (
                 <option key={c} value={c}>{c}</option>
               ))}
@@ -74,7 +74,7 @@ export function AddEntryForm({
               required
               inputMode="decimal"
               placeholder="e.g. 110000"
-              className="w-full rounded-lg border border-slate-300 px-3 py-2"
+              className="w-full rounded-lg border border-line px-3 py-2"
             />
           </label>
 
@@ -85,7 +85,7 @@ export function AddEntryForm({
               type="date"
               required
               defaultValue={new Date().toISOString().slice(0, 10)}
-              className="w-full rounded-lg border border-slate-300 px-3 py-2"
+              className="w-full rounded-lg border border-line px-3 py-2"
             />
           </label>
 
@@ -97,11 +97,11 @@ export function AddEntryForm({
                 <input
                   disabled
                   value={branches.find((b) => b.id === fixedBranchId)?.name ?? "Your branch"}
-                  className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2"
+                  className="w-full rounded-lg border border-line bg-slate-50 px-3 py-2"
                 />
               </>
             ) : (
-              <select name="branchId" required className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2">
+              <select name="branchId" required className="w-full rounded-lg border border-line bg-surface px-3 py-2">
                 <option value="">Select branch…</option>
                 {branches.map((b) => (
                   <option key={b.id} value={b.id}>{b.name}</option>
@@ -116,7 +116,7 @@ export function AddEntryForm({
               name="description"
               required
               placeholder="e.g. Paid rent for showroom building — February"
-              className="w-full rounded-lg border border-slate-300 px-3 py-2"
+              className="w-full rounded-lg border border-line px-3 py-2"
             />
           </label>
 
@@ -128,11 +128,11 @@ export function AddEntryForm({
             <button
               type="submit"
               disabled={pending}
-              className="rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-700 disabled:opacity-50"
+              className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-500 disabled:opacity-50"
             >
               {pending ? "Recording…" : "Record Entry"}
             </button>
-            <p className="mt-2 text-xs text-slate-400">
+            <p className="mt-2 text-xs text-ink-faint">
               Entries cannot be edited or deleted — mistakes are corrected with a reversing entry.
             </p>
           </div>
