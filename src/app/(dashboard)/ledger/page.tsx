@@ -52,33 +52,33 @@ export default async function LedgerPage({
       </div>
 
       <form method="get" className="flex flex-wrap gap-3">
-        <select name="direction" defaultValue={params.direction ?? ""} className="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm">
+        <select name="direction" defaultValue={params.direction ?? ""} className="rounded-lg border border-line bg-surface px-3 py-1.5 text-sm">
           <option value="">In & Out</option>
           <option value="cash_in">Cash In</option>
           <option value="cash_out">Cash Out</option>
         </select>
-        <select name="category" defaultValue={params.category ?? ""} className="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm">
+        <select name="category" defaultValue={params.category ?? ""} className="rounded-lg border border-line bg-surface px-3 py-1.5 text-sm">
           <option value="">All categories</option>
           {LEDGER_CATEGORIES.map((c) => (
             <option key={c} value={c}>{c}</option>
           ))}
         </select>
         {allBranches && (
-          <select name="branch" defaultValue={params.branch ?? ""} className="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm">
+          <select name="branch" defaultValue={params.branch ?? ""} className="rounded-lg border border-line bg-surface px-3 py-1.5 text-sm">
             <option value="">All branches</option>
             {branches.map((b) => (
               <option key={b.id} value={b.id}>{b.name}</option>
             ))}
           </select>
         )}
-        <input type="date" name="from" defaultValue={params.from ?? ""} className="rounded-lg border border-slate-300 px-3 py-1.5 text-sm" />
-        <input type="date" name="to" defaultValue={params.to ?? ""} className="rounded-lg border border-slate-300 px-3 py-1.5 text-sm" />
-        <button className="rounded-lg bg-slate-900 px-4 py-1.5 text-sm text-white hover:bg-slate-700">Filter</button>
+        <input type="date" name="from" defaultValue={params.from ?? ""} className="rounded-lg border border-line px-3 py-1.5 text-sm" />
+        <input type="date" name="to" defaultValue={params.to ?? ""} className="rounded-lg border border-line px-3 py-1.5 text-sm" />
+        <button className="rounded-lg bg-brand-600 px-4 py-1.5 text-sm text-white hover:bg-brand-500">Filter</button>
       </form>
 
-      <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white">
+      <div className="overflow-x-auto card">
         <table className="w-full text-sm">
-          <thead className="bg-slate-50 text-left text-xs uppercase tracking-wide text-slate-500">
+          <thead className="bg-raised text-left text-xs uppercase tracking-wide text-ink-faint">
             <tr>
               <th className="px-4 py-3">Date</th>
               <th className="px-4 py-3">Category</th>
@@ -91,15 +91,15 @@ export default async function LedgerPage({
           <tbody>
             {rows.length === 0 && (
               <tr>
-                <td colSpan={6} className="px-4 py-10 text-center text-slate-400">No entries for this filter.</td>
+                <td colSpan={6} className="px-4 py-10 text-center text-ink-faint">No entries for this filter.</td>
               </tr>
             )}
             {rows.map((e) => (
-              <tr key={e.id} className="border-t border-slate-100 hover:bg-slate-50">
-                <td className="px-4 py-2.5 text-slate-500">{new Date(e.entryDate).toLocaleDateString("en-PK")}</td>
+              <tr key={e.id} className="border-t border-line row-hover">
+                <td className="px-4 py-2.5 text-ink-faint">{new Date(e.entryDate).toLocaleDateString("en-PK")}</td>
                 <td className="px-4 py-2.5">
                   <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs">{e.category}</span>
-                  <span className="ml-1 text-xs text-slate-400">{e.paymentMethod.replace("_", " ")}</span>
+                  <span className="ml-1 text-xs text-ink-faint">{e.paymentMethod.replace("_", " ")}</span>
                 </td>
                 <td className="px-4 py-2.5">{e.description}</td>
                 <td className="px-4 py-2.5">{e.branchName}</td>
