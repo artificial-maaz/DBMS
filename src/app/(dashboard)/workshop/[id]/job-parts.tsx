@@ -16,7 +16,7 @@ export function AddJobPart({ jobId, parts }: { jobId: number; parts: PartOpt[] }
   return (
     <form ref={formRef} action={formAction} className="flex flex-wrap items-center gap-2">
       <input type="hidden" name="jobId" value={jobId} />
-      <select name="partId" required className="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm">
+      <select name="partId" required className="rounded-lg border border-line bg-surface px-3 py-1.5 text-sm">
         <option value="">Select part…</option>
         {parts.map((p) => (
           <option key={p.id} value={p.id} disabled={p.currentQty === 0}>
@@ -30,12 +30,12 @@ export function AddJobPart({ jobId, parts }: { jobId: number; parts: PartOpt[] }
         min={1}
         defaultValue={1}
         required
-        className="w-16 rounded-lg border border-slate-300 px-2 py-1.5 text-sm"
+        className="w-16 rounded-lg border border-line px-2 py-1.5 text-sm"
       />
       <button
         type="submit"
         disabled={pending}
-        className="rounded-lg bg-indigo-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-indigo-500 disabled:opacity-50"
+        className="rounded-lg bg-brand-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-brand-500 disabled:opacity-50"
       >
         {pending ? "Adding…" : "Add Part"}
       </button>
