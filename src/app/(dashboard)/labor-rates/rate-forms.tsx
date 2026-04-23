@@ -28,7 +28,7 @@ export function AddRateForm() {
     <div>
       <button
         onClick={() => setOpen((v) => !v)}
-        className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-500"
+        className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-500"
       >
         {open ? "Close" : "+ Add Labor Service"}
       </button>
@@ -37,7 +37,7 @@ export function AddRateForm() {
         <form
           ref={formRef}
           action={formAction}
-          className="mt-4 grid grid-cols-1 gap-4 rounded-xl border border-slate-200 bg-white p-6 sm:grid-cols-2 lg:grid-cols-4"
+          className="mt-4 grid grid-cols-1 gap-4 card p-6 sm:grid-cols-2 lg:grid-cols-4"
         >
           <Field name="serviceName" label="Service / Repair Name *" placeholder="e.g. Engine overhauling" />
           <Field name="price" label="Labor Price (Rs.) *" placeholder="e.g. 1,500" />
@@ -52,7 +52,7 @@ export function AddRateForm() {
             <button
               type="submit"
               disabled={pending}
-              className="rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-700 disabled:opacity-50"
+              className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-500 disabled:opacity-50"
             >
               {pending ? "Saving…" : "Add Service"}
             </button>
@@ -74,18 +74,18 @@ export function RateRow({ rate, canManage }: { rate: Rate; canManage: boolean })
 
   if (editing) {
     return (
-      <tr className="border-t border-slate-100 bg-indigo-50/40">
+      <tr className="border-t border-line bg-brand-50/40">
         <td colSpan={5} className="px-4 py-3">
           <form action={formAction} className="flex flex-wrap items-center gap-2">
             <input type="hidden" name="rateId" value={rate.id} />
-            <input name="serviceName" defaultValue={rate.serviceName} required className="w-64 rounded-lg border border-slate-300 px-3 py-1.5 text-sm" />
-            <input name="price" defaultValue={rate.price} required className="w-28 rounded-lg border border-slate-300 px-3 py-1.5 text-sm" />
-            <input name="equipment" defaultValue={rate.equipment ?? ""} placeholder="equipment" className="w-44 rounded-lg border border-slate-300 px-3 py-1.5 text-sm" />
-            <input name="notes" defaultValue={rate.notes ?? ""} placeholder="notes" className="w-44 rounded-lg border border-slate-300 px-3 py-1.5 text-sm" />
+            <input name="serviceName" defaultValue={rate.serviceName} required className="w-64 rounded-lg border border-line px-3 py-1.5 text-sm" />
+            <input name="price" defaultValue={rate.price} required className="w-28 rounded-lg border border-line px-3 py-1.5 text-sm" />
+            <input name="equipment" defaultValue={rate.equipment ?? ""} placeholder="equipment" className="w-44 rounded-lg border border-line px-3 py-1.5 text-sm" />
+            <input name="notes" defaultValue={rate.notes ?? ""} placeholder="notes" className="w-44 rounded-lg border border-line px-3 py-1.5 text-sm" />
             <button type="submit" disabled={pending} className="rounded-md bg-emerald-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-emerald-500 disabled:opacity-50">
               {pending ? "…" : "Save"}
             </button>
-            <button type="button" onClick={() => setEditing(false)} className="text-xs text-slate-400 hover:text-slate-600">✕</button>
+            <button type="button" onClick={() => setEditing(false)} className="text-xs text-ink-faint hover:text-ink-soft">✕</button>
             {state && !state.ok && <span className="text-xs text-red-600">{state.error}</span>}
           </form>
         </td>
@@ -94,19 +94,19 @@ export function RateRow({ rate, canManage }: { rate: Rate; canManage: boolean })
   }
 
   return (
-    <tr className={`border-t border-slate-100 hover:bg-slate-50 ${!rate.isActive ? "opacity-50" : ""}`}>
+    <tr className={`border-t border-line row-hover ${!rate.isActive ? "opacity-50" : ""}`}>
       <td className="px-4 py-2.5 font-medium">{rate.serviceName}</td>
       <td className="px-4 py-2.5 text-right">Rs. {Number(rate.price).toLocaleString("en-PK")}</td>
-      <td className="px-4 py-2.5 text-slate-500">{rate.equipment ?? "—"}</td>
+      <td className="px-4 py-2.5 text-ink-faint">{rate.equipment ?? "—"}</td>
       <td className="px-4 py-2.5">
-        <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${rate.isActive ? "bg-emerald-100 text-emerald-700" : "bg-slate-100 text-slate-500"}`}>
+        <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${rate.isActive ? "bg-emerald-100 text-emerald-700" : "bg-slate-100 text-ink-faint"}`}>
           {rate.isActive ? "active" : "retired"}
         </span>
       </td>
       <td className="px-4 py-2.5 text-right">
         {canManage && (
           <span className="inline-flex items-center gap-2">
-            <button onClick={() => setEditing(true)} className="rounded-md bg-indigo-50 px-2.5 py-1 text-xs font-medium text-indigo-700 hover:bg-indigo-100">
+            <button onClick={() => setEditing(true)} className="rounded-md bg-brand-50 px-2.5 py-1 text-xs font-medium text-brand-700 hover:bg-brand-100">
               Edit
             </button>
             <button
@@ -133,7 +133,7 @@ function Field({ name, label, placeholder }: { name: string; label: string; plac
         name={name}
         required={label.includes("*")}
         placeholder={placeholder}
-        className="w-full rounded-lg border border-slate-300 px-3 py-2 outline-none focus:border-slate-500"
+        className="w-full rounded-lg border border-line px-3 py-2 outline-none focus:border-slate-500"
       />
     </label>
   );
