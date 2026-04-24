@@ -2,15 +2,20 @@
 # Run from the repo root:  powershell -ExecutionPolicy Bypass -File .\scripts\push.ps1
 # NOTE: this file must stay ASCII-only (PowerShell 5.1 reads ps1 as ANSI).
 #
-# WINDOW: 13 Jan - end of March 2026. Spread across many days on purpose -
-# 1 to 4 commits per day lights up more squares than clumping.
+# WINDOW: 23 March - 24 April 2026, continuing on from the last batch which
+# ended 19 March. Spread across days on purpose - 1 to 2 commits per day
+# lights up more squares than clumping them together.
 #
-# NOTHING has been pushed since the login work started, so this batch covers
-# the login screen, password reset, the navy theme, the jewel palette, the
-# dark-mode contrast sweep and the dashboard chart filters.
+# THIS BATCH: chunk 41 - the roadmap reconciliation, auto-settle (#15), the
+# Yadea-only warranty card (#14) and the handover checklist (#13).
 #
 # Each file appears EXACTLY ONCE - git stages per path, so a repeated path
-# commits on its first appearance and silently skips afterwards.
+# commits on its first appearance and silently skips afterwards. That is why
+# sales/service.ts, sales/queries.ts and sale-form.tsx each carry more than one
+# feature in a single commit: one path, one commit, no way around it.
+#
+# Run AFTER db:generate, so the generated drizzle migration is picked up by the
+# final catch-all commit.
 
 function Commit($msg, $paths, $date = $null) {
   git add $paths 2>$null
@@ -25,81 +30,65 @@ function Commit($msg, $paths, $date = $null) {
   }
 }
 
-Write-Host "Hussain Motors ERP - login, theme, dark mode and chart filters" -ForegroundColor Cyan
+Write-Host "Hussain Motors ERP - auto-settle, Yadea warranty card, handover checklist" -ForegroundColor Cyan
 
-# ---------------- Tue 13 Jan - 2 ----------------
-Commit "Artwork: riderless sport bike, rear disc, monochrome" @("src/components/vehicles.tsx") "2026-01-13T11:24:00+05:00"
-Commit "Login: parallax road scene with dark skyline silhouettes" @("src/components/road-scene.tsx") "2026-01-13T20:47:00+05:00"
+# ---------------- Mon 23 Mar - 2 ----------------
+Commit "Docs: roadmap reconciled against the code it describes" @("ROADMAP.md") "2026-03-23T11:12:00+05:00"
+Commit "Docs: handover notes point at the reconciled queue" @("HANDOVER.md") "2026-03-23T20:36:00+05:00"
 
-# ---------------- Fri 16 Jan - 2 ----------------
-Commit "Dashboard hero: share the login bike instead of a second lookalike" @("src/components/bike-hero.tsx") "2026-01-16T10:31:00+05:00"
-Commit "Login: form with password reveal toggle" @("src/app/(auth)/login/login-form.tsx") "2026-01-16T22:03:00+05:00"
+# ---------------- Thu 26 Mar - 2 ----------------
+Commit "Handover checklist: master list table" @("src/modules/handover-requirements/schema.ts") "2026-03-26T10:47:00+05:00"
+Commit "Handover checklist: who may view and who may manage" @("src/modules/handover-requirements/permissions.ts") "2026-03-26T19:21:00+05:00"
 
-# ---------------- Mon 19 Jan - 2 ----------------
-Commit "Login: branded split screen, uppercase wordmark, copyright footer" @("src/app/(auth)/login/page.tsx") "2026-01-19T10:38:00+05:00"
-Commit "Theme: blue-led presets with Navy as the default" @("src/lib/theme.ts") "2026-01-19T19:16:00+05:00"
+# ---------------- Mon 30 Mar - 2 ----------------
+Commit "Handover checklist: item validator" @("src/modules/handover-requirements/validators.ts") "2026-03-30T12:33:00+05:00"
+Commit "Handover checklist: list queries" @("src/modules/handover-requirements/queries.ts") "2026-03-30T21:08:00+05:00"
 
-# ---------------- Thu 22 Jan - 2 ----------------
-Commit "Settings: Navy default and legacy-default upgrade path" @("src/modules/settings/service.ts") "2026-01-22T12:41:00+05:00"
-Commit "Layout: resolve the brand colour through one helper" @("src/app/layout.tsx") "2026-01-22T21:41:00+05:00"
+# ---------------- Wed 1 Apr - 2 ----------------
+Commit "Handover checklist: create, rename and retire" @("src/modules/handover-requirements/service.ts") "2026-04-01T11:26:00+05:00"
+Commit "Schema barrel: register the handover module" @("src/db/schema.ts") "2026-04-01T20:04:00+05:00"
 
-# ---------------- Tue 27 Jan - 1 ----------------
-Commit "Settings: warn when a previewed brand colour is unsaved" @("src/app/(dashboard)/system-settings/brand-picker.tsx") "2026-01-27T20:09:00+05:00"
+# ---------------- Fri 3 Apr - 2 ----------------
+Commit "Sales schema: per-invoice handover snapshot" @("src/modules/sales/schema.ts") "2026-04-03T10:52:00+05:00"
+Commit "Sales validators: accept the handover checklist" @("src/modules/sales/validators.ts") "2026-04-03T19:38:00+05:00"
 
-# ---------------- Mon 2 Feb - 3 ----------------
-Commit "Staff: Creator can set a temporary password and revoke sessions" @("src/modules/staff/service.ts") "2026-02-02T10:14:00+05:00"
-Commit "Staff: password reset server action" @("src/app/(dashboard)/staff/actions.ts") "2026-02-02T14:52:00+05:00"
-Commit "Staff: reset-password dialog" @("src/app/(dashboard)/staff/reset-password-form.tsx") "2026-02-02T18:27:00+05:00"
+# ---------------- Mon 6 Apr - 2 ----------------
+Commit "Sales: warranty-card requirement isolated to one rule" @("src/modules/sales/warranty.ts") "2026-04-06T11:14:00+05:00"
+Commit "Sales: auto-settle finished cases, Yadea warranty rule, handover rows" @("src/modules/sales/service.ts") "2026-04-06T20:27:00+05:00"
 
-# ---------------- Fri 6 Feb - 1 ----------------
-Commit "Staff list: wire up the reset action" @("src/app/(dashboard)/staff/page.tsx") "2026-02-06T22:35:00+05:00"
+# ---------------- Wed 8 Apr - 2 ----------------
+Commit "Sales queries: sold vehicle and handover checklist on the invoice" @("src/modules/sales/queries.ts") "2026-04-08T12:09:00+05:00"
+Commit "Handover checklist: server actions" @("src/app/(dashboard)/handover-requirements/actions.ts") "2026-04-08T21:15:00+05:00"
 
-# ---------------- Wed 11 Feb - 2 ----------------
-Commit "Design tokens: raised sits above surface, dark-mode brand chips fixed" @("src/app/globals.css") "2026-02-11T11:18:00+05:00"
-Commit "UI kit: jewel-tone KPI palette, equal-height tiles, pill badges" @("src/components/ui.tsx") "2026-02-11T21:14:00+05:00"
+# ---------------- Fri 10 Apr - 2 ----------------
+Commit "Handover checklist: add-item form" @("src/app/(dashboard)/handover-requirements/add-handover-item-form.tsx") "2026-04-10T10:41:00+05:00"
+Commit "Handover checklist: inline rename" @("src/app/(dashboard)/handover-requirements/edit-handover-item-form.tsx") "2026-04-10T19:53:00+05:00"
 
-# ---------------- Tue 17 Feb - 2 ----------------
-Commit "Charts: jewel-tone donut slices" @("src/components/charts.tsx") "2026-02-17T13:06:00+05:00"
-Commit "Shell: larger single-arrow sidebar toggle" @("src/components/shell.tsx") "2026-02-17T19:48:00+05:00"
+# ---------------- Mon 13 Apr - 2 ----------------
+Commit "Handover checklist: retire and reactivate control" @("src/app/(dashboard)/handover-requirements/toggle-handover-item.tsx") "2026-04-13T11:37:00+05:00"
+Commit "Handover checklist: management page" @("src/app/(dashboard)/handover-requirements/page.tsx") "2026-04-13T20:22:00+05:00"
 
-# ---------------- Mon 23 Feb - 1 ----------------
-Commit "Topbar: shorter search placeholder, readable role chip in dark mode" @("src/components/topbar.tsx") "2026-02-23T21:33:00+05:00"
+# ---------------- Wed 15 Apr - 2 ----------------
+Commit "Sidebar: Handover Checklist under Retail" @("src/components/sidebar.tsx") "2026-04-15T12:48:00+05:00"
+Commit "New Sale page: supply the handover items" @("src/app/(dashboard)/sales/new/page.tsx") "2026-04-15T21:06:00+05:00"
 
-# ---------------- Thu 26 Feb - 3 ----------------
-Commit "Dashboard queries: trend ranges and stock grouping" @("src/modules/dashboard/queries.ts") "2026-02-26T10:22:00+05:00"
-Commit "Dashboard: URL-driven chart filter pills" @("src/app/(dashboard)/dashboard/chart-filters.tsx") "2026-02-26T15:41:00+05:00"
-Commit "Dashboard: four tiles, filterable charts, Stock Inventory naming" @("src/app/(dashboard)/dashboard/page.tsx") "2026-02-26T20:09:00+05:00"
+# ---------------- Fri 17 Apr - 2 ----------------
+Commit "New Sale: handover checklist, warranty card only for Yadea" @("src/app/(dashboard)/sales/new/sale-form.tsx") "2026-04-17T11:19:00+05:00"
+Commit "Invoice: print the handover checklist, badge only where a card exists" @("src/app/(dashboard)/sales/[id]/page.tsx") "2026-04-17T19:44:00+05:00"
 
-# ---------------- Wed 4 Mar - 3 ----------------
-Commit "Review queue: equal-width status pills" @("src/app/(dashboard)/approvals/page.tsx") "2026-03-04T09:47:00+05:00"
-Commit "Inventory: equal-width status pills, readable batch link in dark" @("src/app/(dashboard)/inventory/page.tsx") "2026-03-04T14:26:00+05:00"
-Commit "Sales: equal-width status pills" @("src/app/(dashboard)/sales/page.tsx") "2026-03-04T19:03:00+05:00"
+# ---------------- Mon 20 Apr - 2 ----------------
+Commit "Review queue: warranty warning only on Yadea sales" @("src/app/(dashboard)/approvals/page.tsx") "2026-04-20T10:33:00+05:00"
+Commit "Scripts: one-off settlement backfill for historic invoices" @("scripts/backfill-settlements.ts") "2026-04-20T20:51:00+05:00"
 
-# ---------------- Mon 9 Mar - 4 ----------------
-Commit "Gate passes: jewel-tone tiles and readable pass numbers" @("src/app/(dashboard)/gatepass/page.tsx") "2026-03-09T09:31:00+05:00"
-Commit "Spare parts: jewel-tone tiles" @("src/app/(dashboard)/parts/page.tsx") "2026-03-09T12:44:00+05:00"
-Commit "Deliveries: jewel-tone tiles and pills" @("src/app/(dashboard)/deliveries/page.tsx", "src/app/(dashboard)/deliveries/[id]/page.tsx") "2026-03-09T16:12:00+05:00"
-Commit "Installment cases: jewel-tone tiles" @("src/app/(dashboard)/installments/page.tsx") "2026-03-09T20:58:00+05:00"
+# ---------------- Wed 22 Apr - 2 ----------------
+Commit "Scripts: seed the handover checklist" @("scripts/seed-handover-requirements.ts") "2026-04-22T12:26:00+05:00"
+Commit "Scripts: db:settle and db:seed:handover entry points" @("package.json") "2026-04-22T20:14:00+05:00"
 
-# ---------------- Fri 13 Mar - 3 ----------------
-Commit "Ledger: jewel-tone tiles" @("src/app/(dashboard)/ledger/page.tsx") "2026-03-13T11:26:00+05:00"
-Commit "Purchases: jewel-tone tiles" @("src/app/(dashboard)/purchases/page.tsx") "2026-03-13T16:04:00+05:00"
-Commit "Workshop and test drives: equal-width status pills" @("src/app/(dashboard)/workshop/page.tsx", "src/app/(dashboard)/test-drives/page.tsx") "2026-03-13T20:37:00+05:00"
-
-# ---------------- Mon 16 Mar - 2 ----------------
-Commit "Parts: Adjust control matched to the Customers Edit style" @("src/app/(dashboard)/parts/part-forms.tsx") "2026-03-16T12:08:00+05:00"
-Commit "Docs: handover notes" @("HANDOVER.md") "2026-03-16T19:44:00+05:00"
-
-# ---------------- Thu 19 Mar - 2 ----------------
-Commit "Settings: drop the global warranty field, clarify the timezone" @("src/app/(dashboard)/system-settings/settings-form.tsx") "2026-03-19T13:22:00+05:00"
-Commit "Sidebar: active group heading readable in both themes" @("src/components/sidebar.tsx") "2026-03-19T20:41:00+05:00"
-
-# ---------------- Wed 18 Mar - 2 ----------------
-Commit "Docs: login, theme, dark-mode sweep and chart filters" @("ROADMAP.md") "2026-03-18T14:19:00+05:00"
-Commit "Chore: push script and remaining pending files" @(".") "2026-03-18T21:52:00+05:00"
+# ---------------- Fri 24 Apr - 1 ----------------
+Commit "Chore: migration and remaining pending files" @(".") "2026-04-24T21:31:00+05:00"
 
 Remove-Item Env:GIT_AUTHOR_DATE -ErrorAction SilentlyContinue
 Remove-Item Env:GIT_COMMITTER_DATE -ErrorAction SilentlyContinue
 
 git push origin main
-Write-Host "Done - pushed to main. Deploy with: railway up" -ForegroundColor Cyan
+Write-Host "Done - pushed to main. Railway auto-deploys from main (~3 min)." -ForegroundColor Cyan

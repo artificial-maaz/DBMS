@@ -155,6 +155,13 @@
       "when": 1785530931266,
       "tag": "0021_messy_ultron",
       "breakpoints": true
+    },
+    {
+      "idx": 22,
+      "version": "7",
+      "when": 1786309056954,
+      "tag": "0022_perfect_cyclops",
+      "breakpoints": true
     }
   ]
 }
