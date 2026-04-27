@@ -34,7 +34,7 @@ export default async function AccountingPage({
             key={v}
             href={`/accounting?view=${v}`}
             className={`rounded-lg px-4 py-1.5 text-sm font-medium ${
-              view === v ? "bg-indigo-600 text-white" : "border border-slate-300 bg-white hover:bg-slate-50"
+              view === v ? "bg-brand-600 text-white" : "border border-line bg-surface row-hover"
             }`}
           >
             {label}
@@ -45,9 +45,9 @@ export default async function AccountingPage({
       {view !== "balance" && (
         <form method="get" className="flex flex-wrap gap-3 print:hidden">
           <input type="hidden" name="view" value={view} />
-          <input type="date" name="from" defaultValue={params.from ?? ""} className="rounded-lg border border-slate-300 px-3 py-1.5 text-sm" />
-          <input type="date" name="to" defaultValue={params.to ?? ""} className="rounded-lg border border-slate-300 px-3 py-1.5 text-sm" />
-          <button className="rounded-lg bg-slate-900 px-4 py-1.5 text-sm text-white hover:bg-slate-700">Recompile</button>
+          <input type="date" name="from" defaultValue={params.from ?? ""} className="rounded-lg border border-line px-3 py-1.5 text-sm" />
+          <input type="date" name="to" defaultValue={params.to ?? ""} className="rounded-lg border border-line px-3 py-1.5 text-sm" />
+          <button className="rounded-lg bg-brand-600 px-4 py-1.5 text-sm text-white hover:bg-brand-500">Recompile</button>
         </form>
       )}
 
@@ -61,9 +61,9 @@ export default async function AccountingPage({
 async function Journal({ from, to }: { from?: string; to?: string }) {
   const rows = await generalJournal({ from, to });
   return (
-    <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white print:border-0">
+    <div className="overflow-x-auto card print:border-0">
       <table className="w-full text-sm">
-        <thead className="bg-slate-50 text-left text-xs uppercase tracking-wide text-slate-500">
+        <thead className="bg-raised text-left text-xs uppercase tracking-wide text-ink-faint">
           <tr>
             <th className="px-4 py-3">Date</th>
             <th className="px-4 py-3">Description</th>
@@ -74,14 +74,14 @@ async function Journal({ from, to }: { from?: string; to?: string }) {
         </thead>
         <tbody>
           {rows.length === 0 && (
-            <tr><td colSpan={5} className="px-4 py-10 text-center text-slate-400">No entries for this period.</td></tr>
+            <tr><td colSpan={5} className="px-4 py-10 text-center text-ink-faint">No entries for this period.</td></tr>
           )}
           {rows.map((j) => (
-            <tr key={j.id} className={`border-t border-slate-100 ${j.reversal ? "bg-amber-50/50" : ""}`}>
-              <td className="whitespace-nowrap px-4 py-2 text-slate-500">{new Date(j.date).toLocaleDateString("en-PK")}</td>
+            <tr key={j.id} className={`border-t border-line ${j.reversal ? "bg-amber-50/50" : ""}`}>
+              <td className="whitespace-nowrap px-4 py-2 text-ink-faint">{new Date(j.date).toLocaleDateString("en-PK")}</td>
               <td className="px-4 py-2">{j.description}{j.reversal && <span className="ml-1.5 rounded-full bg-amber-100 px-1.5 text-xs text-amber-700">reversal</span>}</td>
               <td className="px-4 py-2">{j.debit}</td>
-              <td className="px-4 py-2 text-slate-500">{j.credit}</td>
+              <td className="px-4 py-2 text-ink-faint">{j.credit}</td>
               <td className="px-4 py-2 text-right">{rs(Number(j.amount))}</td>
             </tr>
           ))}
@@ -95,9 +95,9 @@ async function Trial({ from, to }: { from?: string; to?: string }) {
   const tb = await trialBalance({ from, to });
   return (
     <div className="space-y-3">
-      <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white print:border-0">
+      <div className="overflow-x-auto card print:border-0">
         <table className="w-full text-sm">
-          <thead className="bg-slate-50 text-left text-xs uppercase tracking-wide text-slate-500">
+          <thead className="bg-raised text-left text-xs uppercase tracking-wide text-ink-faint">
             <tr>
               <th className="px-4 py-3">Account</th>
               <th className="px-4 py-3 text-right">Net Debit (DR)</th>
@@ -106,13 +106,13 @@ async function Trial({ from, to }: { from?: string; to?: string }) {
           </thead>
           <tbody>
             {tb.accounts.map((a) => (
-              <tr key={a.name} className="border-t border-slate-100">
+              <tr key={a.name} className="border-t border-line">
                 <td className="px-4 py-2 font-medium">{a.name}</td>
                 <td className="px-4 py-2 text-right">{a.debit > 0 ? rs(a.debit) : "—"}</td>
                 <td className="px-4 py-2 text-right">{a.credit > 0 ? rs(a.credit) : "—"}</td>
               </tr>
             ))}
-            <tr className="border-t-2 border-slate-300 bg-slate-50 font-semibold">
+            <tr className="border-t-2 border-line bg-slate-50 font-semibold">
               <td className="px-4 py-2">TOTALS</td>
               <td className="px-4 py-2 text-right">{rs(tb.totalDebit)}</td>
               <td className="px-4 py-2 text-right">{rs(tb.totalCredit)}</td>
@@ -132,14 +132,14 @@ async function Trial({ from, to }: { from?: string; to?: string }) {
 async function Balance() {
   const bs = await balanceSheet();
   const Row = ({ k, v, bold }: { k: string; v: number; bold?: boolean }) => (
-    <div className={`flex justify-between py-1 ${bold ? "border-t border-slate-200 pt-2 font-semibold" : "text-slate-600"}`}>
+    <div className={`flex justify-between py-1 ${bold ? "border-t border-line pt-2 font-semibold" : "text-ink-soft"}`}>
       <span>{k}</span><span>{rs(v)}</span>
     </div>
   );
   return (
-    <div className="rounded-xl border border-slate-200 bg-white p-8 print:border-0">
+    <div className="card p-8 print:border-0">
       <h2 className="mb-1 text-center text-lg font-bold">Balance Sheet</h2>
-      <p className="mb-6 text-center text-sm text-slate-500">Statement of Financial Position · as of {new Date().toLocaleDateString("en-PK")}</p>
+      <p className="mb-6 text-center text-sm text-ink-faint">Statement of Financial Position · as of {new Date().toLocaleDateString("en-PK")}</p>
       <div className="grid grid-cols-1 gap-8 sm:grid-cols-2">
         <div>
           <h3 className="mb-2 text-sm font-semibold uppercase tracking-wide text-emerald-700">Assets</h3>
@@ -155,7 +155,7 @@ async function Balance() {
           <Row k="Supplier Payables" v={bs.liabilities.supplierPayables} />
           <Row k="TOTAL LIABILITIES (B)" v={bs.totalLiabilities} bold />
           <div className="mt-4">
-            <h3 className="mb-2 text-sm font-semibold uppercase tracking-wide text-indigo-700">Owner Equity</h3>
+            <h3 className="mb-2 text-sm font-semibold uppercase tracking-wide text-brand-700">Owner Equity</h3>
             <Row k="Retained Earnings / Equity (C = A − B)" v={bs.equity} bold />
           </div>
         </div>
