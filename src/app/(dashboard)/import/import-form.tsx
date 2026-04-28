@@ -36,6 +36,10 @@ export function ImportForm({ templates }: { templates: Record<string, Tpl> }) {
             </select>
           </label>
 
+          {/* #20: NO Tailwind `file:` utilities on this input. They outrank the
+              unprefixed rule in globals.css, and `file:border-0` in particular
+              stripped the button's border in light mode. The file button is
+              styled once, in globals.css, for both themes. */}
           <label className="text-sm">
             <span className="mb-1 block font-medium">CSV File *</span>
             <input
@@ -43,12 +47,12 @@ export function ImportForm({ templates }: { templates: Record<string, Tpl> }) {
               name="file"
               accept=".csv,text/csv"
               required
-              className="w-full rounded-lg border border-line px-3 py-1.5 text-sm file:mr-3 file:rounded-md file:border-0 file:px-3 file:py-1 file:text-sm"
+              className="w-full rounded-lg border border-line px-3 py-1.5 text-sm"
             />
           </label>
         </div>
 
-        <div className="rounded-lg bg-slate-50 p-4 text-sm">
+        <div className="rounded-lg bg-raised p-4 text-sm">
           <p className="mb-1 font-medium">Expected columns for {TYPE_LABELS[type]}:</p>
           <code className="block overflow-x-auto whitespace-nowrap text-xs text-ink-soft">{tpl.headers}</code>
           <a
