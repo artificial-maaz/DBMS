@@ -28,6 +28,42 @@ export async function createSaleAction(_prev: SaleActionState, formData: FormDat
   return { ok: true, invoiceNo: result.invoiceNo };
 }
 
+/**
+ * Register a customer WITHOUT leaving New Sale (Sir, 2026-08-06).
+ *
+ * A first-time buyer used to force a detour: Customers → add → back to Sales →
+ * find them in the list. Now the walk-in is captured where the sale is being
+ * made. It goes through the same createCustomer service, so validation,
+ * normalisation, branch rules and the audit trail are all identical — this is
+ * a shortcut in the UI, not a bypass of the rules.
+ */
+export async function quickCreateCustomerAction(
+  _prev: QuickCustomerState,
+  formData: FormData,
+): Promise<QuickCustomerState> {
+  const { user, profile } = await requireStaff();
+  const { createCustomer } = await import("@/modules/customers/service");
+  const result = await createCustomer(
+    { userId: user.id, role: profile.role, branchId: profile.branchId },
+    Object.fromEntries(formData),
+  );
+  if (!result.ok) return { ok: false, error: result.error };
+
+  revalidatePath("/customers");
+  return {
+    ok: true,
+    customer: {
+      id: result.id,
+      label: `${String(formData.get("fullName") ?? "").trim()} (${String(formData.get("phone") ?? "").trim()})`,
+    },
+  };
+}
+
+export type QuickCustomerState =
+  | { ok: true; customer: { id: number; label: string } }
+  | { ok: false; error?: string }
+  | null;
+
 export async function warrantyCardSentAction(invoiceId: number): Promise<SaleActionState> {
   const { user, profile } = await requireStaff();
   const result = await setWarrantyCardSent(
