@@ -50,7 +50,7 @@ export default async function PurchasesPage() {
 
       <div className="space-y-4">
         {rows.length === 0 && (
-          <div className="rounded-xl border border-slate-200 bg-white px-4 py-10 text-center text-slate-400">
+          <div className="card px-4 py-10 text-center text-ink-faint">
             No stock purchases recorded yet.
           </div>
         )}
@@ -62,13 +62,13 @@ export default async function PurchasesPage() {
           const receiptStatus =
             poItems.length === 0 ? null : received === 0 ? "pending" : received < ordered ? "partial" : "received";
           return (
-            <div key={r.id} className="rounded-xl border border-slate-200 bg-white">
-              <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 px-4 py-3">
+            <div key={r.id} className="card">
+              <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line px-4 py-3">
                 <div className="flex items-center gap-3">
-                  <span className="font-mono text-xs font-medium text-indigo-700">{r.poNo}</span>
+                  <span className="font-mono text-xs font-medium text-brand-700">{r.poNo}</span>
                   <span className="font-medium">{r.supplierName}</span>
-                  <span className="text-xs text-slate-400">→ {r.branchName}</span>
-                  <span className="text-xs text-slate-400">{new Date(r.purchaseDate).toLocaleDateString("en-PK")}</span>
+                  <span className="text-xs text-ink-faint">→ {r.branchName}</span>
+                  <span className="text-xs text-ink-faint">{new Date(r.purchaseDate).toLocaleDateString("en-PK")}</span>
                   {receiptStatus && (
                     <span
                       className={`rounded-full px-2 py-0.5 text-xs font-medium ${
@@ -86,7 +86,7 @@ export default async function PurchasesPage() {
                 <div className="flex items-center gap-4 text-sm">
                   <span>Total {fmt(r.totalCost)}</span>
                   <span className="text-emerald-600">Paid {fmt(r.amountPaid)}</span>
-                  <span className={outstanding > 0 ? "font-medium text-amber-600" : "text-slate-400"}>
+                  <span className={outstanding > 0 ? "font-medium text-amber-600" : "text-ink-faint"}>
                     Due {fmt(outstanding)}
                   </span>
                   <PayPurchase poId={r.id} outstanding={outstanding} />
@@ -99,11 +99,11 @@ export default async function PurchasesPage() {
                     {poItems.map((it) => (
                       <tr key={it.id} className="border-t border-slate-50">
                         <td className="px-4 py-2 pl-8 font-medium">{it.model}</td>
-                        <td className="px-2 py-2 text-slate-500">{it.color ?? "—"}</td>
-                        <td className="px-2 py-2 text-right text-slate-600">
+                        <td className="px-2 py-2 text-ink-faint">{it.color ?? "—"}</td>
+                        <td className="px-2 py-2 text-right text-ink-soft">
                           {it.qtyReceived}/{it.qtyOrdered} received
                         </td>
-                        <td className="px-2 py-2 text-right text-slate-500">@ {fmt(it.unitCost)}</td>
+                        <td className="px-2 py-2 text-right text-ink-faint">@ {fmt(it.unitCost)}</td>
                         <td className="px-2 py-2 text-right">{fmt(it.qtyOrdered * Number(it.unitCost))}</td>
                         <td className="px-4 py-2 text-right">
                           <ReceiveItem itemId={it.id} remaining={it.qtyOrdered - it.qtyReceived} />
@@ -113,7 +113,7 @@ export default async function PurchasesPage() {
                   </tbody>
                 </table>
               ) : (
-                <p className="px-4 py-2 pl-8 text-sm text-slate-500">{r.description}</p>
+                <p className="px-4 py-2 pl-8 text-sm text-ink-faint">{r.description}</p>
               )}
             </div>
           );
@@ -121,12 +121,12 @@ export default async function PurchasesPage() {
       </div>
 
       {patterns.length > 0 && (
-        <div className="rounded-xl border border-slate-200 bg-white">
-          <h2 className="border-b border-slate-100 px-4 py-3 text-sm font-semibold">
+        <div className="card">
+          <h2 className="border-b border-line px-4 py-3 text-sm font-semibold">
             Ordering Patterns — what you buy and what actually arrives
           </h2>
           <table className="w-full text-sm">
-            <thead className="bg-slate-50 text-left text-xs uppercase tracking-wide text-slate-500">
+            <thead className="bg-raised text-left text-xs uppercase tracking-wide text-ink-faint">
               <tr>
                 <th className="px-4 py-2.5">Model</th>
                 <th className="px-4 py-2.5 text-right">Orders</th>
@@ -138,7 +138,7 @@ export default async function PurchasesPage() {
             </thead>
             <tbody>
               {patterns.map((p) => (
-                <tr key={p.model} className="border-t border-slate-100">
+                <tr key={p.model} className="border-t border-line">
                   <td className="px-4 py-2 font-medium">{p.model}</td>
                   <td className="px-4 py-2 text-right">{p.timesOrdered}</td>
                   <td className="px-4 py-2 text-right">{p.totalOrdered}</td>
@@ -146,7 +146,7 @@ export default async function PurchasesPage() {
                     {p.totalReceived}
                   </td>
                   <td className="px-4 py-2 text-right">{fmt(p.totalSpent)}</td>
-                  <td className="px-4 py-2 text-right text-slate-500">
+                  <td className="px-4 py-2 text-right text-ink-faint">
                     {new Date(p.lastOrdered).toLocaleDateString("en-PK")}
                   </td>
                 </tr>
