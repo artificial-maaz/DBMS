@@ -44,17 +44,17 @@ export function RecordPurchaseForm({ suppliers, branches }: { suppliers: Opt[]; 
     <div>
       <button
         onClick={() => setOpen((v) => !v)}
-        className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-500"
+        className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-500"
       >
         {open ? "Close" : "+ Record Purchase"}
       </button>
 
       {open && (
-        <form ref={formRef} action={formAction} className="mt-4 space-y-4 rounded-xl border border-slate-200 bg-white p-6">
+        <form ref={formRef} action={formAction} className="mt-4 space-y-4 card p-6">
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             <label className="text-sm">
               <span className="mb-1 block font-medium">Supplier *</span>
-              <select name="supplierId" required className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2">
+              <select name="supplierId" required className="w-full rounded-lg border border-line bg-surface px-3 py-2">
                 <option value="">Select supplier…</option>
                 {suppliers.map((s) => (
                   <option key={s.id} value={s.id}>{s.label}</option>
@@ -63,7 +63,7 @@ export function RecordPurchaseForm({ suppliers, branches }: { suppliers: Opt[]; 
             </label>
             <label className="text-sm">
               <span className="mb-1 block font-medium">Receiving Branch *</span>
-              <select name="branchId" required className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2">
+              <select name="branchId" required className="w-full rounded-lg border border-line bg-surface px-3 py-2">
                 <option value="">Select branch…</option>
                 {branches.map((b) => (
                   <option key={b.id} value={b.id}>{b.label}</option>
@@ -77,7 +77,7 @@ export function RecordPurchaseForm({ suppliers, branches }: { suppliers: Opt[]; 
                 type="date"
                 required
                 defaultValue={new Date().toISOString().slice(0, 10)}
-                className="w-full rounded-lg border border-slate-300 px-3 py-2"
+                className="w-full rounded-lg border border-line px-3 py-2"
               />
             </label>
           </div>
@@ -92,29 +92,29 @@ export function RecordPurchaseForm({ suppliers, branches }: { suppliers: Opt[]; 
                     placeholder="Model (e.g. Yadea G5 Pro) *"
                     value={l.model}
                     onChange={(e) => setLine(idx, { model: e.target.value })}
-                    className="w-56 rounded-lg border border-slate-300 px-3 py-1.5 text-sm"
+                    className="w-56 rounded-lg border border-line px-3 py-1.5 text-sm"
                   />
                   <input
                     placeholder="Color"
                     value={l.color}
                     onChange={(e) => setLine(idx, { color: e.target.value })}
-                    className="w-28 rounded-lg border border-slate-300 px-3 py-1.5 text-sm"
+                    className="w-28 rounded-lg border border-line px-3 py-1.5 text-sm"
                   />
                   <input
                     placeholder="Qty"
                     inputMode="numeric"
                     value={l.qtyOrdered}
                     onChange={(e) => setLine(idx, { qtyOrdered: e.target.value })}
-                    className="w-16 rounded-lg border border-slate-300 px-3 py-1.5 text-sm"
+                    className="w-16 rounded-lg border border-line px-3 py-1.5 text-sm"
                   />
                   <input
                     placeholder="Unit cost (Rs.)"
                     inputMode="decimal"
                     value={l.unitCost}
                     onChange={(e) => setLine(idx, { unitCost: e.target.value })}
-                    className="w-32 rounded-lg border border-slate-300 px-3 py-1.5 text-sm"
+                    className="w-32 rounded-lg border border-line px-3 py-1.5 text-sm"
                   />
-                  <span className="w-28 text-right text-xs text-slate-500">
+                  <span className="w-28 text-right text-xs text-ink-faint">
                     = Rs. {(n(l.qtyOrdered) * n(l.unitCost)).toLocaleString("en-PK")}
                   </span>
                   {lines.length > 1 && (
@@ -132,7 +132,7 @@ export function RecordPurchaseForm({ suppliers, branches }: { suppliers: Opt[]; 
             <button
               type="button"
               onClick={() => setLines((ls) => [...ls, { ...EMPTY_LINE }])}
-              className="mt-2 rounded-md bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-600 hover:bg-slate-200"
+              className="mt-2 rounded-md bg-slate-100 px-2.5 py-1 text-xs font-medium text-ink-soft hover:bg-slate-200"
             >
               + Add line
             </button>
@@ -142,11 +142,11 @@ export function RecordPurchaseForm({ suppliers, branches }: { suppliers: Opt[]; 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             <label className="text-sm">
               <span className="mb-1 block font-medium">Paid Now (Rs.)</span>
-              <input name="amountPaid" placeholder="0 — rest is payable" inputMode="decimal" className="w-full rounded-lg border border-slate-300 px-3 py-2" />
+              <input name="amountPaid" placeholder="0 — rest is payable" inputMode="decimal" className="w-full rounded-lg border border-line px-3 py-2" />
             </label>
             <label className="text-sm sm:col-span-2">
               <span className="mb-1 block font-medium">Notes</span>
-              <input name="notes" placeholder="batch details, transport, warranty terms…" className="w-full rounded-lg border border-slate-300 px-3 py-2" />
+              <input name="notes" placeholder="batch details, transport, warranty terms…" className="w-full rounded-lg border border-line px-3 py-2" />
             </label>
           </div>
 
@@ -160,7 +160,7 @@ export function RecordPurchaseForm({ suppliers, branches }: { suppliers: Opt[]; 
           <button
             type="submit"
             disabled={pending}
-            className="rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-700 disabled:opacity-50"
+            className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-500 disabled:opacity-50"
           >
             {pending ? "Recording…" : "Record Purchase"}
           </button>
@@ -182,7 +182,7 @@ export function PayPurchase({ poId, outstanding }: { poId: number; outstanding: 
     return (
       <button
         onClick={() => setOpen(true)}
-        className="rounded-md bg-indigo-50 px-2.5 py-1 text-xs font-medium text-indigo-700 hover:bg-indigo-100"
+        className="rounded-md bg-brand-50 px-2.5 py-1 text-xs font-medium text-brand-700 hover:bg-brand-100"
       >
         Pay
       </button>
@@ -192,7 +192,7 @@ export function PayPurchase({ poId, outstanding }: { poId: number; outstanding: 
   return (
     <span className="inline-flex items-center gap-2">
       {error && <span className="text-xs text-red-600">{error}</span>}
-      <input value={amount} onChange={(e) => setAmount(e.target.value)} className="w-24 rounded-md border border-slate-300 px-2 py-1 text-xs" />
+      <input value={amount} onChange={(e) => setAmount(e.target.value)} className="w-24 rounded-md border border-line px-2 py-1 text-xs" />
       <button
         disabled={pending}
         onClick={() =>
@@ -206,7 +206,7 @@ export function PayPurchase({ poId, outstanding }: { poId: number; outstanding: 
       >
         {pending ? "…" : "✔"}
       </button>
-      <button onClick={() => setOpen(false)} className="text-xs text-slate-400 hover:text-slate-600">✕</button>
+      <button onClick={() => setOpen(false)} className="text-xs text-ink-faint hover:text-ink-soft">✕</button>
     </span>
   );
 }
@@ -234,7 +234,7 @@ export function ReceiveItem({ itemId, remaining }: { itemId: number; remaining: 
   return (
     <span className="inline-flex items-center gap-1.5">
       {error && <span className="text-xs text-red-600">{error}</span>}
-      <input value={qty} onChange={(e) => setQty(e.target.value)} inputMode="numeric" className="w-14 rounded-md border border-slate-300 px-2 py-0.5 text-xs" />
+      <input value={qty} onChange={(e) => setQty(e.target.value)} inputMode="numeric" className="w-14 rounded-md border border-line px-2 py-0.5 text-xs" />
       <button
         disabled={pending}
         onClick={() =>
@@ -248,7 +248,7 @@ export function ReceiveItem({ itemId, remaining }: { itemId: number; remaining: 
       >
         {pending ? "…" : "✔"}
       </button>
-      <button onClick={() => setOpen(false)} className="text-xs text-slate-400 hover:text-slate-600">✕</button>
+      <button onClick={() => setOpen(false)} className="text-xs text-ink-faint hover:text-ink-soft">✕</button>
     </span>
   );
 }
