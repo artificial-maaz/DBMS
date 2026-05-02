@@ -3,8 +3,19 @@
 import { useActionState, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createSaleAction, type SaleActionState } from "../actions";
+import { CustomerPicker } from "./customer-picker";
 
-type Opt = { id: number; label: string; make?: string; model?: string; salePrice?: string | null };
+type Opt = {
+  id: number;
+  label: string;
+  make?: string;
+  model?: string;
+  salePrice?: string | null;
+  /** make + model — used to bucket the dropdown into optgroups */
+  group?: string;
+  branchName?: string;
+  ownBranch?: boolean;
+};
 type OpenBooking = { id: number; customerId: number; modelWanted: string; tokenAmount: string };
 type Guarantor = { fullName: string; cnic: string; phone: string; address: string };
 type Requirement = { id: number; name: string };
@@ -38,6 +49,8 @@ export function SaleForm({
   plans,
   feeDefaults,
   requirements,
+  branches,
+  defaultBranchId,
 }: {
   vehicles: Opt[];
   customers: Opt[];
@@ -45,6 +58,9 @@ export function SaleForm({
   initialCustomerId?: string;
   openBookings: OpenBooking[];
   plans: Plan[];
+  /** For registering a walk-in customer without leaving this page. */
+  branches: { id: number; name: string }[];
+  defaultBranchId?: number | null;
   /** #29: system-settings defaults pre-filling the registration fee split. */
   feeDefaults?: { excise: string; profit: string };
   requirements: Requirement[];
@@ -174,27 +190,17 @@ export function SaleForm({
       {/* Left: inputs */}
       <div className="space-y-4 card p-6 lg:col-span-2">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <label className="text-sm">
-            <span className="mb-1 block font-medium">Customer *</span>
-            <select
-              name="customerId"
-              required
-              value={customerId}
-              onChange={(e) => {
-                setCustomerId(e.target.value);
-                setBookingId(""); // bookings list changes with the customer — don't carry a stale pick
-              }}
-              className="w-full rounded-lg border border-line bg-surface px-3 py-2"
-            >
-              <option value="">Select customer…</option>
-              {customers.map((c) => (
-                <option key={c.id} value={c.id}>{c.label}</option>
-              ))}
-            </select>
-            {initialCustomerId && (
-              <span className="mt-1 block text-xs text-emerald-600">Pre-selected from a converted visitor.</span>
-            )}
-          </label>
+          <CustomerPicker
+            customers={customers}
+            value={customerId}
+            onChange={(id) => {
+              setCustomerId(id);
+              setBookingId(""); // bookings list changes with the customer — don't carry a stale pick
+            }}
+            branches={branches}
+            defaultBranchId={defaultBranchId ?? null}
+            preselectedNote={Boolean(initialCustomerId)}
+          />
 
           {customerBookings.length > 0 && (
             <label className="text-sm">
@@ -235,8 +241,23 @@ export function SaleForm({
               className="w-full rounded-lg border border-line bg-surface px-3 py-2"
             >
               <option value="">Select vehicle…</option>
-              {vehicles.map((v) => (
-                <option key={v.id} value={v.id}>{v.label}</option>
+              {/* Sir (2026-08-06): grouped by make+model so identical bikes sit
+                  together, each row tagged with the branch holding it. */}
+              {Object.entries(
+                vehicles.reduce<Record<string, Opt[]>>((acc, v) => {
+                  const key = v.group ?? "Other";
+                  (acc[key] ??= []).push(v);
+                  return acc;
+                }, {}),
+              ).map(([group, items]) => (
+                <optgroup key={group} label={`${group}  (${items.length} in stock)`}>
+                  {items.map((v) => (
+                    <option key={v.id} value={v.id}>
+                      {v.label}
+                      {v.branchName ? `  ·  ${v.branchName}` : ""}
+                    </option>
+                  ))}
+                </optgroup>
               ))}
             </select>
             {matchedPlan && (
