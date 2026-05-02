@@ -155,6 +155,25 @@ the semantic tokens (`surface / raised / line / ink / ink-soft / ink-faint`) and
 - Primary buttons are `bg-brand-600`, table rows use `.row-hover` (a soft brand wash instead of grey),
   and cards use the shared `.card` primitive so radius/shadow change in one place.
 
+## ✅ Done — Sale flow fixes (2026-08-06, chunk 37)
+- **BUG (production-critical): duplicate invoice numbers.** The number was built by COUNTING that
+  branch's invoices, but the branch code is only 3 letters — "Test Branch Lahore" and "Test Branch
+  Kasur" both yield `TES`, so each branch counted itself to zero and both tried to insert
+  `TES-2026-0001`, tripping the unique index and killing the sale. Real names collide identically
+  ("Lahore Main" / "Lahore Road" → `LAH`). Now the sequence comes from the highest number already
+  issued **under that exact prefix**, so it is unique by construction and survives gaps left by
+  deleted rows. Also: raw driver text ("Failed query: insert into invoices…") no longer reaches
+  staff — errors are translated into something a salesperson can act on.
+- **Searchable customer picker + inline registration (Sir):** type to filter across name, phone and
+  CNIC, and register a walk-in **without leaving New Sale** — no more detour through the Customers
+  module before a first-time buyer can be served. Uses the same `createCustomer` service, so
+  validation, phone/CNIC normalisation, branch rules and the audit trail are unchanged; it is a UI
+  shortcut, not a rules bypass. Note it is deliberately not a nested `<form>` (HTML forbids that and
+  it would submit the sale) — fields are gathered manually and handed to a server action.
+- **Vehicle dropdown grouped:** in-stock units are sorted and bucketed into `<optgroup>`s by
+  make + model with a count ("Yadea T5L (3 in stock)"), and **every** row now names the branch
+  holding it, flagging other branches explicitly.
+
 **Still to do:** empty states on the remaining list screens, login + invoice branding pass,
 simplified role-home for phones, delete the legacy bridge.
 
