@@ -22,7 +22,7 @@ export function AddStaffForm({ branches, grantableRoles }: { branches: Branch[];
     <div>
       <button
         onClick={() => setOpen((v) => !v)}
-        className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-500"
+        className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-500"
       >
         {open ? "Close" : "+ Onboard Staff"}
       </button>
@@ -31,7 +31,7 @@ export function AddStaffForm({ branches, grantableRoles }: { branches: Branch[];
         <form
           ref={formRef}
           action={formAction}
-          className="mt-4 grid grid-cols-1 gap-4 rounded-xl border border-slate-200 bg-white p-6 sm:grid-cols-2 lg:grid-cols-3"
+          className="mt-4 grid grid-cols-1 gap-4 card p-6 sm:grid-cols-2 lg:grid-cols-3"
         >
           <Field name="name" label="Full Name *" placeholder="e.g. Ali Raza" />
           <Field name="email" label="Login Email *" placeholder="ali@example.com" />
@@ -48,7 +48,7 @@ export function AddStaffForm({ branches, grantableRoles }: { branches: Branch[];
               required
               value={role}
               onChange={(e) => setRole(e.target.value)}
-              className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 capitalize"
+              className="w-full rounded-lg border border-line bg-surface px-3 py-2 capitalize"
             >
               {grantableRoles.map((r) => (
                 <option key={r} value={r}>{r.replace("_", " ")}</option>
@@ -59,7 +59,7 @@ export function AddStaffForm({ branches, grantableRoles }: { branches: Branch[];
           {role !== "owner" && (
             <label className="text-sm">
               <span className="mb-1 block font-medium">Branch *</span>
-              <select name="branchId" required className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2">
+              <select name="branchId" required className="w-full rounded-lg border border-line bg-surface px-3 py-2">
                 <option value="">Select branch…</option>
                 {branches.map((b) => (
                   <option key={b.id} value={b.id}>{b.name}</option>
@@ -76,11 +76,11 @@ export function AddStaffForm({ branches, grantableRoles }: { branches: Branch[];
             <button
               type="submit"
               disabled={pending}
-              className="rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-700 disabled:opacity-50"
+              className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-500 disabled:opacity-50"
             >
               {pending ? "Creating account…" : "Onboard Staff Member"}
             </button>
-            <p className="mt-2 text-xs text-slate-400">
+            <p className="mt-2 text-xs text-ink-faint">
               Share the email + temp password with them privately; they should change it in Settings after first login.
             </p>
           </div>
@@ -98,7 +98,7 @@ function Field({ name, label, placeholder }: { name: string; label: string; plac
         name={name}
         required={label.includes("*")}
         placeholder={placeholder}
-        className="w-full rounded-lg border border-slate-300 px-3 py-2 outline-none focus:border-slate-500"
+        className="w-full rounded-lg border border-line px-3 py-2 outline-none focus:border-slate-500"
       />
     </label>
   );
