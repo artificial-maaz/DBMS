@@ -13,13 +13,13 @@ const GRANTABLE: Record<string, string[]> = {
 
 const ROLE_BADGE: Record<string, string> = {
   creator: "bg-slate-900 text-white",
-  owner: "bg-indigo-100 text-indigo-700",
+  owner: "bg-brand-100 text-brand-700",
   silent_partner: "bg-purple-100 text-purple-700",
   branch_manager: "bg-sky-100 text-sky-700",
   salesperson: "bg-emerald-100 text-emerald-700",
   assistant: "bg-teal-100 text-teal-700",
   mechanic: "bg-amber-100 text-amber-700",
-  gate_staff: "bg-slate-100 text-slate-600",
+  gate_staff: "bg-slate-100 text-ink-soft",
 };
 
 export default async function StaffPage() {
@@ -41,9 +41,9 @@ export default async function StaffPage() {
         )}
       </div>
 
-      <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white">
+      <div className="overflow-x-auto card">
         <table className="w-full text-sm">
-          <thead className="bg-slate-50 text-left text-xs uppercase tracking-wide text-slate-500">
+          <thead className="bg-raised text-left text-xs uppercase tracking-wide text-ink-faint">
             <tr>
               <th className="px-4 py-3">Name</th>
               <th className="px-4 py-3">Email</th>
@@ -57,9 +57,9 @@ export default async function StaffPage() {
           </thead>
           <tbody>
             {rows.map((m) => (
-              <tr key={m.id} className="border-t border-slate-100 hover:bg-slate-50">
+              <tr key={m.id} className="border-t border-line row-hover">
                 <td className="px-4 py-2.5 font-medium">{m.name}</td>
-                <td className="px-4 py-2.5 text-slate-600">{m.email}</td>
+                <td className="px-4 py-2.5 text-ink-soft">{m.email}</td>
                 <td className="px-4 py-2.5">
                   <span
                     className={`whitespace-nowrap rounded-full px-2.5 py-0.5 text-xs font-medium capitalize ${ROLE_BADGE[m.role]}`}
@@ -69,7 +69,7 @@ export default async function StaffPage() {
                 </td>
                 <td className="px-4 py-2.5">{m.branchName ?? "All branches"}</td>
                 <td className="px-4 py-2.5">{m.designation ?? "—"}</td>
-                <td className="px-4 py-2.5 text-slate-500">{new Date(m.joinedAt).toLocaleDateString("en-PK")}</td>
+                <td className="px-4 py-2.5 text-ink-faint">{new Date(m.joinedAt).toLocaleDateString("en-PK")}</td>
                 <td className="px-4 py-2.5">
                   <span
                     className={`rounded-full px-2 py-0.5 text-xs font-medium ${
