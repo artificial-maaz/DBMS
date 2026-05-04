@@ -34,7 +34,7 @@ export function PayrollForm({ staff }: { staff: Staff[] }) {
     <div>
       <button
         onClick={() => setOpen((v) => !v)}
-        className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-500"
+        className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-500"
       >
         {open ? "Close" : "▶ Run Payroll"}
       </button>
@@ -43,7 +43,7 @@ export function PayrollForm({ staff }: { staff: Staff[] }) {
         <form
           ref={formRef}
           action={formAction}
-          className="mt-4 grid grid-cols-1 gap-4 rounded-xl border border-slate-200 bg-white p-6 sm:grid-cols-2 lg:grid-cols-3"
+          className="mt-4 grid grid-cols-1 gap-4 card p-6 sm:grid-cols-2 lg:grid-cols-3"
         >
           <label className="text-sm">
             <span className="mb-1 block font-medium">Employee *</span>
@@ -52,7 +52,7 @@ export function PayrollForm({ staff }: { staff: Staff[] }) {
               required
               value={selected}
               onChange={(e) => setSelected(e.target.value)}
-              className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2"
+              className="w-full rounded-lg border border-line bg-surface px-3 py-2"
             >
               <option value="">Select employee…</option>
               {staff.map((s) => (
@@ -62,7 +62,7 @@ export function PayrollForm({ staff }: { staff: Staff[] }) {
               ))}
             </select>
             {emp && (
-              <span className="mt-1 block text-xs text-slate-500">
+              <span className="mt-1 block text-xs text-ink-faint">
                 Basic Rs. {Number(emp.basicSalary).toLocaleString("en-PK")} + allowances Rs.{" "}
                 {Number(emp.monthlyAllowances).toLocaleString("en-PK")} · commissions auto-calculated
               </span>
@@ -71,24 +71,24 @@ export function PayrollForm({ staff }: { staff: Staff[] }) {
 
           <label className="text-sm">
             <span className="mb-1 block font-medium">Period Start *</span>
-            <input name="periodStart" type="date" required defaultValue={start} className="w-full rounded-lg border border-slate-300 px-3 py-2" />
+            <input name="periodStart" type="date" required defaultValue={start} className="w-full rounded-lg border border-line px-3 py-2" />
           </label>
           <label className="text-sm">
             <span className="mb-1 block font-medium">Period End *</span>
-            <input name="periodEnd" type="date" required defaultValue={end} className="w-full rounded-lg border border-slate-300 px-3 py-2" />
+            <input name="periodEnd" type="date" required defaultValue={end} className="w-full rounded-lg border border-line px-3 py-2" />
           </label>
 
           <label className="text-sm">
             <span className="mb-1 block font-medium">Bonus / Reward (Rs.)</span>
-            <input name="bonus" placeholder="0" className="w-full rounded-lg border border-slate-300 px-3 py-2" />
+            <input name="bonus" placeholder="0" className="w-full rounded-lg border border-line px-3 py-2" />
           </label>
           <label className="text-sm">
             <span className="mb-1 block font-medium">Deductions (Rs.)</span>
-            <input name="deductions" placeholder="0" className="w-full rounded-lg border border-slate-300 px-3 py-2" />
+            <input name="deductions" placeholder="0" className="w-full rounded-lg border border-line px-3 py-2" />
           </label>
           <label className="text-sm">
             <span className="mb-1 block font-medium">Notes</span>
-            <input name="notes" placeholder="e.g. Eid bonus included" className="w-full rounded-lg border border-slate-300 px-3 py-2" />
+            <input name="notes" placeholder="e.g. Eid bonus included" className="w-full rounded-lg border border-line px-3 py-2" />
           </label>
 
           {state && !state.ok && (
@@ -99,11 +99,11 @@ export function PayrollForm({ staff }: { staff: Staff[] }) {
             <button
               type="submit"
               disabled={pending}
-              className="rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-700 disabled:opacity-50"
+              className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-500 disabled:opacity-50"
             >
               {pending ? "Releasing…" : "Release Payout"}
             </button>
-            <p className="mt-2 text-xs text-slate-400">
+            <p className="mt-2 text-xs text-ink-faint">
               Net = basic + allowances + period commissions + bonus − deductions. Posts to ledger as salary.
             </p>
           </div>
