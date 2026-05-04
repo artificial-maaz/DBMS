@@ -19,7 +19,7 @@ export function AddSupplierForm() {
     <div>
       <button
         onClick={() => setOpen((v) => !v)}
-        className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-500"
+        className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-500"
       >
         {open ? "Close" : "+ Register Supplier"}
       </button>
@@ -28,7 +28,7 @@ export function AddSupplierForm() {
         <form
           ref={formRef}
           action={formAction}
-          className="mt-4 grid grid-cols-1 gap-4 rounded-xl border border-slate-200 bg-white p-6 sm:grid-cols-2 lg:grid-cols-3"
+          className="mt-4 grid grid-cols-1 gap-4 card p-6 sm:grid-cols-2 lg:grid-cols-3"
         >
           <Field name="name" label="Supplier / Manufacturer Name *" placeholder="e.g. Yadea Pakistan" />
           <Field name="contactPerson" label="Contact Person" placeholder="e.g. Mr. Adnan Shah" />
@@ -38,7 +38,7 @@ export function AddSupplierForm() {
           <Field name="ntn" label="NTN / Tax Reg." placeholder="NTN-XXXXXXX-X" />
           <label className="text-sm sm:col-span-2 lg:col-span-3">
             <span className="mb-1 block font-medium">Notes / Specialization</span>
-            <input name="notes" placeholder="e.g. specializes in 2000W motors" className="w-full rounded-lg border border-slate-300 px-3 py-2" />
+            <input name="notes" placeholder="e.g. specializes in 2000W motors" className="w-full rounded-lg border border-line px-3 py-2" />
           </label>
 
           {state && !state.ok && (
@@ -49,7 +49,7 @@ export function AddSupplierForm() {
             <button
               type="submit"
               disabled={pending}
-              className="rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-700 disabled:opacity-50"
+              className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-500 disabled:opacity-50"
             >
               {pending ? "Saving…" : "Register Supplier"}
             </button>
@@ -68,7 +68,7 @@ function Field({ name, label, placeholder }: { name: string; label: string; plac
         name={name}
         required={label.includes("*")}
         placeholder={placeholder}
-        className="w-full rounded-lg border border-slate-300 px-3 py-2 outline-none focus:border-slate-500"
+        className="w-full rounded-lg border border-line px-3 py-2 outline-none focus:border-slate-500"
       />
     </label>
   );
