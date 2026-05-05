@@ -19,9 +19,9 @@ export default async function BranchesPage() {
         <AddBranchForm />
       </div>
 
-      <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white">
+      <div className="overflow-x-auto card">
         <table className="w-full text-sm">
-          <thead className="bg-slate-50 text-left text-xs uppercase tracking-wide text-slate-500">
+          <thead className="bg-raised text-left text-xs uppercase tracking-wide text-ink-faint">
             <tr>
               <th className="px-4 py-3">Name</th>
               <th className="px-4 py-3">City</th>
@@ -33,7 +33,7 @@ export default async function BranchesPage() {
           </thead>
           <tbody>
             {rows.map((b) => (
-              <tr key={b.id} className="border-t border-slate-100 hover:bg-slate-50">
+              <tr key={b.id} className="border-t border-line row-hover">
                 <td className="px-4 py-2.5 font-medium">{b.name}</td>
                 <td className="px-4 py-2.5">{b.city}</td>
                 <td className="px-4 py-2.5">{b.address ?? "—"}</td>
