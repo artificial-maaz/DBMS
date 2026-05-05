@@ -19,7 +19,7 @@ export function AddBranchForm() {
     <div>
       <button
         onClick={() => setOpen((v) => !v)}
-        className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-500"
+        className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-500"
       >
         {open ? "Close" : "+ Register Branch"}
       </button>
@@ -28,7 +28,7 @@ export function AddBranchForm() {
         <form
           ref={formRef}
           action={formAction}
-          className="mt-4 grid grid-cols-1 gap-4 rounded-xl border border-slate-200 bg-white p-6 sm:grid-cols-2"
+          className="mt-4 grid grid-cols-1 gap-4 card p-6 sm:grid-cols-2"
         >
           <Field name="name" label="Branch Name *" placeholder="e.g. DHA Showroom" />
           <Field name="city" label="City *" placeholder="e.g. Lahore" />
@@ -41,7 +41,7 @@ export function AddBranchForm() {
             <button
               type="submit"
               disabled={pending}
-              className="rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-700 disabled:opacity-50"
+              className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-500 disabled:opacity-50"
             >
               {pending ? "Saving…" : "Save Branch"}
             </button>
@@ -60,7 +60,7 @@ function Field({ name, label, placeholder }: { name: string; label: string; plac
         name={name}
         required={label.includes("*")}
         placeholder={placeholder}
-        className="w-full rounded-lg border border-slate-300 px-3 py-2 outline-none focus:border-slate-500"
+        className="w-full rounded-lg border border-line px-3 py-2 outline-none focus:border-slate-500"
       />
     </label>
   );
