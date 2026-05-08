@@ -23,7 +23,7 @@ export default async function InstallmentPlansPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-xl font-semibold">Installment Plans</h1>
-          <p className="text-sm text-slate-500">
+          <p className="text-sm text-ink-faint">
             The company-approved rate card. New Sale auto-fills from here by matching the vehicle&apos;s make/model —
             still fully editable per sale.
           </p>
@@ -32,17 +32,17 @@ export default async function InstallmentPlansPage() {
       </div>
 
       {rows.length === 0 && (
-        <p className="rounded-xl border border-slate-200 bg-white px-4 py-10 text-center text-slate-400">
+        <p className="card px-4 py-10 text-center text-ink-faint">
           No rate cards yet.
         </p>
       )}
 
       {byCompany.map(({ company, plans }) => (
         <div key={company} className="space-y-2">
-          <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-500">{company}</h2>
-          <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white">
+          <h2 className="text-sm font-semibold uppercase tracking-wide text-ink-faint">{company}</h2>
+          <div className="overflow-x-auto card">
             <table className="w-full text-sm">
-              <thead className="bg-slate-50 text-left text-xs uppercase tracking-wide text-slate-500">
+              <thead className="bg-raised text-left text-xs uppercase tracking-wide text-ink-faint">
                 <tr>
                   <th className="px-4 py-3">Model</th>
                   <th className="px-4 py-3">Cash Price</th>
@@ -58,14 +58,14 @@ export default async function InstallmentPlansPage() {
               <tbody>
                 {plans.map((p) => (
                   <Fragment key={p.id}>
-                    <tr className="border-t border-slate-100">
+                    <tr className="border-t border-line">
                       <td rowSpan={2} className="px-4 py-2.5 font-medium align-top">
                         {p.model}
-                        {!p.isActive && <span className="ml-2 rounded-full bg-slate-100 px-2 py-0.5 text-xs text-slate-500">retired</span>}
+                        {!p.isActive && <span className="ml-2 rounded-full bg-slate-100 px-2 py-0.5 text-xs text-ink-faint">retired</span>}
                       </td>
                       <td rowSpan={2} className="px-4 py-2.5 align-top">Rs. {fmt(p.cashPrice)}</td>
                       <td rowSpan={2} className="px-4 py-2.5 align-top">Rs. {fmt(p.advance)}</td>
-                      <td className="px-4 py-2 text-xs font-medium text-slate-500">Monthly</td>
+                      <td className="px-4 py-2 text-xs font-medium text-ink-faint">Monthly</td>
                       <td className="px-4 py-2 text-right">{fmt(p.monthly3)}</td>
                       <td className="px-4 py-2 text-right">{fmt(p.monthly6)}</td>
                       <td className="px-4 py-2 text-right">{fmt(p.monthly9)}</td>
@@ -80,7 +80,7 @@ export default async function InstallmentPlansPage() {
                       )}
                     </tr>
                     <tr className="border-t border-slate-50 bg-slate-50/40">
-                      <td className="px-4 py-2 text-xs font-medium text-slate-500">Total Price</td>
+                      <td className="px-4 py-2 text-xs font-medium text-ink-faint">Total Price</td>
                       <td className="px-4 py-2 text-right font-medium">{fmt(p.total3)}</td>
                       <td className="px-4 py-2 text-right font-medium">{fmt(p.total6)}</td>
                       <td className="px-4 py-2 text-right font-medium">{fmt(p.total9)}</td>
@@ -91,7 +91,7 @@ export default async function InstallmentPlansPage() {
               </tbody>
             </table>
           </div>
-          <p className="text-xs text-slate-400">
+          <p className="text-xs text-ink-faint">
             w.e.f {new Date(plans[0]?.effectiveDate).toLocaleDateString("en-PK")}
           </p>
         </div>
