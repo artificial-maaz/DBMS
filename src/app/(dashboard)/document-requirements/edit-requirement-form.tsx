@@ -14,7 +14,7 @@ export function EditRequirementForm({ requirement }: { requirement: { id: number
 
   if (!open) {
     return (
-      <button onClick={() => setOpen(true)} className="rounded-md px-2.5 py-1 text-xs font-medium text-slate-600 hover:bg-slate-100">
+      <button onClick={() => setOpen(true)} className="rounded-md px-2.5 py-1 text-xs font-medium text-ink-soft hover:bg-slate-100">
         Rename
       </button>
     );
@@ -26,12 +26,12 @@ export function EditRequirementForm({ requirement }: { requirement: { id: number
         name="name"
         required
         defaultValue={requirement.name}
-        className="rounded-lg border border-slate-300 px-2 py-1 text-sm"
+        className="rounded-lg border border-line px-2 py-1 text-sm"
       />
-      <button type="submit" disabled={pending} className="rounded-md bg-slate-900 px-2.5 py-1 text-xs font-medium text-white disabled:opacity-50">
+      <button type="submit" disabled={pending} className="rounded-md bg-brand-600 px-2.5 py-1 text-xs font-medium text-white disabled:opacity-50">
         {pending ? "…" : "Save"}
       </button>
-      <button type="button" onClick={() => setOpen(false)} className="rounded-md px-2.5 py-1 text-xs font-medium text-slate-500 hover:bg-slate-100">
+      <button type="button" onClick={() => setOpen(false)} className="rounded-md px-2.5 py-1 text-xs font-medium text-ink-faint hover:bg-slate-100">
         Cancel
       </button>
       {state && !state.ok && <span className="text-xs text-red-600">{state.error}</span>}
