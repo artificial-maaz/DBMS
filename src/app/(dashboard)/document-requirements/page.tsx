@@ -18,7 +18,7 @@ export default async function DocumentRequirementsPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-xl font-semibold">Document Checklist (Installment Prerequisites)</h1>
-          <p className="text-sm text-slate-500">
+          <p className="text-sm text-ink-faint">
             Items checked at New Sale for installment plans. Not a hard requirement — a missing item can be waived
             with a compensation note instead of blocking the sale.
           </p>
@@ -27,15 +27,15 @@ export default async function DocumentRequirementsPage() {
       </div>
 
       {rows.length === 0 && (
-        <p className="rounded-xl border border-slate-200 bg-white px-4 py-10 text-center text-slate-400">
+        <p className="card px-4 py-10 text-center text-ink-faint">
           No checklist items yet.
         </p>
       )}
 
       {rows.length > 0 && (
-        <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white">
+        <div className="overflow-x-auto card">
           <table className="w-full text-sm">
-            <thead className="bg-slate-50 text-left text-xs uppercase tracking-wide text-slate-500">
+            <thead className="bg-raised text-left text-xs uppercase tracking-wide text-ink-faint">
               <tr>
                 <th className="px-4 py-3">Requirement</th>
                 <th className="px-4 py-3">Status</th>
@@ -44,13 +44,13 @@ export default async function DocumentRequirementsPage() {
             </thead>
             <tbody>
               {rows.map((r) => (
-                <tr key={r.id} className="border-t border-slate-100">
+                <tr key={r.id} className="border-t border-line">
                   <td className="px-4 py-2.5 font-medium">{r.name}</td>
                   <td className="px-4 py-2.5">
                     {r.isActive ? (
                       <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-xs text-emerald-700">active</span>
                     ) : (
-                      <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs text-slate-500">retired</span>
+                      <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs text-ink-faint">retired</span>
                     )}
                   </td>
                   {manageable && (
