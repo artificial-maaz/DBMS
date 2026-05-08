@@ -41,14 +41,14 @@ export default async function NotificationsPage() {
     <div className="mx-auto max-w-3xl space-y-6">
       <div>
         <h1 className="text-xl font-semibold">Notifications</h1>
-        <p className="mt-1 text-sm text-slate-500">
+        <p className="mt-1 text-sm text-ink-faint">
           Important activity across all branches — everything here also lives permanently in the Audit Log.
         </p>
       </div>
 
       <div className="space-y-2">
         {rows.length === 0 && (
-          <p className="rounded-xl border border-slate-200 bg-white px-4 py-8 text-center text-sm text-slate-400">
+          <p className="card px-4 py-8 text-center text-sm text-ink-faint">
             Nothing yet — activity from your staff and owners will appear here.
           </p>
         )}
@@ -67,20 +67,20 @@ export default async function NotificationsPage() {
           return (
             <div
               key={r.id}
-              className={`flex items-center justify-between gap-3 rounded-lg border bg-white px-4 py-2.5 text-sm ${
-                isNew ? "border-indigo-300" : "border-slate-200"
+              className={`flex items-center justify-between gap-3 rounded-lg border bg-surface px-4 py-2.5 text-sm ${
+                isNew ? "border-brand-300" : "border-line"
               }`}
             >
               <span>
                 <span className="font-medium">{r.actorName}</span>{" "}
-                <span className="text-slate-600">{ACTION_LABELS[r.action] ?? r.action}</span>
-                {hint && <span className="ml-1.5 font-mono text-xs text-slate-400">{hint}</span>}
+                <span className="text-ink-soft">{ACTION_LABELS[r.action] ?? r.action}</span>
+                {hint && <span className="ml-1.5 font-mono text-xs text-ink-faint">{hint}</span>}
               </span>
               <span className="flex shrink-0 items-center gap-2">
                 {isNew && (
-                  <span className="rounded-full bg-indigo-100 px-2 py-0.5 text-xs font-medium text-indigo-700">new</span>
+                  <span className="rounded-full bg-brand-100 px-2 py-0.5 text-xs font-medium text-brand-700">new</span>
                 )}
-                <span className="text-xs text-slate-400">
+                <span className="text-xs text-ink-faint">
                   {new Date(r.createdAt).toLocaleString("en-PK", { dateStyle: "medium", timeStyle: "short" })}
                 </span>
               </span>
