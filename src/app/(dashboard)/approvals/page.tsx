@@ -47,7 +47,7 @@ export default async function ApprovalsPage() {
             </span>
           )}
         </h1>
-        <p className="mt-1 text-sm text-slate-500">
+        <p className="mt-1 text-sm text-ink-faint">
           {reviewer
             ? "Staff submissions wait here until you approve them — nothing touches stock or the books before that."
             : "Your submissions and their review status. Approved items appear in the system automatically."}
@@ -56,16 +56,16 @@ export default async function ApprovalsPage() {
 
       <div className="space-y-3">
         {pending.length === 0 && (
-          <div className="rounded-xl border border-slate-200 bg-white px-4 py-8 text-center text-sm text-slate-400">
+          <div className="card px-4 py-8 text-center text-sm text-ink-faint">
             Nothing pending — the queue is clear.
           </div>
         )}
         {pending.map((r) => (
-          <div key={r.id} className="rounded-xl border border-amber-200 bg-white p-4">
+          <div key={r.id} className="rounded-xl border border-amber-200 bg-surface p-4">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <div>
                 <span className="font-semibold">{TYPE_LABELS[r.actionType] ?? r.actionType}</span>
-                <span className="ml-2 text-xs text-slate-400">
+                <span className="ml-2 text-xs text-ink-faint">
                   by {r.submitterName} · {new Date(r.createdAt).toLocaleString("en-PK", { dateStyle: "medium", timeStyle: "short" })}
                 </span>
               </div>
@@ -93,7 +93,7 @@ export default async function ApprovalsPage() {
             )}
 
             {reviewer && (
-              <div className="mt-3 border-t border-slate-100 pt-3">
+              <div className="mt-3 border-t border-line pt-3">
                 <ReviewControls pendingId={r.id} />
               </div>
             )}
@@ -103,19 +103,19 @@ export default async function ApprovalsPage() {
 
       {history.length > 0 && (
         <div>
-          <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-slate-500">Recent Decisions</h2>
-          <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white">
+          <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-ink-faint">Recent Decisions</h2>
+          <div className="overflow-x-auto card">
             <table className="w-full text-sm">
               <tbody>
                 {history.slice(0, 30).map((r) => (
-                  <tr key={r.id} className="border-t border-slate-100">
+                  <tr key={r.id} className="border-t border-line">
                     <td className="px-4 py-2 font-medium">{TYPE_LABELS[r.actionType] ?? r.actionType}</td>
-                    <td className="px-4 py-2 text-slate-500">{r.submitterName}</td>
+                    <td className="px-4 py-2 text-ink-faint">{r.submitterName}</td>
                     <td className="px-4 py-2">
                       <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${STATUS_BADGE[r.status]}`}>{r.status}</span>
                     </td>
-                    <td className="px-4 py-2 text-xs text-slate-500">{r.reviewNote ?? ""}</td>
-                    <td className="px-4 py-2 text-right text-xs text-slate-400">
+                    <td className="px-4 py-2 text-xs text-ink-faint">{r.reviewNote ?? ""}</td>
+                    <td className="px-4 py-2 text-right text-xs text-ink-faint">
                       {new Date(r.createdAt).toLocaleDateString("en-PK")}
                     </td>
                   </tr>
@@ -139,7 +139,7 @@ function PayloadSummary({ payload }: { payload: unknown }) {
     <dl className="mt-2 grid grid-cols-2 gap-x-6 gap-y-1 text-xs sm:grid-cols-3 lg:grid-cols-4">
       {entries.map(([k, v]) => (
         <div key={k}>
-          <dt className="text-slate-400">{k.replace(/([A-Z])/g, " $1").toLowerCase()}</dt>
+          <dt className="text-ink-faint">{k.replace(/([A-Z])/g, " $1").toLowerCase()}</dt>
           <dd className="font-medium text-slate-700">{String(v)}</dd>
         </div>
       ))}
