@@ -38,18 +38,18 @@ export default async function AuditPage({
       <h1 className="text-xl font-semibold">Audit Log</h1>
 
       <form method="get" className="flex gap-3">
-        <select name="entity" defaultValue={entity ?? ""} className="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm">
+        <select name="entity" defaultValue={entity ?? ""} className="rounded-lg border border-line bg-surface px-3 py-1.5 text-sm">
           <option value="">All entities</option>
           {entities.map((e) => (
             <option key={e} value={e}>{e.replace("_", " ")}</option>
           ))}
         </select>
-        <button className="rounded-lg bg-slate-900 px-4 py-1.5 text-sm text-white hover:bg-slate-700">Filter</button>
+        <button className="rounded-lg bg-brand-600 px-4 py-1.5 text-sm text-white hover:bg-brand-500">Filter</button>
       </form>
 
-      <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white">
+      <div className="overflow-x-auto card">
         <table className="w-full text-sm">
-          <thead className="bg-slate-50 text-left text-xs uppercase tracking-wide text-slate-500">
+          <thead className="bg-raised text-left text-xs uppercase tracking-wide text-ink-faint">
             <tr>
               <th className="px-4 py-3">When</th>
               <th className="px-4 py-3">Who</th>
@@ -61,26 +61,26 @@ export default async function AuditPage({
           <tbody>
             {rows.length === 0 && (
               <tr>
-                <td colSpan={5} className="px-4 py-10 text-center text-slate-400">No audit entries.</td>
+                <td colSpan={5} className="px-4 py-10 text-center text-ink-faint">No audit entries.</td>
               </tr>
             )}
             {rows.map((r) => (
-              <tr key={r.id} className="border-t border-slate-100 hover:bg-slate-50 align-top">
-                <td className="whitespace-nowrap px-4 py-2.5 text-slate-500">
+              <tr key={r.id} className="border-t border-line row-hover align-top">
+                <td className="whitespace-nowrap px-4 py-2.5 text-ink-faint">
                   {new Date(r.createdAt).toLocaleString("en-PK")}
                 </td>
                 <td className="px-4 py-2.5">
                   <span className="font-medium">{r.userName}</span>
-                  <span className="block text-xs text-slate-400">{r.userEmail}</span>
+                  <span className="block text-xs text-ink-faint">{r.userEmail}</span>
                 </td>
                 <td className="px-4 py-2.5">
-                  <span className="rounded-full bg-indigo-50 px-2 py-0.5 font-mono text-xs text-indigo-700">{r.action}</span>
+                  <span className="rounded-full bg-brand-50 px-2 py-0.5 font-mono text-xs text-brand-700">{r.action}</span>
                 </td>
-                <td className="px-4 py-2.5 text-slate-600">
+                <td className="px-4 py-2.5 text-ink-soft">
                   {r.entity} <span className="font-mono text-xs">#{r.entityId}</span>
                 </td>
                 <td className="max-w-xs px-4 py-2.5">
-                  <code className="block truncate text-xs text-slate-500">
+                  <code className="block truncate text-xs text-ink-faint">
                     {r.details ? JSON.stringify(r.details) : "—"}
                   </code>
                 </td>
@@ -89,7 +89,7 @@ export default async function AuditPage({
           </tbody>
         </table>
       </div>
-      <p className="text-xs text-slate-400">Showing the latest 200 entries. Every mutation in the system lands here automatically.</p>
+      <p className="text-xs text-ink-faint">Showing the latest 200 entries. Every mutation in the system lands here automatically.</p>
     </div>
   );
 }
