@@ -20,13 +20,13 @@ export function AddPlanForm({ companies }: { companies: string[] }) {
     <div>
       <button
         onClick={() => setOpen((v) => !v)}
-        className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-500"
+        className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-500"
       >
         {open ? "Close" : "+ Add Model"}
       </button>
 
       {open && (
-        <form ref={formRef} action={formAction} className="mt-4 rounded-xl border border-slate-200 bg-white p-6">
+        <form ref={formRef} action={formAction} className="mt-4 card p-6">
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <Field name="company" label="Company *" placeholder="e.g. Yadea" list="companies" />
             <datalist id="companies">
@@ -40,7 +40,7 @@ export function AddPlanForm({ companies }: { companies: string[] }) {
           <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {(["3", "6", "9", "12"] as const).map((m) => (
               <div key={m} className="rounded-lg bg-slate-50 p-3">
-                <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">{m} Months</p>
+                <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-ink-faint">{m} Months</p>
                 <Field name={`monthly${m}`} label="Monthly (Rs.) *" placeholder="0" />
                 <div className="mt-2">
                   <Field name={`total${m}`} label="Total Price (Rs.) *" placeholder="0" />
@@ -52,11 +52,11 @@ export function AddPlanForm({ companies }: { companies: string[] }) {
           <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
             <label className="text-sm">
               <span className="mb-1 block font-medium">Effective Date *</span>
-              <input type="date" name="effectiveDate" required defaultValue={today} className="w-full rounded-lg border border-slate-300 px-3 py-2" />
+              <input type="date" name="effectiveDate" required defaultValue={today} className="w-full rounded-lg border border-line px-3 py-2" />
             </label>
             <label className="text-sm">
               <span className="mb-1 block font-medium">Notes</span>
-              <input name="notes" placeholder="optional" className="w-full rounded-lg border border-slate-300 px-3 py-2" />
+              <input name="notes" placeholder="optional" className="w-full rounded-lg border border-line px-3 py-2" />
             </label>
           </div>
 
@@ -66,7 +66,7 @@ export function AddPlanForm({ companies }: { companies: string[] }) {
             <button
               type="submit"
               disabled={pending}
-              className="rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-700 disabled:opacity-50"
+              className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-500 disabled:opacity-50"
             >
               {pending ? "Saving…" : "Save Plan"}
             </button>
@@ -86,7 +86,7 @@ function Field({ name, label, placeholder, list }: { name: string; label: string
         required={label.includes("*")}
         placeholder={placeholder}
         list={list}
-        className="w-full rounded-lg border border-slate-300 px-3 py-2 outline-none focus:border-slate-500"
+        className="w-full rounded-lg border border-line px-3 py-2 outline-none focus:border-slate-500"
       />
     </label>
   );
