@@ -7,7 +7,7 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
   const { q } = await searchParams;
 
   if (!q?.trim()) {
-    return <p className="text-sm text-slate-500">Type in the top search bar — VIN, engine no., CNIC, phone, or invoice #.</p>;
+    return <p className="text-sm text-ink-faint">Type in the top search bar — VIN, engine no., CNIC, phone, or invoice #.</p>;
   }
 
   const { vehicles, customers, invoices } = await globalSearch({
@@ -20,19 +20,19 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
   return (
     <div className="space-y-8">
       <h1 className="text-xl font-semibold">
-        Search results for <span className="text-indigo-700">“{q}”</span>
+        Search results for <span className="text-brand-700">“{q}”</span>
       </h1>
 
-      {none && <p className="text-sm text-slate-400">Nothing found across vehicles, customers, or invoices.</p>}
+      {none && <p className="text-sm text-ink-faint">Nothing found across vehicles, customers, or invoices.</p>}
 
       {vehicles.length > 0 && (
         <Section title="Vehicles">
           {vehicles.map((v) => (
-            <Link key={v.id} href="/inventory" className="block rounded-lg border border-slate-200 bg-white p-3 hover:border-indigo-300">
+            <Link key={v.id} href="/inventory" className="block rounded-lg card p-3 hover:border-brand-300">
               <span className="font-medium">{v.make} {v.model}</span>
-              <span className="ml-2 font-mono text-xs text-slate-500">{v.chassisNo} · {v.engineNo}</span>
+              <span className="ml-2 font-mono text-xs text-ink-faint">{v.chassisNo} · {v.engineNo}</span>
               <span className="ml-2 rounded-full bg-slate-100 px-2 py-0.5 text-xs">{v.status.replace("_", " ")}</span>
-              <span className="ml-2 text-xs text-slate-400">{v.branchName}</span>
+              <span className="ml-2 text-xs text-ink-faint">{v.branchName}</span>
             </Link>
           ))}
         </Section>
@@ -41,11 +41,11 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
       {customers.length > 0 && (
         <Section title="Customers">
           {customers.map((c) => (
-            <Link key={c.id} href={`/customers?q=${encodeURIComponent(c.phone)}`} className="block rounded-lg border border-slate-200 bg-white p-3 hover:border-indigo-300">
+            <Link key={c.id} href={`/customers?q=${encodeURIComponent(c.phone)}`} className="block rounded-lg card p-3 hover:border-brand-300">
               <span className="font-medium">{c.fullName}</span>
-              <span className="ml-2 text-xs text-slate-500">{c.phone}</span>
-              {c.cnic && <span className="ml-2 font-mono text-xs text-slate-500">{c.cnic}</span>}
-              <span className="ml-2 text-xs text-slate-400">{c.branchName}</span>
+              <span className="ml-2 text-xs text-ink-faint">{c.phone}</span>
+              {c.cnic && <span className="ml-2 font-mono text-xs text-ink-faint">{c.cnic}</span>}
+              <span className="ml-2 text-xs text-ink-faint">{c.branchName}</span>
             </Link>
           ))}
         </Section>
@@ -54,10 +54,10 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
       {invoices.length > 0 && (
         <Section title="Invoices">
           {invoices.map((i) => (
-            <Link key={i.id} href={`/sales/${i.id}`} className="block rounded-lg border border-slate-200 bg-white p-3 hover:border-indigo-300">
-              <span className="font-mono font-medium text-indigo-700">{i.invoiceNo}</span>
+            <Link key={i.id} href={`/sales/${i.id}`} className="block rounded-lg card p-3 hover:border-brand-300">
+              <span className="font-mono font-medium text-brand-700">{i.invoiceNo}</span>
               <span className="ml-2 text-sm">{i.customerName}</span>
-              <span className="ml-2 text-xs text-slate-500">Rs. {Number(i.total).toLocaleString("en-PK")}</span>
+              <span className="ml-2 text-xs text-ink-faint">Rs. {Number(i.total).toLocaleString("en-PK")}</span>
               <span className="ml-2 rounded-full bg-slate-100 px-2 py-0.5 text-xs">{i.status}</span>
             </Link>
           ))}
@@ -70,7 +70,7 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div>
-      <h2 className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-400">{title}</h2>
+      <h2 className="mb-2 text-xs font-semibold uppercase tracking-wide text-ink-faint">{title}</h2>
       <div className="space-y-2">{children}</div>
     </div>
   );
