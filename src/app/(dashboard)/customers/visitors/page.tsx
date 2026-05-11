@@ -44,7 +44,7 @@ export default async function VisitorsPage({
   const fixedBranchId = seesAllBranches(profile.role) ? null : profile.branchId;
   const defaultBranchId = fixedBranchId;
   const today = new Date().toISOString().slice(0, 10);
-  const fmt = (v: string | null) => (v == null ? "—" : `Rs. ${Number(v).toLocaleString("en-PK")}`);
+  const fmt = (v: string | null) => (v == null ? "—" : `Rs. ${Number(v).toLocaleString("en-PK", { timeZone: "Asia/Karachi" })}`);
 
   return (
     <div className="space-y-6">
@@ -98,7 +98,7 @@ export default async function VisitorsPage({
                   <td className="px-4 py-2.5">{fmt(v.budget)}</td>
                   <td className="px-4 py-2.5">{SOURCE_LABEL[v.source]}</td>
                   <td className={`px-4 py-2.5 ${overdue ? "font-medium text-red-600" : "text-ink-faint"}`}>
-                    {v.followUpDate ? new Date(v.followUpDate).toLocaleDateString("en-PK") : "—"}
+                    {v.followUpDate ? new Date(v.followUpDate).toLocaleDateString("en-PK", { timeZone: "Asia/Karachi" }) : "—"}
                     {overdue && " (overdue)"}
                   </td>
                   <td className="px-4 py-2.5">{v.branchName}</td>

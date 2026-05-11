@@ -4,7 +4,7 @@ import { balanceSheet, generalJournal, trialBalance } from "@/modules/accounting
 import { requireStaff } from "@/lib/session";
 import { PrintButton } from "../sales/[id]/print-button";
 
-const rs = (n: number) => `Rs. ${n.toLocaleString("en-PK", { maximumFractionDigits: 0 })}`;
+const rs = (n: number) => `Rs. ${n.toLocaleString("en-PK", { timeZone: "Asia/Karachi", maximumFractionDigits: 0 })}`;
 
 /** #22 deep accounting: journal, trial balance, balance sheet — projected from the ledger. */
 export default async function AccountingPage({
@@ -78,7 +78,7 @@ async function Journal({ from, to }: { from?: string; to?: string }) {
           )}
           {rows.map((j) => (
             <tr key={j.id} className={`border-t border-line ${j.reversal ? "bg-amber-50/50" : ""}`}>
-              <td className="whitespace-nowrap px-4 py-2 text-ink-faint">{new Date(j.date).toLocaleDateString("en-PK")}</td>
+              <td className="whitespace-nowrap px-4 py-2 text-ink-faint">{new Date(j.date).toLocaleDateString("en-PK", { timeZone: "Asia/Karachi" })}</td>
               <td className="px-4 py-2">{j.description}{j.reversal && <span className="ml-1.5 rounded-full bg-amber-100 px-1.5 text-xs text-amber-700">reversal</span>}</td>
               <td className="px-4 py-2">{j.debit}</td>
               <td className="px-4 py-2 text-ink-faint">{j.credit}</td>
@@ -139,7 +139,7 @@ async function Balance() {
   return (
     <div className="card p-8 print:border-0">
       <h2 className="mb-1 text-center text-lg font-bold">Balance Sheet</h2>
-      <p className="mb-6 text-center text-sm text-ink-faint">Statement of Financial Position · as of {new Date().toLocaleDateString("en-PK")}</p>
+      <p className="mb-6 text-center text-sm text-ink-faint">Statement of Financial Position · as of {new Date().toLocaleDateString("en-PK", { timeZone: "Asia/Karachi" })}</p>
       <div className="grid grid-cols-1 gap-8 sm:grid-cols-2">
         <div>
           <h3 className="mb-2 text-sm font-semibold uppercase tracking-wide text-emerald-700">Assets</h3>

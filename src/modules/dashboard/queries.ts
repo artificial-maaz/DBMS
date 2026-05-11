@@ -33,7 +33,7 @@ export async function salesTrend(months = 6) {
       );
 
     out.push({
-      label: start.toLocaleString("en-PK", { month: "short" }),
+      label: start.toLocaleString("en-PK", { timeZone: "Asia/Karachi", month: "short" }),
       sales: row.n,
       revenue: Number(row.rev),
     });

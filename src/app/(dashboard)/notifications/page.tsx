@@ -81,7 +81,7 @@ export default async function NotificationsPage() {
                   <span className="rounded-full bg-brand-100 px-2 py-0.5 text-xs font-medium text-brand-700">new</span>
                 )}
                 <span className="text-xs text-ink-faint">
-                  {new Date(r.createdAt).toLocaleString("en-PK", { dateStyle: "medium", timeStyle: "short" })}
+                  {new Date(r.createdAt).toLocaleString("en-PK", { timeZone: "Asia/Karachi", dateStyle: "medium", timeStyle: "short" })}
                 </span>
               </span>
             </div>

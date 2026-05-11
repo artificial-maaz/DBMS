@@ -33,7 +33,7 @@ export default async function InventoryPage({
   ]);
 
   const fmt = (v: string | null | undefined) =>
-    v == null ? "—" : `Rs. ${Number(v).toLocaleString("en-PK")}`;
+    v == null ? "—" : `Rs. ${Number(v).toLocaleString("en-PK", { timeZone: "Asia/Karachi" })}`;
   const editable = canEditVehicle(profile.role);
 
   return (
@@ -116,7 +116,7 @@ export default async function InventoryPage({
                 <td className="px-4 py-2.5 text-xs">
                   {v.arrivedOn ? (
                     <>
-                      <span className="text-ink-soft">{new Date(v.arrivedOn).toLocaleDateString("en-PK")}</span>
+                      <span className="text-ink-soft">{new Date(v.arrivedOn).toLocaleDateString("en-PK", { timeZone: "Asia/Karachi" })}</span>
                       {v.status === "in_stock" && (
                         <span className="block text-ink-faint">
                           {Math.max(0, Math.floor((Date.now() - new Date(v.arrivedOn).getTime()) / 86_400_000))} days in stock

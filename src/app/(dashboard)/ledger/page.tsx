@@ -29,7 +29,7 @@ export default async function LedgerPage({
     listActiveBranches(),
   ]);
 
-  const fmt = (v: string) => `Rs. ${Number(v).toLocaleString("en-PK")}`;
+  const fmt = (v: string) => `Rs. ${Number(v).toLocaleString("en-PK", { timeZone: "Asia/Karachi" })}`;
   const net = Number(totalIn) - Number(totalOut);
 
   return (
@@ -48,7 +48,7 @@ export default async function LedgerPage({
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <Card title="Cash In (filtered)" value={fmt(totalIn)} cls="bg-emerald-600" />
         <Card title="Cash Out (filtered)" value={fmt(totalOut)} cls="bg-red-600" />
-        <Card title="Net" value={`Rs. ${net.toLocaleString("en-PK")}`} cls={net >= 0 ? "bg-slate-700" : "bg-amber-600"} />
+        <Card title="Net" value={`Rs. ${net.toLocaleString("en-PK", { timeZone: "Asia/Karachi" })}`} cls={net >= 0 ? "bg-slate-700" : "bg-amber-600"} />
       </div>
 
       <form method="get" className="flex flex-wrap gap-3">
@@ -96,7 +96,7 @@ export default async function LedgerPage({
             )}
             {rows.map((e) => (
               <tr key={e.id} className="border-t border-line row-hover">
-                <td className="px-4 py-2.5 text-ink-faint">{new Date(e.entryDate).toLocaleDateString("en-PK")}</td>
+                <td className="px-4 py-2.5 text-ink-faint">{new Date(e.entryDate).toLocaleDateString("en-PK", { timeZone: "Asia/Karachi" })}</td>
                 <td className="px-4 py-2.5">
                   <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs">{e.category}</span>
                   <span className="ml-1 text-xs text-ink-faint">{e.paymentMethod.replace("_", " ")}</span>

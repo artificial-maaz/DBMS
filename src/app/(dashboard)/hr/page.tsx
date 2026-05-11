@@ -8,8 +8,8 @@ export default async function HrPage() {
   if (!canRunPayroll(profile.role)) redirect("/dashboard");
 
   const [staff, records] = await Promise.all([listPayableStaff(), listPayroll()]);
-  const fmt = (v: string) => `Rs. ${Number(v).toLocaleString("en-PK")}`;
-  const d = (v: string | Date) => new Date(v).toLocaleDateString("en-PK");
+  const fmt = (v: string) => `Rs. ${Number(v).toLocaleString("en-PK", { timeZone: "Asia/Karachi" })}`;
+  const d = (v: string | Date) => new Date(v).toLocaleDateString("en-PK", { timeZone: "Asia/Karachi" });
 
   return (
     <div className="space-y-6">

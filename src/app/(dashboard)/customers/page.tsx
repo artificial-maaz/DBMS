@@ -83,7 +83,7 @@ export default async function CustomersPage({
                 <td className="px-4 py-2.5">{c.city ?? "—"}</td>
                 <td className="px-4 py-2.5">{c.branchName}</td>
                 <td className="px-4 py-2.5 text-ink-faint">
-                  {new Date(c.createdAt).toLocaleDateString("en-PK")}
+                  {new Date(c.createdAt).toLocaleDateString("en-PK", { timeZone: "Asia/Karachi" })}
                 </td>
                 {editable && (
                   <td className="px-4 py-2.5 text-right">

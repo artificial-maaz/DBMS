@@ -17,7 +17,7 @@ export default async function SalesPage() {
   const { profile } = await requireStaff();
   const rows = await listInvoices({ role: profile.role, ownBranchId: profile.branchId });
 
-  const fmt = (v: string) => `Rs. ${Number(v).toLocaleString("en-PK")}`;
+  const fmt = (v: string) => `Rs. ${Number(v).toLocaleString("en-PK", { timeZone: "Asia/Karachi" })}`;
 
   return (
     <div className="space-y-6">
@@ -79,7 +79,7 @@ export default async function SalesPage() {
                   </span>
                 </td>
                 <td className="px-4 py-2.5 text-ink-faint">
-                  {new Date(r.saleDate).toLocaleDateString("en-PK")}
+                  {new Date(r.saleDate).toLocaleDateString("en-PK", { timeZone: "Asia/Karachi" })}
                 </td>
               </tr>
             ))}

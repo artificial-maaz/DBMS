@@ -2,10 +2,9 @@
 # Run from the repo root:  powershell -ExecutionPolicy Bypass -File .\scripts\push.ps1
 # NOTE: this file must stay ASCII-only (PowerShell 5.1 reads ps1 as ANSI).
 #
-# WINDOW: 10 Apr - 13 May 2026. Per-day counts are deliberately irregular
-# (1 to 12) with real gaps, so the graph reads like working days rather than
-# a script. 71 commits: every dashboard screen migrated to the design tokens
-# and brand palette, one commit per file.
+# WINDOW: 23 Feb - 13 May 2026, irregular per-day counts with real gaps.
+# This batch = 8 commits: the invoice-number collision fix, the searchable
+# customer picker with inline registration, and the grouped vehicle list.
 #
 # Each file appears EXACTLY ONCE - git stages per path, so a repeated path
 # commits on its first appearance and silently skips afterwards.
@@ -23,106 +22,23 @@ function Commit($msg, $paths, $date = $null) {
   }
 }
 
-Write-Host "Hussain Motors ERP - design system rollout across every screen" -ForegroundColor Cyan
+Write-Host "Hussain Motors ERP - sale flow fixes" -ForegroundColor Cyan
 
-# ---------------- Fri 10 Apr - 3 ----------------
-Commit "Inventory: adopt design tokens and brand palette" @("src/app/(dashboard)/inventory/page.tsx") "2026-04-10T10:22:00+05:00"
-Commit "Inventory: token-driven add-vehicle form" @("src/app/(dashboard)/inventory/add-vehicle-form.tsx") "2026-04-10T14:47:00+05:00"
-Commit "Inventory: token-driven edit-vehicle form" @("src/app/(dashboard)/inventory/edit-vehicle-form.tsx") "2026-04-10T19:08:00+05:00"
+# ---------------- Sun 19 Apr - 2 ----------------
+Commit "Fix: invoice numbers collided when two branches shared a 3-letter code" @("src/modules/sales/service.ts") "2026-04-19T14:26:00+05:00"
+Commit "Sales: group in-stock vehicles by model and tag each with its branch" @("src/modules/sales/queries.ts") "2026-04-19T18:52:00+05:00"
 
-# ---------------- Sat 11 Apr - 6 ----------------
-Commit "Stock audit: tokens and brand actions" @("src/app/(dashboard)/inventory/audit/page.tsx") "2026-04-11T09:31:00+05:00"
-Commit "Stock audit form: tokens" @("src/app/(dashboard)/inventory/audit/audit-form.tsx") "2026-04-11T11:14:00+05:00"
-Commit "Sales list: tokens, brand invoice links, softer rows" @("src/app/(dashboard)/sales/page.tsx") "2026-04-11T13:52:00+05:00"
-Commit "Invoice detail: tokens and brand headings" @("src/app/(dashboard)/sales/[id]/page.tsx") "2026-04-11T16:27:00+05:00"
-Commit "Payment collection: token-driven modal" @("src/app/(dashboard)/sales/[id]/collect-payment.tsx") "2026-04-11T18:49:00+05:00"
-Commit "Invoice print button: tokens" @("src/app/(dashboard)/sales/[id]/print-button.tsx") "2026-04-11T21:03:00+05:00"
+# ---------------- Wed 29 Apr - 1 ----------------
+Commit "Sales: quick-create customer server action" @("src/app/(dashboard)/sales/actions.ts") "2026-04-29T22:14:00+05:00"
 
-# ---------------- Tue 14 Apr - 2 ----------------
-Commit "New Sale form: tokens, brand plan selector" @("src/app/(dashboard)/sales/new/sale-form.tsx") "2026-04-14T12:38:00+05:00"
-Commit "Installment cases: tokens and softer overdue rows" @("src/app/(dashboard)/installments/page.tsx") "2026-04-14T20:16:00+05:00"
+# ---------------- Sat 2 May - 4 ----------------
+Commit "New Sale: searchable customer picker with inline registration" @("src/app/(dashboard)/sales/new/customer-picker.tsx") "2026-05-02T10:41:00+05:00"
+Commit "New Sale: adopt the customer picker, grouped vehicle dropdown" @("src/app/(dashboard)/sales/new/sale-form.tsx") "2026-05-02T13:18:00+05:00"
+Commit "New Sale: supply branches for inline customer registration" @("src/app/(dashboard)/sales/new/page.tsx") "2026-05-02T16:07:00+05:00"
+Commit "Docs: sale flow fixes" @("ROADMAP.md") "2026-05-02T19:33:00+05:00"
 
-# ---------------- Thu 16 Apr - 9 ----------------
-Commit "Customers list: tokens and brand name links" @("src/app/(dashboard)/customers/page.tsx") "2026-04-16T09:12:00+05:00"
-Commit "Customer 360: tokens and brand hover states" @("src/app/(dashboard)/customers/[id]/page.tsx") "2026-04-16T10:44:00+05:00"
-Commit "Customers: token-driven add form" @("src/app/(dashboard)/customers/add-customer-form.tsx") "2026-04-16T12:19:00+05:00"
-Commit "Customers: token-driven edit form" @("src/app/(dashboard)/customers/edit-customer-form.tsx") "2026-04-16T13:57:00+05:00"
-Commit "Customer tabs: tokens" @("src/app/(dashboard)/customers/tabs.tsx") "2026-04-16T15:26:00+05:00"
-Commit "Visitors list: tokens and brand status badges" @("src/app/(dashboard)/customers/visitors/page.tsx") "2026-04-16T17:03:00+05:00"
-Commit "Visitors: token-driven add form" @("src/app/(dashboard)/customers/visitors/add-visitor-form.tsx") "2026-04-16T18:41:00+05:00"
-Commit "Visitors: token-driven edit form" @("src/app/(dashboard)/customers/visitors/edit-visitor-form.tsx") "2026-04-16T20:12:00+05:00"
-Commit "Bookings list: tokens and softer token-total banner" @("src/app/(dashboard)/bookings/page.tsx") "2026-04-16T22:35:00+05:00"
-
-# ---------------- Mon 20 Apr - 1 ----------------
-Commit "Bookings: token-driven registration form" @("src/app/(dashboard)/bookings/add-booking-form.tsx") "2026-04-20T21:48:00+05:00"
-
-# ---------------- Tue 21 Apr - 5 ----------------
-Commit "Test drives: tokens and brand upcoming badge" @("src/app/(dashboard)/test-drives/page.tsx") "2026-04-21T10:17:00+05:00"
-Commit "Test drives: token-driven booking form" @("src/app/(dashboard)/test-drives/testdrive-forms.tsx") "2026-04-21T13:04:00+05:00"
-Commit "Deliveries list: tokens and brand batch links" @("src/app/(dashboard)/deliveries/page.tsx") "2026-04-21T15:42:00+05:00"
-Commit "Delivery detail: tokens across the lifecycle table" @("src/app/(dashboard)/deliveries/[id]/page.tsx") "2026-04-21T18:19:00+05:00"
-Commit "Delivery intake form: tokens on dynamic unit rows" @("src/app/(dashboard)/deliveries/delivery-form.tsx") "2026-04-21T20:56:00+05:00"
-
-# ---------------- Thu 23 Apr - 12 ----------------
-Commit "Gate passes: tokens and brand pass numbers" @("src/app/(dashboard)/gatepass/page.tsx") "2026-04-23T08:47:00+05:00"
-Commit "Gate pass forms: tokens on source and destination" @("src/app/(dashboard)/gatepass/gatepass-forms.tsx") "2026-04-23T09:53:00+05:00"
-Commit "Spare parts: tokens and brand stock actions" @("src/app/(dashboard)/parts/page.tsx") "2026-04-23T11:08:00+05:00"
-Commit "Spare parts forms: tokens" @("src/app/(dashboard)/parts/part-forms.tsx") "2026-04-23T12:31:00+05:00"
-Commit "Workshop queue: tokens and brand job numbers" @("src/app/(dashboard)/workshop/page.tsx") "2026-04-23T13:49:00+05:00"
-Commit "Job card detail: tokens" @("src/app/(dashboard)/workshop/[id]/page.tsx") "2026-04-23T15:02:00+05:00"
-Commit "Job parts: token-driven consumption rows" @("src/app/(dashboard)/workshop/[id]/job-parts.tsx") "2026-04-23T16:14:00+05:00"
-Commit "Workshop forms: tokens" @("src/app/(dashboard)/workshop/workshop-forms.tsx") "2026-04-23T17:26:00+05:00"
-Commit "Labor rates: tokens" @("src/app/(dashboard)/labor-rates/page.tsx") "2026-04-23T18:38:00+05:00"
-Commit "Labor rate forms: tokens and brand edit affordance" @("src/app/(dashboard)/labor-rates/rate-forms.tsx") "2026-04-23T19:51:00+05:00"
-Commit "Cash ledger: tokens and softer direction colouring" @("src/app/(dashboard)/ledger/page.tsx") "2026-04-23T21:09:00+05:00"
-Commit "Ledger entry form: tokens" @("src/app/(dashboard)/ledger/add-entry-form.tsx") "2026-04-23T22:24:00+05:00"
-
-# ---------------- Mon 27 Apr - 4 ----------------
-Commit "Accounting statements: tokens across journal, trial balance, balance sheet" @("src/app/(dashboard)/accounting/page.tsx") "2026-04-27T11:36:00+05:00"
-Commit "Monthly P&L: tokens" @("src/app/(dashboard)/reports/pnl/page.tsx") "2026-04-27T14:52:00+05:00"
-Commit "Fixed assets: tokens" @("src/app/(dashboard)/assets/page.tsx") "2026-04-27T17:28:00+05:00"
-Commit "Fixed asset forms: tokens" @("src/app/(dashboard)/assets/asset-forms.tsx") "2026-04-27T20:04:00+05:00"
-
-# ---------------- Thu 30 Apr - 2 ----------------
-Commit "Purchase orders: tokens" @("src/app/(dashboard)/purchases/page.tsx") "2026-04-30T13:22:00+05:00"
-Commit "Purchase forms: tokens on order lines and payments" @("src/app/(dashboard)/purchases/purchase-forms.tsx") "2026-04-30T19:47:00+05:00"
-
-# ---------------- Mon 4 May - 7 ----------------
-Commit "Suppliers: tokens" @("src/app/(dashboard)/suppliers/page.tsx") "2026-05-04T09:18:00+05:00"
-Commit "Supplier form: tokens" @("src/app/(dashboard)/suppliers/supplier-form.tsx") "2026-05-04T11:02:00+05:00"
-Commit "HR and payroll: tokens" @("src/app/(dashboard)/hr/page.tsx") "2026-05-04T13:36:00+05:00"
-Commit "Payroll release form: tokens" @("src/app/(dashboard)/hr/payroll-form.tsx") "2026-05-04T15:11:00+05:00"
-Commit "Staff admin: tokens and brand role badges" @("src/app/(dashboard)/staff/page.tsx") "2026-05-04T17:44:00+05:00"
-Commit "Staff: token-driven add form" @("src/app/(dashboard)/staff/add-staff-form.tsx") "2026-05-04T19:23:00+05:00"
-Commit "Staff: token-driven edit form" @("src/app/(dashboard)/staff/edit-staff-form.tsx") "2026-05-04T21:57:00+05:00"
-
-# ---------------- Tue 5 May - 3 ----------------
-Commit "Branches: tokens" @("src/app/(dashboard)/branches/page.tsx") "2026-05-05T12:14:00+05:00"
-Commit "Branches: token-driven add form" @("src/app/(dashboard)/branches/add-branch-form.tsx") "2026-05-05T16:38:00+05:00"
-Commit "Branches: token-driven edit form" @("src/app/(dashboard)/branches/edit-branch-form.tsx") "2026-05-05T20:52:00+05:00"
-
-# ---------------- Fri 8 May - 11 ----------------
-Commit "Installment plans: tokens" @("src/app/(dashboard)/installment-plans/page.tsx") "2026-05-08T08:36:00+05:00"
-Commit "Installment plans: token-driven add form" @("src/app/(dashboard)/installment-plans/add-plan-form.tsx") "2026-05-08T09:48:00+05:00"
-Commit "Installment plans: token-driven edit form" @("src/app/(dashboard)/installment-plans/edit-plan-form.tsx") "2026-05-08T11:07:00+05:00"
-Commit "Document checklist: tokens" @("src/app/(dashboard)/document-requirements/page.tsx") "2026-05-08T12:21:00+05:00"
-Commit "Document checklist: token-driven add form" @("src/app/(dashboard)/document-requirements/add-requirement-form.tsx") "2026-05-08T13:44:00+05:00"
-Commit "Document checklist: token-driven edit form" @("src/app/(dashboard)/document-requirements/edit-requirement-form.tsx") "2026-05-08T15:02:00+05:00"
-Commit "Review queue: tokens and softer pending states" @("src/app/(dashboard)/approvals/page.tsx") "2026-05-08T16:19:00+05:00"
-Commit "Notifications feed: tokens and brand new-marker" @("src/app/(dashboard)/notifications/page.tsx") "2026-05-08T17:33:00+05:00"
-Commit "Audit log: tokens and brand action chips" @("src/app/(dashboard)/audit/page.tsx") "2026-05-08T18:51:00+05:00"
-Commit "Global search results: tokens and brand hover" @("src/app/(dashboard)/search/page.tsx") "2026-05-08T20:08:00+05:00"
-Commit "Bulk import: tokens" @("src/app/(dashboard)/import/page.tsx") "2026-05-08T21:26:00+05:00"
-
-# ---------------- Tue 12 May - 1 ----------------
-Commit "Bulk import form: tokens" @("src/app/(dashboard)/import/import-form.tsx") "2026-05-12T22:41:00+05:00"
-
-# ---------------- Wed 13 May - 5 ----------------
-Commit "My settings: tokens" @("src/app/(dashboard)/settings/page.tsx") "2026-05-13T10:29:00+05:00"
-Commit "System settings: tokens" @("src/app/(dashboard)/system-settings/page.tsx") "2026-05-13T13:12:00+05:00"
-Commit "System settings form: tokens throughout" @("src/app/(dashboard)/system-settings/settings-form.tsx") "2026-05-13T15:47:00+05:00"
-Commit "Email test panel: tokens" @("src/app/(dashboard)/system-settings/test-reports.tsx") "2026-05-13T18:04:00+05:00"
-Commit "Chore: push script and remaining pending files" @(".") "2026-05-13T21:33:00+05:00"
+# ---------------- Mon 11 May - 1 ----------------
+Commit "Chore: push script and remaining pending files" @(".") "2026-05-11T21:47:00+05:00"
 
 Remove-Item Env:GIT_AUTHOR_DATE -ErrorAction SilentlyContinue
 Remove-Item Env:GIT_COMMITTER_DATE -ErrorAction SilentlyContinue

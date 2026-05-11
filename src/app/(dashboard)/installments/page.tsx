@@ -41,7 +41,7 @@ export default async function InstallmentCasesPage({
     listActiveBranches(),
   ]);
 
-  const fmt = (v: string | number) => `Rs. ${Number(v).toLocaleString("en-PK")}`;
+  const fmt = (v: string | number) => `Rs. ${Number(v).toLocaleString("en-PK", { timeZone: "Asia/Karachi" })}`;
 
   // KPI cards are computed over the CURRENT filter so the numbers always
   // match the table beneath them.
@@ -136,7 +136,7 @@ export default async function InstallmentCasesPage({
               <tr key={c.id} className={`border-t border-line row-hover ${c.status === "overdue" ? "bg-red-50/40" : ""}`}>
                 <td className="px-4 py-2.5 font-mono text-xs font-medium">
                   <Link href={`/sales/${c.id}`} className="text-brand-700 hover:underline">{c.invoiceNo}</Link>
-                  <span className="block text-ink-faint">{new Date(c.saleDate).toLocaleDateString("en-PK")}</span>
+                  <span className="block text-ink-faint">{new Date(c.saleDate).toLocaleDateString("en-PK", { timeZone: "Asia/Karachi" })}</span>
                 </td>
                 <td className="px-4 py-2.5">
                   <Link href={`/customers/${c.customerId}`} className="font-medium text-brand-700 hover:underline">
@@ -164,7 +164,7 @@ export default async function InstallmentCasesPage({
                     </span>
                   ) : c.nextDueDate ? (
                     <span className="text-ink-soft">
-                      {new Date(c.nextDueDate).toLocaleDateString("en-PK")}
+                      {new Date(c.nextDueDate).toLocaleDateString("en-PK", { timeZone: "Asia/Karachi" })}
                       <span className="block text-xs text-ink-faint">next due</span>
                     </span>
                   ) : (

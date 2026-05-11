@@ -106,7 +106,7 @@ export default async function TestDrivesPage({
               return (
                 <tr key={r.id} className="border-t border-line row-hover">
                   <td className={`whitespace-nowrap px-4 py-2.5 ${overdue ? "font-medium text-red-600" : "text-ink-soft"}`}>
-                    {new Date(r.scheduledAt).toLocaleString("en-PK", { dateStyle: "medium", timeStyle: "short" })}
+                    {new Date(r.scheduledAt).toLocaleString("en-PK", { timeZone: "Asia/Karachi", dateStyle: "medium", timeStyle: "short" })}
                     {overdue && <span className="block text-xs">past due — mark outcome</span>}
                   </td>
                   <td className="px-4 py-2.5">

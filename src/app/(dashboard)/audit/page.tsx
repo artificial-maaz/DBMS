@@ -67,7 +67,7 @@ export default async function AuditPage({
             {rows.map((r) => (
               <tr key={r.id} className="border-t border-line row-hover align-top">
                 <td className="whitespace-nowrap px-4 py-2.5 text-ink-faint">
-                  {new Date(r.createdAt).toLocaleString("en-PK")}
+                  {new Date(r.createdAt).toLocaleString("en-PK", { timeZone: "Asia/Karachi" })}
                 </td>
                 <td className="px-4 py-2.5">
                   <span className="font-medium">{r.userName}</span>

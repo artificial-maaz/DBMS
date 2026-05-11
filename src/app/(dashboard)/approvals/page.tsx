@@ -66,7 +66,7 @@ export default async function ApprovalsPage() {
               <div>
                 <span className="font-semibold">{TYPE_LABELS[r.actionType] ?? r.actionType}</span>
                 <span className="ml-2 text-xs text-ink-faint">
-                  by {r.submitterName} · {new Date(r.createdAt).toLocaleString("en-PK", { dateStyle: "medium", timeStyle: "short" })}
+                  by {r.submitterName} · {new Date(r.createdAt).toLocaleString("en-PK", { timeZone: "Asia/Karachi", dateStyle: "medium", timeStyle: "short" })}
                 </span>
               </div>
               <span className="flex items-center gap-2">
@@ -116,7 +116,7 @@ export default async function ApprovalsPage() {
                     </td>
                     <td className="px-4 py-2 text-xs text-ink-faint">{r.reviewNote ?? ""}</td>
                     <td className="px-4 py-2 text-right text-xs text-ink-faint">
-                      {new Date(r.createdAt).toLocaleDateString("en-PK")}
+                      {new Date(r.createdAt).toLocaleDateString("en-PK", { timeZone: "Asia/Karachi" })}
                     </td>
                   </tr>
                 ))}

@@ -36,7 +36,9 @@ const ROWS: Row[] = [
   { company: "Yadea", model: "M3", cashPrice: "174000", advance: "87000", monthly3: "32000", total3: "183000", monthly6: "17500", total6: "192000", monthly9: "12500", total9: "199500", monthly12: "10500", total12: "213000" },
   { company: "Yadea", model: "Ruibin S", cashPrice: "193000", advance: "96500", monthly3: "35000", total3: "201500", monthly6: "19500", total6: "213500", monthly9: "14000", total9: "222500", monthly12: "11500", total12: "234500" },
   { company: "Yadea", model: "M3H", cashPrice: "255000", advance: "128000", monthly3: "47000", total3: "269000", monthly6: "26000", total6: "284000", monthly9: "18500", total9: "294500", monthly12: "15000", total12: "308000" },
-  { company: "Yadea", model: "T5L", cashPrice: "290000", advance: "145000", monthly3: "52500", total3: "302500", monthly6: "28500", total6: "316000", monthly9: "21000", total9: "334000", monthly12: "17000", total12: "349000" },
+  // Sir (2026-08-06): T5L repriced — cash 305,000, advance 160,000. Monthlies
+  // unchanged, so each total = advance + (monthly x months).
+  { company: "Yadea", model: "T5L", cashPrice: "305000", advance: "160000", monthly3: "52500", total3: "317500", monthly6: "28500", total6: "331000", monthly9: "21000", total9: "349000", monthly12: "17000", total12: "364000" },
   { company: "Yadea", model: "EPOCH", cashPrice: "355000", advance: "178000", monthly3: "60500", total3: "359500", monthly6: "35000", total6: "388000", monthly9: "25500", total9: "407500", monthly12: "21000", total12: "430000" },
   { company: "Yadea", model: "VELAX", cashPrice: "444000", advance: "222000", monthly3: "80500", total3: "463500", monthly6: "44000", total6: "486000", monthly9: "32000", total9: "510000", monthly12: "26000", total12: "534000" },
   { company: "Yadea", model: "KEINESS", cashPrice: "1400000", advance: "699000", monthly3: "255500", total3: "1465500", monthly6: "139500", total6: "1536000", monthly9: "100000", total9: "1599000", monthly12: "82500", total12: "1689000" },

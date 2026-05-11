@@ -63,8 +63,8 @@ export function PayrollForm({ staff }: { staff: Staff[] }) {
             </select>
             {emp && (
               <span className="mt-1 block text-xs text-ink-faint">
-                Basic Rs. {Number(emp.basicSalary).toLocaleString("en-PK")} + allowances Rs.{" "}
-                {Number(emp.monthlyAllowances).toLocaleString("en-PK")} · commissions auto-calculated
+                Basic Rs. {Number(emp.basicSalary).toLocaleString("en-PK", { timeZone: "Asia/Karachi" })} + allowances Rs.{" "}
+                {Number(emp.monthlyAllowances).toLocaleString("en-PK", { timeZone: "Asia/Karachi" })} · commissions auto-calculated
               </span>
             )}
           </label>

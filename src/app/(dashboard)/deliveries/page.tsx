@@ -102,7 +102,7 @@ export default async function DeliveriesPage({
                   {r.challanNo ?? "—"}
                   {r.batchRef && <span className="block text-xs">batch {r.batchRef}</span>}
                 </td>
-                <td className="px-4 py-2.5 text-ink-faint">{new Date(r.deliveredOn).toLocaleDateString("en-PK")}</td>
+                <td className="px-4 py-2.5 text-ink-faint">{new Date(r.deliveredOn).toLocaleDateString("en-PK", { timeZone: "Asia/Karachi" })}</td>
                 <td className="px-4 py-2.5 font-medium">{r.units}</td>
                 <td className="px-4 py-2.5">
                   <span className={r.soldUnits === r.units && r.units > 0 ? "font-medium text-emerald-700" : ""}>

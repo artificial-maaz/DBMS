@@ -115,7 +115,7 @@ export function RecordPurchaseForm({ suppliers, branches }: { suppliers: Opt[]; 
                     className="w-32 rounded-lg border border-line px-3 py-1.5 text-sm"
                   />
                   <span className="w-28 text-right text-xs text-ink-faint">
-                    = Rs. {(n(l.qtyOrdered) * n(l.unitCost)).toLocaleString("en-PK")}
+                    = Rs. {(n(l.qtyOrdered) * n(l.unitCost)).toLocaleString("en-PK", { timeZone: "Asia/Karachi" })}
                   </span>
                   {lines.length > 1 && (
                     <button
@@ -152,7 +152,7 @@ export function RecordPurchaseForm({ suppliers, branches }: { suppliers: Opt[]; 
 
           <div className="flex items-center justify-between rounded-lg bg-slate-50 px-4 py-3">
             <span className="text-sm font-medium">Computed Total</span>
-            <span className="text-lg font-semibold">Rs. {total.toLocaleString("en-PK")}</span>
+            <span className="text-lg font-semibold">Rs. {total.toLocaleString("en-PK", { timeZone: "Asia/Karachi" })}</span>
           </div>
 
           {state && !state.ok && <p className="text-sm text-red-600">{state.error}</p>}

@@ -18,7 +18,7 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
 
   const parts = await listBranchParts(job.branchId);
   const rateOpts = (await listRates(true)).map((r) => ({ serviceName: r.serviceName, price: r.price }));
-  const fmt = (v: string | number) => `Rs. ${Number(v).toLocaleString("en-PK")}`;
+  const fmt = (v: string | number) => `Rs. ${Number(v).toLocaleString("en-PK", { timeZone: "Asia/Karachi" })}`;
   const laborDue = job.warrantyStatus === "free_coupon" ? 0 : Number(job.laborCharge);
   const total = laborDue + Number(job.partsCharge);
   // Mechanics view job details read-only (Sir 2026-07-31); only BM+ edit parts/status.
@@ -40,7 +40,7 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
         <div className="flex items-start justify-between border-b border-line pb-4">
           <div>
             <h1 className="font-mono text-lg font-semibold text-brand-700">{job.jobNo}</h1>
-            <p className="text-sm text-ink-faint">{branch?.name} · {new Date(job.createdAt).toLocaleString("en-PK")}</p>
+            <p className="text-sm text-ink-faint">{branch?.name} · {new Date(job.createdAt).toLocaleString("en-PK", { timeZone: "Asia/Karachi" })}</p>
           </div>
           <div className="text-right text-sm">
             <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium capitalize">

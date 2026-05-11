@@ -28,7 +28,7 @@ export default async function PurchasesPage() {
     itemsByPo.set(it.poId, list);
   }
 
-  const fmt = (v: string | number) => `Rs. ${Number(v).toLocaleString("en-PK")}`;
+  const fmt = (v: string | number) => `Rs. ${Number(v).toLocaleString("en-PK", { timeZone: "Asia/Karachi" })}`;
   const totalOutstanding = rows.reduce((a, r) => a + (Number(r.totalCost) - Number(r.amountPaid)), 0);
   const unitsInTransit = items.reduce((a, it) => a + (it.qtyOrdered - it.qtyReceived), 0);
 
@@ -68,7 +68,7 @@ export default async function PurchasesPage() {
                   <span className="font-mono text-xs font-medium text-brand-700">{r.poNo}</span>
                   <span className="font-medium">{r.supplierName}</span>
                   <span className="text-xs text-ink-faint">→ {r.branchName}</span>
-                  <span className="text-xs text-ink-faint">{new Date(r.purchaseDate).toLocaleDateString("en-PK")}</span>
+                  <span className="text-xs text-ink-faint">{new Date(r.purchaseDate).toLocaleDateString("en-PK", { timeZone: "Asia/Karachi" })}</span>
                   {receiptStatus && (
                     <span
                       className={`rounded-full px-2 py-0.5 text-xs font-medium ${
@@ -147,7 +147,7 @@ export default async function PurchasesPage() {
                   </td>
                   <td className="px-4 py-2 text-right">{fmt(p.totalSpent)}</td>
                   <td className="px-4 py-2 text-right text-ink-faint">
-                    {new Date(p.lastOrdered).toLocaleDateString("en-PK")}
+                    {new Date(p.lastOrdered).toLocaleDateString("en-PK", { timeZone: "Asia/Karachi" })}
                   </td>
                 </tr>
               ))}

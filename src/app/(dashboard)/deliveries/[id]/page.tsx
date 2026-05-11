@@ -22,7 +22,7 @@ export default async function DeliveryDetailPage({ params }: { params: Promise<{
   const { delivery, branch, supplier, receiverName, units } = data;
   const showCost = canSeeUnitCost(profile.role);
 
-  const fmt = (v: string | null) => (v == null ? "—" : `Rs. ${Number(v).toLocaleString("en-PK")}`);
+  const fmt = (v: string | null) => (v == null ? "—" : `Rs. ${Number(v).toLocaleString("en-PK", { timeZone: "Asia/Karachi" })}`);
   const sold = units.filter((u) => u.status === "sold").length;
   const daysHeld = (u: (typeof units)[number]) => {
     if (!u.arrivedOn) return null;
@@ -49,7 +49,7 @@ export default async function DeliveryDetailPage({ params }: { params: Promise<{
           </div>
           <div className="text-right text-sm text-ink-faint">
             <p className="font-medium text-slate-700">
-              {new Date(delivery.deliveredOn).toLocaleDateString("en-PK", { dateStyle: "medium" })}
+              {new Date(delivery.deliveredOn).toLocaleDateString("en-PK", { timeZone: "Asia/Karachi", dateStyle: "medium" })}
             </p>
             <p className="text-xs">received by {receiverName ?? "—"}</p>
           </div>
@@ -99,12 +99,12 @@ export default async function DeliveryDetailPage({ params }: { params: Promise<{
                     <span className="block text-ink-faint">{u.engineNo}</span>
                   </td>
                   <td className="px-4 py-2.5 text-ink-faint">
-                    {u.arrivedOn ? new Date(u.arrivedOn).toLocaleDateString("en-PK") : "—"}
+                    {u.arrivedOn ? new Date(u.arrivedOn).toLocaleDateString("en-PK", { timeZone: "Asia/Karachi" }) : "—"}
                   </td>
                   <td className="px-4 py-2.5">
                     {u.saleDate && u.invoiceId ? (
                       <>
-                        <span className="text-ink-soft">{new Date(u.saleDate).toLocaleDateString("en-PK")}</span>
+                        <span className="text-ink-soft">{new Date(u.saleDate).toLocaleDateString("en-PK", { timeZone: "Asia/Karachi" })}</span>
                         <Link href={`/sales/${u.invoiceId}`} className="block font-mono text-xs text-brand-700 hover:underline">
                           {u.invoiceNo}
                         </Link>

@@ -5,7 +5,7 @@ import { sendEmail } from "@/lib/email";
 import { emailsByRoles } from "@/modules/notifications/email";
 import { getMonthlyPnl } from "./queries";
 
-const rs = (n: number) => `Rs. ${n.toLocaleString("en-PK", { maximumFractionDigits: 0 })}`;
+const rs = (n: number) => `Rs. ${n.toLocaleString("en-PK", { timeZone: "Asia/Karachi", maximumFractionDigits: 0 })}`;
 
 async function perBranchDay(date: string) {
   const list = await db.query.branches.findMany({ where: (b, { eq }) => eq(b.isActive, true) });

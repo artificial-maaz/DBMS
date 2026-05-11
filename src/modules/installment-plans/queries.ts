@@ -4,14 +4,14 @@ import { installmentPlans } from "@/db/schema";
 
 export async function listPlans() {
   return db.query.installmentPlans.findMany({
-    orderBy: (p, { asc }) => [asc(p.company), asc(p.model)],
+    orderBy: (p, { asc }) => [asc(p.company), asc(p.cashPrice)],
   });
 }
 
 export async function listActivePlans() {
   return db.query.installmentPlans.findMany({
     where: (p, { eq }) => eq(p.isActive, true),
-    orderBy: (p, { asc }) => [asc(p.company), asc(p.model)],
+    orderBy: (p, { asc }) => [asc(p.company), asc(p.cashPrice)],
   });
 }
 
@@ -35,5 +35,5 @@ export async function listActivePlansForSale() {
     })
     .from(installmentPlans)
     .where(eq(installmentPlans.isActive, true))
-    .orderBy(asc(installmentPlans.company), asc(installmentPlans.model));
+    .orderBy(asc(installmentPlans.company), asc(installmentPlans.cashPrice));
 }

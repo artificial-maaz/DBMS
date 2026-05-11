@@ -53,7 +53,7 @@ export default async function DashboardPage() {
     receivables = recv.s;
   }
 
-  const fmt = (v: string) => `Rs. ${Number(v).toLocaleString("en-PK")}`;
+  const fmt = (v: string) => `Rs. ${Number(v).toLocaleString("en-PK", { timeZone: "Asia/Karachi" })}`;
 
   const hour = new Date().getHours();
   const greeting = hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
@@ -139,7 +139,7 @@ export default async function DashboardPage() {
               rank: i + 1,
               name: l.name,
               detail: `${l.salesCount} sale${l.salesCount === 1 ? "" : "s"}`,
-              value: `Rs. ${Number(l.revenue).toLocaleString("en-PK")}`,
+              value: `Rs. ${Number(l.revenue).toLocaleString("en-PK", { timeZone: "Asia/Karachi" })}`,
             }))}
           />
           <Board
@@ -148,7 +148,7 @@ export default async function DashboardPage() {
               rank: i + 1,
               name: b.name,
               detail: `${b.salesCount} sale${b.salesCount === 1 ? "" : "s"}`,
-              value: `Rs. ${Number(b.revenue).toLocaleString("en-PK")}`,
+              value: `Rs. ${Number(b.revenue).toLocaleString("en-PK", { timeZone: "Asia/Karachi" })}`,
             }))}
           />
         </div>

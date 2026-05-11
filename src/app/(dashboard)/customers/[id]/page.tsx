@@ -18,8 +18,8 @@ export default async function CustomerDetailPage({ params }: { params: Promise<{
   if (!data) notFound();
   const { customer, branch, purchases, bookings, rides, jobs } = data;
 
-  const fmt = (v: string | number) => `Rs. ${Number(v).toLocaleString("en-PK")}`;
-  const d = (v: string | Date) => new Date(v).toLocaleDateString("en-PK");
+  const fmt = (v: string | number) => `Rs. ${Number(v).toLocaleString("en-PK", { timeZone: "Asia/Karachi" })}`;
+  const d = (v: string | Date) => new Date(v).toLocaleDateString("en-PK", { timeZone: "Asia/Karachi" });
   const totalSpent = purchases.filter((p) => p.status !== "cancelled").reduce((a, p) => a + Number(p.total), 0);
   const outstanding = purchases.filter((p) => p.status === "active").reduce((a, p) => a + Number(p.balanceDue), 0);
 
@@ -105,7 +105,7 @@ export default async function CustomerDetailPage({ params }: { params: Promise<{
             <span className="flex items-center gap-3">
               <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs">{r.status.replace("_", " ")}</span>
               <span className="text-xs text-ink-faint">
-                {new Date(r.scheduledAt).toLocaleString("en-PK", { dateStyle: "medium", timeStyle: "short" })}
+                {new Date(r.scheduledAt).toLocaleString("en-PK", { timeZone: "Asia/Karachi", dateStyle: "medium", timeStyle: "short" })}
               </span>
             </span>
           </div>

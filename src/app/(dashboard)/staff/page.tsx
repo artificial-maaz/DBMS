@@ -69,7 +69,7 @@ export default async function StaffPage() {
                 </td>
                 <td className="px-4 py-2.5">{m.branchName ?? "All branches"}</td>
                 <td className="px-4 py-2.5">{m.designation ?? "—"}</td>
-                <td className="px-4 py-2.5 text-ink-faint">{new Date(m.joinedAt).toLocaleDateString("en-PK")}</td>
+                <td className="px-4 py-2.5 text-ink-faint">{new Date(m.joinedAt).toLocaleDateString("en-PK", { timeZone: "Asia/Karachi" })}</td>
                 <td className="px-4 py-2.5">
                   <span
                     className={`rounded-full px-2 py-0.5 text-xs font-medium ${

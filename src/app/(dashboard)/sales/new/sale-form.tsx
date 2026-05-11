@@ -140,7 +140,7 @@ export function SaleForm({
   );
   const principal = Math.max(total - n(downpayment), 0);
   const monthly = plan === "installment" && n(months) > 0 ? (principal + n(totalMarkup)) / n(months) : 0;
-  const fmt = (v: number) => `Rs. ${v.toLocaleString("en-PK", { maximumFractionDigits: 0 })}`;
+  const fmt = (v: number) => `Rs. ${v.toLocaleString("en-PK", { timeZone: "Asia/Karachi", maximumFractionDigits: 0 })}`;
 
   // #14: bookings tied to whichever customer is currently selected.
   const customerBookings = openBookings.filter((b) => String(b.customerId) === customerId);
@@ -214,7 +214,7 @@ export function SaleForm({
                 <option value="">No booking to apply</option>
                 {customerBookings.map((b) => (
                   <option key={b.id} value={b.id}>
-                    {b.modelWanted} — Rs. {Number(b.tokenAmount).toLocaleString("en-PK")} token
+                    {b.modelWanted} — Rs. {Number(b.tokenAmount).toLocaleString("en-PK", { timeZone: "Asia/Karachi" })} token
                   </option>
                 ))}
               </select>
@@ -489,8 +489,8 @@ export function SaleForm({
 
         {creditExceedsDue && (
           <p className="text-sm text-red-600">
-            This booking&apos;s token (Rs. {bookingCredit.toLocaleString("en-PK")}) is more than what&apos;s due today
-            (Rs. {amountDueTodayBase.toLocaleString("en-PK")}) — raise the downpayment or refund part of the booking
+            This booking&apos;s token (Rs. {bookingCredit.toLocaleString("en-PK", { timeZone: "Asia/Karachi" })}) is more than what&apos;s due today
+            (Rs. {amountDueTodayBase.toLocaleString("en-PK", { timeZone: "Asia/Karachi" })}) — raise the downpayment or refund part of the booking
             first.
           </p>
         )}

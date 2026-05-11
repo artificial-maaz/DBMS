@@ -102,7 +102,7 @@ export async function sendActivityDigest(opts: { dryRun?: boolean } = {}): Promi
         .map(
           (r) =>
             `<li style="margin:3px 0">${r.actorName} &middot; ${r.entity} #${r.entityId}
-             <span style="color:#94a3b8">${new Date(r.createdAt).toLocaleString("en-PK", { dateStyle: "short", timeStyle: "short" })}</span></li>`,
+             <span style="color:#94a3b8">${new Date(r.createdAt).toLocaleString("en-PK", { timeZone: "Asia/Karachi", dateStyle: "short", timeStyle: "short" })}</span></li>`,
         )
         .join("");
       const more = list.length > 15 ? `<li style="color:#94a3b8">…and ${list.length - 15} more</li>` : "";
@@ -120,7 +120,7 @@ export async function sendActivityDigest(opts: { dryRun?: boolean } = {}): Promi
     html: `<div style="font-family:Arial,sans-serif;font-size:14px;color:#0f172a">
       <h2 style="margin:0 0 4px">Activity Digest</h2>
       <p style="margin:0 0 8px;color:#64748b;font-size:12px">
-        ${new Date(since).toLocaleString("en-PK")} &rarr; ${now.toLocaleString("en-PK")}
+        ${new Date(since).toLocaleString("en-PK", { timeZone: "Asia/Karachi" })} &rarr; ${now.toLocaleString("en-PK", { timeZone: "Asia/Karachi" })}
       </p>
       ${pendingCount ? `<p style="background:#fef3c7;border:1px solid #fcd34d;border-radius:8px;padding:10px 12px"><b>${pendingCount}</b> item${pendingCount === 1 ? "" : "s"} waiting in your Review Queue.</p>` : ""}
       ${sections}

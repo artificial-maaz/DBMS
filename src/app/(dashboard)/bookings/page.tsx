@@ -37,7 +37,7 @@ export default async function BookingsPage() {
   // Cross-branch ops (2026-07-31): branch is a free choice, defaulting to own.
   const fixedBranchId = null;
   const defaultBranchId = seesAllBranches(profile.role) ? null : profile.branchId;
-  const fmt = (v: string) => `Rs. ${Number(v).toLocaleString("en-PK")}`;
+  const fmt = (v: string) => `Rs. ${Number(v).toLocaleString("en-PK", { timeZone: "Asia/Karachi" })}`;
 
   const openTotal = rows.filter((r) => r.status === "open").reduce((acc, r) => acc + Number(r.tokenAmount), 0);
 
@@ -93,7 +93,7 @@ export default async function BookingsPage() {
                 <td className="px-4 py-2.5">{fmt(r.tokenAmount)}</td>
                 <td className="px-4 py-2.5">{METHOD_LABEL[r.paymentMethod]}</td>
                 <td className="px-4 py-2.5">{r.branchName}</td>
-                <td className="px-4 py-2.5 text-ink-faint">{new Date(r.createdAt).toLocaleDateString("en-PK")}</td>
+                <td className="px-4 py-2.5 text-ink-faint">{new Date(r.createdAt).toLocaleDateString("en-PK", { timeZone: "Asia/Karachi" })}</td>
                 <td className="px-4 py-2.5">
                   <span className={`whitespace-nowrap rounded-full px-2.5 py-0.5 text-xs font-medium ${STATUS_BADGE[r.status]}`}>
                     {r.status}

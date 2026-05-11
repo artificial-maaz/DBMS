@@ -57,7 +57,7 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
             <Link key={i.id} href={`/sales/${i.id}`} className="block rounded-lg card p-3 hover:border-brand-300">
               <span className="font-mono font-medium text-brand-700">{i.invoiceNo}</span>
               <span className="ml-2 text-sm">{i.customerName}</span>
-              <span className="ml-2 text-xs text-ink-faint">Rs. {Number(i.total).toLocaleString("en-PK")}</span>
+              <span className="ml-2 text-xs text-ink-faint">Rs. {Number(i.total).toLocaleString("en-PK", { timeZone: "Asia/Karachi" })}</span>
               <span className="ml-2 rounded-full bg-slate-100 px-2 py-0.5 text-xs">{i.status}</span>
             </Link>
           ))}

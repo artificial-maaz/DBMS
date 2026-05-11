@@ -103,7 +103,7 @@ export default async function GatePassPage() {
                     )}
                   </td>
                   <td className="px-4 py-2.5 text-ink-faint">
-                    {new Date(p.issuedAt).toLocaleDateString("en-PK")}
+                    {new Date(p.issuedAt).toLocaleDateString("en-PK", { timeZone: "Asia/Karachi" })}
                   </td>
                   <td className="px-4 py-2.5">
                     <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${STATUS_BADGE[p.status]}`}>

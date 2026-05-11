@@ -13,7 +13,7 @@ export default async function InstallmentPlansPage() {
 
   const rows = await listPlans();
   const manageable = canManagePlans(profile.role);
-  const fmt = (v: string) => Number(v).toLocaleString("en-PK");
+  const fmt = (v: string) => Number(v).toLocaleString("en-PK", { timeZone: "Asia/Karachi" });
 
   const companies = [...new Set(rows.map((r) => r.company))];
   const byCompany = companies.map((c) => ({ company: c, plans: rows.filter((r) => r.company === c) }));
@@ -92,7 +92,7 @@ export default async function InstallmentPlansPage() {
             </table>
           </div>
           <p className="text-xs text-ink-faint">
-            w.e.f {new Date(plans[0]?.effectiveDate).toLocaleDateString("en-PK")}
+            w.e.f {new Date(plans[0]?.effectiveDate).toLocaleDateString("en-PK", { timeZone: "Asia/Karachi" })}
           </p>
         </div>
       ))}
