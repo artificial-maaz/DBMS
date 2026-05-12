@@ -20,7 +20,7 @@ export function ImportForm({ templates }: { templates: Record<string, Tpl> }) {
 
   return (
     <div className="space-y-6">
-      <form action={formAction} className="space-y-4 rounded-xl border border-slate-200 bg-white p-6">
+      <form action={formAction} className="space-y-4 card p-6">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <label className="text-sm">
             <span className="mb-1 block font-medium">What are you importing? *</span>
@@ -28,7 +28,7 @@ export function ImportForm({ templates }: { templates: Record<string, Tpl> }) {
               name="type"
               value={type}
               onChange={(e) => setType(e.target.value)}
-              className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2"
+              className="w-full rounded-lg border border-line bg-surface px-3 py-2"
             >
               {Object.entries(TYPE_LABELS).map(([k, label]) => (
                 <option key={k} value={k}>{label}</option>
@@ -43,22 +43,22 @@ export function ImportForm({ templates }: { templates: Record<string, Tpl> }) {
               name="file"
               accept=".csv,text/csv"
               required
-              className="w-full rounded-lg border border-slate-300 px-3 py-1.5 text-sm file:mr-3 file:rounded-md file:border-0 file:bg-slate-100 file:px-3 file:py-1 file:text-sm"
+              className="w-full rounded-lg border border-line px-3 py-1.5 text-sm file:mr-3 file:rounded-md file:border-0 file:bg-slate-100 file:px-3 file:py-1 file:text-sm"
             />
           </label>
         </div>
 
         <div className="rounded-lg bg-slate-50 p-4 text-sm">
           <p className="mb-1 font-medium">Expected columns for {TYPE_LABELS[type]}:</p>
-          <code className="block overflow-x-auto whitespace-nowrap text-xs text-slate-600">{tpl.headers}</code>
+          <code className="block overflow-x-auto whitespace-nowrap text-xs text-ink-soft">{tpl.headers}</code>
           <a
             href={templateHref}
             download={`${type}-template.csv`}
-            className="mt-2 inline-block rounded-md bg-slate-900 px-3 py-1 text-xs font-medium text-white hover:bg-slate-700"
+            className="mt-2 inline-block rounded-md bg-brand-600 px-3 py-1 text-xs font-medium text-white hover:bg-brand-500"
           >
             ⬇ Download template
           </a>
-          <span className="ml-3 text-xs text-slate-400">
+          <span className="ml-3 text-xs text-ink-faint">
             Fill it in Excel, then Save As → CSV. Branch column takes the branch <em>name</em>.
           </span>
         </div>
@@ -66,7 +66,7 @@ export function ImportForm({ templates }: { templates: Record<string, Tpl> }) {
         <button
           type="submit"
           disabled={pending}
-          className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-500 disabled:opacity-50"
+          className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-500 disabled:opacity-50"
         >
           {pending ? "Validating & importing…" : "Import File"}
         </button>
