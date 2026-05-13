@@ -14,7 +14,7 @@ export default async function SystemSettingsPage() {
     <div className="mx-auto max-w-4xl space-y-6">
       <div>
         <h1 className="text-xl font-semibold">System Settings & Branding</h1>
-        <p className="mt-1 text-sm text-slate-500">
+        <p className="mt-1 text-sm text-ink-faint">
           Creator-only. Changes apply system-wide: sidebar, browser tab, PWA name, and sale-form defaults.
         </p>
       </div>
