@@ -37,9 +37,9 @@ export function SettingsForm({ settings }: { settings: Settings }) {
               type="file"
               name="logo"
               accept="image/png,image/jpeg,image/svg+xml,image/webp"
-              className="w-full rounded-lg border border-slate-300 px-3 py-1.5 text-sm file:mr-3 file:rounded-md file:border-0 file:bg-slate-100 file:px-3 file:py-1 file:text-sm"
+              className="w-full rounded-lg border border-line px-3 py-1.5 text-sm file:mr-3 file:rounded-md file:border-0 file:bg-slate-100 file:px-3 file:py-1 file:text-sm"
             />
-            <span className="mt-1 block text-xs text-slate-400">PNG/JPG/SVG/WebP, max 200 KB. Replaces the ⚡ everywhere.</span>
+            <span className="mt-1 block text-xs text-ink-faint">PNG/JPG/SVG/WebP, max 200 KB. Replaces the ⚡ everywhere.</span>
           </label>
 
           {settings.logoDataUrl && (
@@ -56,7 +56,7 @@ export function SettingsForm({ settings }: { settings: Settings }) {
       </section>
 
       <section>
-        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-500">Sales Defaults</h2>
+        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-ink-faint">Sales Defaults</h2>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <Field
             name="defaultCommissionRate"
@@ -87,7 +87,7 @@ export function SettingsForm({ settings }: { settings: Settings }) {
       <button
         type="submit"
         disabled={pending}
-        className="rounded-lg bg-slate-900 px-5 py-2.5 text-sm font-medium text-white hover:bg-slate-700 disabled:opacity-50"
+        className="rounded-lg bg-brand-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-brand-500 disabled:opacity-50"
       >
         {pending ? "Saving…" : "Save Configuration"}
       </button>
@@ -113,9 +113,9 @@ function Field({
         name={name}
         required={label.includes("*")}
         defaultValue={defaultValue}
-        className="w-full rounded-lg border border-slate-300 px-3 py-2 outline-none focus:border-slate-500"
+        className="w-full rounded-lg border border-line px-3 py-2 outline-none focus:border-slate-500"
       />
-      {hint && <span className="mt-1 block text-xs text-slate-400">{hint}</span>}
+      {hint && <span className="mt-1 block text-xs text-ink-faint">{hint}</span>}
     </label>
   );
 }
