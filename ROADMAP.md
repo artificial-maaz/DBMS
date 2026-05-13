@@ -145,8 +145,18 @@ Sir's direction: **A3** (five brand presets + custom hex behind Advanced) and **
   the choice is stored in a `sidebar` cookie and read server-side, so it never flashes open on load
   (same pattern as the theme).
 
-**Still to do:** migrate remaining screens to tokens/UI kit, empty states everywhere,
-login + invoice branding pass, simplified role-home for phones.
+**Full rollout (2026-08-04): all 70 dashboard screens migrated.** Every page and form now uses
+the semantic tokens (`surface / raised / line / ink / ink-soft / ink-faint`) and the brand palette
+(`brand-50..900`) instead of hardcoded `slate-*` and `indigo-*`. Zero `indigo-` classes remain under
+`app/(dashboard)`. Consequences worth knowing:
+- Changing the brand colour in Settings now genuinely repaints **every** screen, not just the chrome.
+- Dark mode is real everywhere; the legacy bridge in `globals.css` is now largely redundant and can
+  be deleted once the login screen and print views are migrated too.
+- Primary buttons are `bg-brand-600`, table rows use `.row-hover` (a soft brand wash instead of grey),
+  and cards use the shared `.card` primitive so radius/shadow change in one place.
+
+**Still to do:** empty states on the remaining list screens, login + invoice branding pass,
+simplified role-home for phones, delete the legacy bridge.
 
 ## ✅ Done — Email batching for the free tier (2026-08-01, chunk 35)
 Resend's free plan is **3,000 emails/month capped at 100/day**. Instant-per-action emails would
