@@ -308,56 +308,77 @@ one file. Now `schema / service / queries / permissions / validators` like every
 bodies moved verbatim; `listPurchases` gained `supplierId`, `notes` for the edit form.
 **No migration** — logic only.
 
+## ✅ Done — Status ramp + the presentation queue (2026-08-09, chunk 43)
+
+**The one change underneath all of it: a semantic STATUS RAMP.** Status colour was written as raw
+Tailwind pastels (`bg-red-100 text-red-700`) with per-class dark overrides bolted on in the legacy
+bridge. It worked, but every screen invented its own shade and the reds screamed next to the
+burgundy KPI tiles. Now four meanings, two tokens each — `ok / warn / danger / info`, each with a
+`-soft` background and a readable ink, resolving per mode like `surface` / `ink` / `brand` already do.
+
+- **#16 Installment Cases (Sir: "shiny bright red… and the blue differs between modes").** The
+  danger tone is now a deep ROSE in the same family as the burgundy tile (`#8e1c3e`) instead of a
+  fire-engine red shouting over it. On the blue: **an identical hex cannot pass contrast in both
+  themes** — a blue dark enough to read on white disappears on navy. What is now identical is the
+  **hue**; dark differs in lightness only. The old sky/red mappings drifted in *hue* as well, which
+  is exactly why they read as different colours. Badges, the Past Due panel, the overdue row wash,
+  balance and collected figures all moved over.
+- **#17 Installment Plans.** Company headings (YADEA, RAMZA…) were faint 12px grey — *smaller and
+  quieter than the table headers beneath them*, so the grouping read as an afterthought. Now full
+  ink, bold, sized above the table, with a brand rule and the model count + effective date on the
+  same line. The "Total Price" band was a hardcoded slate wash that became a light stripe across a
+  dark card — the loudest part of the dark-mode chaos — now a brand tint, correct in both themes.
+  Intro line shortened to one sentence with `flex-wrap` + a max-width so it can no longer collide
+  with the Add button at any window size.
+- **#21 Audit Log details.** Was `JSON.stringify(details)` in a truncated `<code>` block: a wall of
+  braces, clipped mid-word. The Review Queue's summariser is now extracted to
+  `components/payload-summary.tsx` and used by both, so the two screens cannot drift into different
+  ideas of "readable". The audit log passes an empty hidden-key set — it is the record of last
+  resort and withholds nothing.
+- **#12 Bookings action column.** These were the only action buttons in the app with no motion —
+  *and* no dark mode: `bg-slate-100 text-slate-600` had no counterpart in the bridge, so Cancel was
+  a light chip on a dark card. Now on the shared `transition` + `active:scale-95` treatment.
+- **#20 "Choose file" in dark mode.** The stylesheet rules were already correct; the markup was the
+  problem. Both inputs still carried `file:mr-3 file:rounded-md file:border-0 …`, and Tailwind's
+  `file:` utilities outrank the unprefixed rule — `file:border-0` in particular stripped the border
+  in light mode. Utilities removed from System Settings and Bulk Import; the button is styled once,
+  in `globals.css`, for both themes. **This is the third time this exact trap has been hit.**
+- **Dead CSS removed.** The `-50` backgrounds were declared twice in `globals.css` — once as
+  near-black solids, once as translucent tints. The later always won, so the solids were dead code
+  that still read as authoritative. Gone.
+- Retire/reactivate toggles across Installment Plans, Document Checklist, Handover Checklist and
+  Suppliers moved to the ramp together, as the note in the handover toggle said they should.
+
+**Correction to the previous roadmap entry:** it claimed ~40 raw pastels had "no dark-mode variant".
+That was wrong — the legacy bridge covers them. The real faults were harsh *choices* and hue drift
+between modes, not missing rules. Fixed the claim rather than leaving a plausible-sounding error in
+the file.
+**No migration** — presentation only.
+
 ## 🔜 OPEN QUEUE — reconciled against code 2026-08-09
 
-Every item below was re-verified in the source before being listed; finished items were moved into
-the chunk-40 section above. **Business rules first, cosmetics last.**
+Re-verified against the source 2026-08-09. Sections A and B are now empty — every business rule
+and every specific UI complaint Sir has raised is built. What remains is one sweep and one blocker.
 
 ### A. Business rules / features
-*(Empty — all of Sir's business-rule items are built. Everything below is presentation.)*
+*(Empty — all built.)*
 
 ### B. Readability / UX
-- **1. Audit Log "Details" column is raw JSON (#21)** — same problem the Review Queue had before it
-  was fixed. Reuse the `PayloadSummary` approach from `approvals/page.tsx`: labelled key/value pairs,
-  nested arrays as numbered lists, everything wrapping. *Verified 2026-08-09: `PayloadSummary` still
-  exists only in `approvals/page.tsx`.*
-- **2. Missing animation in the Bookings action column (#12)** — the status buttons do not use the
-  shared transition/`active:scale` treatment the other modules have. *Verified 2026-08-09: no
-  `transition` or `active:scale` anywhere under `app/(dashboard)/bookings`.*
-- **3. Installment Cases: the bright red is too harsh (#16)** — replace with a warmer tone that sits
-  with the burgundy tile background; blue must match between light and dark. *Verified 2026-08-09:
-  still outstanding — `installments/page.tsx` uses raw `bg-red-100 / text-red-700 / bg-red-50`,
-  which have no dark-mode variant, so this is a dark-mode bug as much as a taste one. The chunk-40
-  jewel-tone commit re-toned the tiles but left the status colours.*
-- **4. Installment Plans page needs real work (#17):** company headings (YADEA, RAMZA…) should be bold
-  and properly sized, table boxes reworked, dark mode is a mess, and the intro line is long enough
-  to collide with the action button — shorten it.
-- **5. "Choose file" button is unreadable in dark mode (#20)** — System Settings (logo upload) and
-  Bulk Import (CSV). Re-raised by Sir 2026-08-09. *Do not guess at this one:* HANDOVER records that
-  file inputs need **both** `::file-selector-button` and `::-webkit-file-upload-button`, and that any
-  Tailwind `file:` utility left in the markup will outrank the stylesheet rule. Fix the markup and
-  the stylesheet together or it will look fixed in one browser and not the other.
-- ~~Stock Deliveries jewel-tone pass (#18)~~ ✅ **Done in chunk 40** (`Deliveries: jewel-tone tiles and pills`).
+*(Empty — #12, #16, #17, #18, #20 and #21 are all done. See chunks 40-43 above.)*
 
 ### C. Dark-mode sweep — what is actually left
-Re-measured 2026-08-09. The blanket "these screens are unchecked" list was replaced with the two
-concrete faults behind it:
-- **~40 raw pastel status colours** (`bg-red-50`, `bg-amber-50`, `bg-emerald-50` and friends) across
-  the dashboard. These have no `dark:` variant and no token equivalent, so any screen carrying one
-  has a light-mode patch burned into dark mode. This is the single biggest remaining source of the
-  "dark mode is a mess" reports, item 7 above included. Fix properly = a semantic status ramp
-  (`--ok / --warn / --danger` with per-mode surfaces), not 40 hand-written `dark:` overrides.
-- **~50 files still carrying 2–6 hardcoded `slate-*` / `gray-*` classes**, overwhelmingly the modal
+- **~50 files still carrying 2-6 hardcoded `slate-*` / `gray-*` classes**, overwhelmingly the modal
   form components (`add-*-form.tsx` / `edit-*-form.tsx`) that the page-level rollout skipped.
   Heaviest: `sales/new/sale-form.tsx` (6), `customers/[id]/page.tsx` (5), then the staff / plan /
-  visitor / customer edit modals (4 each).
-- **`indigo-*` is genuinely at zero** under `app/(dashboard)` — that claim in the GUI-phase section
-  holds up.
-- Already fixed in chunk 40 and dropped from this list: the top header bar, the sidebar brand/group
-  area, and the ragged last column on Review Queue / Inventory / Sales / Workshop / Test Drives.
-- Still worth eyeballing once the two faults above are fixed: Stock Audit, Sales & Invoice detail /
-  print view, and the finance screens (Accounting, Monthly P&L, Fixed Assets) — all three carry
-  slate/gray residue.
+  visitor / customer edit modals (4 each). The legacy bridge catches the common ones
+  (`text-slate-800`, `hover:bg-slate-100`); the rest are one-off shades that fall through.
+- **The remaining pastels are a taste question now, not a bug.** They render correctly in both
+  themes via the bridge. Moving them to the status ramp (`bg-ok-soft` / `text-danger` …) is worth
+  doing screen by screen, and every screen that moves shrinks the bridge. Delete the bridge when
+  nothing matches it.
+- **`indigo-*` is genuinely at zero** under `app/(dashboard)`.
+- Worth eyeballing on a real screen: Stock Audit, Sales & Invoice detail / print view, and the
+  finance screens (Accounting, Monthly P&L, Fixed Assets) — all three still carry slate/gray residue.
 
 ### D. Known, still unresolved
 
