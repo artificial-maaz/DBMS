@@ -31,13 +31,16 @@ export function SettingsForm({ settings }: { settings: Settings }) {
 
           <BrandPicker value={settings.themeColor} />
 
+          {/* #20: NO Tailwind `file:` utilities on this input — they outrank the
+              unprefixed rule in globals.css, and `file:border-0` stripped the
+              button's border in light mode. Styled once, in globals.css. */}
           <label className="text-sm">
             <span className="mb-1 block font-medium">Company Logo</span>
             <input
               type="file"
               name="logo"
               accept="image/png,image/jpeg,image/svg+xml,image/webp"
-              className="w-full rounded-lg border border-line px-3 py-1.5 text-sm file:mr-3 file:rounded-md file:border-0 file:px-3 file:py-1 file:text-sm"
+              className="w-full rounded-lg border border-line px-3 py-1.5 text-sm"
             />
             <span className="mt-1 block text-xs text-ink-faint">PNG/JPG/SVG/WebP, max 200 KB.</span>
           </label>
