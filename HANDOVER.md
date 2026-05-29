@@ -19,9 +19,15 @@ the complete context of this project. Last updated: 2026-07-06.
 
 ## READ FIRST (2026-08-09) — where the work stands
 
-**Every business-rule item on Sir's list is now built.** Section A of the open queue is empty;
-what remains is presentation only (audit-log readability, bookings animation, two colour passes, the
-dark-mode file-input button) plus the dark-mode sweep. Chunks 41–42 closed #13, #14, #15 and #19.
+**Sir's entire 31-point list is built.** Sections A and B of the open queue are both empty. Chunks
+41–42 closed the business rules (#13, #14, #15, #19); chunk 43 closed the presentation items (#12,
+#16, #17, #20, #21). What is left is a slate/gray sweep through the modal forms and the favicon,
+which is blocked on Sir supplying a transparent PNG.
+
+**Status colour now comes off a semantic ramp** — `bg-ok-soft / text-ok`, `warn`, `danger`, `info`
+(see `globals.css`). Use it for anything status-shaped instead of reaching for `bg-red-100`; both
+themes are then handled by construction. The legacy bridge that maps raw pastels for dark mode still
+exists and still works, but it shrinks with every screen that migrates — delete it when empty.
 
 The build is functionally complete and in production. The **GUI phase** is in flight, and a short
 **business-rules queue** sits in front of it. **`ROADMAP.md` → "🔜 OPEN QUEUE — reconciled against
@@ -40,7 +46,11 @@ repo's docs have drifted from its code twice now.
    dark-tinted (they are backgrounds). Chip TEXT uses `--chip-ink`, never the chart ramp.
 3. `--raised` sits **above** `--surface`, not below — nested panels went black when it was inverted.
 4. File-input buttons need BOTH `::file-selector-button` and `::-webkit-file-upload-button`, and
-   Tailwind `file:` utilities in markup will outrank them.
+   Tailwind `file:` utilities in markup will outrank them. **Hit three times now** (2026-08-06,
+   -08-09): the stylesheet was already right both times; the markup still carried
+   `file:border-0 file:px-3 …`, which won and stripped the border. The rule is simply **no `file:`
+   utilities anywhere** — the button is styled once in `globals.css` for both themes. If a file
+   button looks wrong, grep for `file:` in `.tsx` before touching the CSS.
 5. Headings vs links need to differ on **three axes** (size, weight, letter-spacing), not colour alone.
 6. Never put a still-selectable colour in `LEGACY_DEFAULTS` — picking it gets silently overridden.
 7. Timestamps: columns are `timestamp` without zone and the server runs UTC, so every render must
