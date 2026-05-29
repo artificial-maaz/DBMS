@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { payPurchase, receivePurchaseItem, recordPurchase } from "@/modules/procurement/service";
+import { payPurchase, receivePurchaseItem, recordPurchase, updatePurchase } from "@/modules/procurement/service";
 import { requireStaff } from "@/lib/session";
 
 export type ActionState = { ok: boolean; error?: string } | null;
@@ -16,6 +16,17 @@ export async function recordPurchaseAction(_prev: ActionState, formData: FormDat
   if (!result.ok) return { ok: false, error: result.error };
   revalidatePath("/purchases");
   revalidatePath("/ledger");
+  return { ok: true };
+}
+
+export async function updatePurchaseAction(
+  poId: number,
+  _prev: ActionState,
+  formData: FormData,
+): Promise<ActionState> {
+  const result = await updatePurchase(await actor(), poId, Object.fromEntries(formData));
+  if (!result.ok) return { ok: false, error: result.error };
+  revalidatePath("/purchases");
   return { ok: true };
 }
 
