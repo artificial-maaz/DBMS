@@ -2,17 +2,21 @@
 # Run from the repo root:  powershell -ExecutionPolicy Bypass -File .\scripts\push.ps1
 # NOTE: this file must stay ASCII-only (PowerShell 5.1 reads ps1 as ANSI).
 #
-# WINDOW: 23 May, 24 May, 29 May and 4 June 2026 - the four days Sir asked for,
-# 3 to 4 commits on each.
+# WINDOW (Sir, 2026-08-09): 2 commits on 28 May, 2 on 29 May, and every other
+# commit filled into EMPTY days in the Jan-April window. The dates below were
+# chosen against the days already used by earlier batches - none of these
+# collide, so each one lights a square that is currently dark:
+#   used already -> Jan 13,16,19,22,27 | Feb 2,6,11,17,23,26
+#                   Mar 4,9,13,16,18,19,23,26,30 | Apr 1,3,6,8,10,13,15,17,20,22,24
+#   filled here  -> Jan 14,21,29 | Feb 4,13,20,27 | Mar 5,11,24,31 | Apr 7,14,21,28
 #
-# THIS BATCH: chunk 42 - procurement edit paths (#19). Supplier edit and
-# retire, purchase order edit with received lines locked, plus the module split
-# that brings procurement in line with every other domain.
+# THIS BATCH: chunk 43 - the semantic status ramp, and with it every remaining
+# presentation item on Sir's list (#12, #16, #17, #20, #21).
 #
 # Each file appears EXACTLY ONCE - git stages per path, so a repeated path
 # commits on its first appearance and silently skips afterwards.
 #
-# No migration in this batch - logic only.
+# No migration in this batch - presentation only.
 
 function Commit($msg, $paths, $date = $null) {
   git add $paths 2>$null
@@ -27,28 +31,38 @@ function Commit($msg, $paths, $date = $null) {
   }
 }
 
-Write-Host "Hussain Motors ERP - supplier and purchase order editing" -ForegroundColor Cyan
+Write-Host "Hussain Motors ERP - semantic status ramp and the presentation queue" -ForegroundColor Cyan
 
-# ---------------- Sat 23 May - 4 ----------------
-Commit "Procurement: role gate moved into permissions" @("src/modules/procurement/permissions.ts") "2026-05-23T10:18:00+05:00"
-Commit "Procurement: schemas moved into validators, edit schema added" @("src/modules/procurement/validators.ts") "2026-05-23T13:42:00+05:00"
-Commit "Procurement: read side moved into queries" @("src/modules/procurement/queries.ts") "2026-05-23T17:09:00+05:00"
-Commit "Procurement: supplier and purchase order editing" @("src/modules/procurement/service.ts") "2026-05-23T21:36:00+05:00"
+# ---------------- January fills ----------------
+Commit "Design tokens: semantic status ramp for ok, warn, danger and info" @("src/app/globals.css") "2026-01-14T11:32:00+05:00"
+Commit "Shared: payload summary extracted for reuse" @("src/components/payload-summary.tsx") "2026-01-21T19:47:00+05:00"
+Commit "Review queue: shared summary, status ramp badges" @("src/app/(dashboard)/approvals/page.tsx") "2026-01-29T14:08:00+05:00"
 
-# ---------------- Sun 24 May - 3 ----------------
-Commit "Suppliers: update and retire server actions" @("src/app/(dashboard)/suppliers/actions.ts") "2026-05-24T11:27:00+05:00"
-Commit "Suppliers: editable row with retire control" @("src/app/(dashboard)/suppliers/supplier-form.tsx") "2026-05-24T16:53:00+05:00"
-Commit "Suppliers: status column and edit rows" @("src/app/(dashboard)/suppliers/page.tsx") "2026-05-24T20:41:00+05:00"
+# ---------------- February fills ----------------
+Commit "Audit log: readable details instead of raw JSON" @("src/app/(dashboard)/audit/page.tsx") "2026-02-04T10:56:00+05:00"
+Commit "Bookings: motion and dark-mode colour on the action buttons" @("src/app/(dashboard)/bookings/booking-status-actions.tsx") "2026-02-13T20:23:00+05:00"
+Commit "Installment cases: warmer danger tone, hue-stable blue" @("src/app/(dashboard)/installments/page.tsx") "2026-02-20T13:41:00+05:00"
+Commit "Installment plans: bold company headings, dark-mode total band" @("src/app/(dashboard)/installment-plans/page.tsx") "2026-02-27T18:12:00+05:00"
 
-# ---------------- Fri 29 May - 3 ----------------
-Commit "Purchases: update server action" @("src/app/(dashboard)/purchases/actions.ts") "2026-05-29T10:52:00+05:00"
-Commit "Purchases: edit form with received lines locked" @("src/app/(dashboard)/purchases/edit-purchase-form.tsx") "2026-05-29T15:34:00+05:00"
-Commit "Purchases: edit action, active-only supplier list" @("src/app/(dashboard)/purchases/page.tsx") "2026-05-29T20:18:00+05:00"
+# ---------------- March fills ----------------
+Commit "Installment plans: retire toggle on the status ramp" @("src/app/(dashboard)/installment-plans/toggle-plan.tsx") "2026-03-05T12:19:00+05:00"
+Commit "Document checklist: status ramp badges" @("src/app/(dashboard)/document-requirements/page.tsx") "2026-03-11T21:04:00+05:00"
+Commit "Document checklist: retire toggle on the status ramp" @("src/app/(dashboard)/document-requirements/toggle-requirement.tsx") "2026-03-24T10:37:00+05:00"
+Commit "Handover checklist: status ramp badges" @("src/app/(dashboard)/handover-requirements/page.tsx") "2026-03-31T16:58:00+05:00"
 
-# ---------------- Thu 4 Jun - 3 ----------------
-Commit "Docs: procurement edit paths, timezone finding recorded" @("ROADMAP.md") "2026-06-04T11:06:00+05:00"
-Commit "Docs: business rules complete, presentation queue remains" @("HANDOVER.md") "2026-06-04T16:22:00+05:00"
-Commit "Chore: push script and remaining pending files" @(".") "2026-06-04T21:44:00+05:00"
+# ---------------- April fills ----------------
+Commit "Handover checklist: retire toggle on the status ramp" @("src/app/(dashboard)/handover-requirements/toggle-handover-item.tsx") "2026-04-07T11:44:00+05:00"
+Commit "Suppliers: status ramp badge" @("src/app/(dashboard)/suppliers/page.tsx") "2026-04-14T20:09:00+05:00"
+Commit "Suppliers: retire toggle on the status ramp" @("src/app/(dashboard)/suppliers/supplier-form.tsx") "2026-04-21T13:26:00+05:00"
+Commit "Bulk import: drop the file utilities that broke the button" @("src/app/(dashboard)/import/import-form.tsx") "2026-04-28T19:51:00+05:00"
+
+# ---------------- Thu 28 May - 2 ----------------
+Commit "System settings: drop the file utilities that broke the button" @("src/app/(dashboard)/system-settings/settings-form.tsx") "2026-05-28T12:14:00+05:00"
+Commit "Docs: status ramp and the presentation queue recorded" @("ROADMAP.md") "2026-05-28T20:38:00+05:00"
+
+# ---------------- Fri 29 May - 2 ----------------
+Commit "Docs: file-input trap and status ramp guidance" @("HANDOVER.md") "2026-05-29T11:22:00+05:00"
+Commit "Chore: push script and remaining pending files" @(".") "2026-05-29T21:07:00+05:00"
 
 Remove-Item Env:GIT_AUTHOR_DATE -ErrorAction SilentlyContinue
 Remove-Item Env:GIT_COMMITTER_DATE -ErrorAction SilentlyContinue
