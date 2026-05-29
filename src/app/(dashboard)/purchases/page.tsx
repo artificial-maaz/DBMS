@@ -1,14 +1,15 @@
 import { redirect } from "next/navigation";
+import { canProcure } from "@/modules/procurement/permissions";
 import {
-  canProcure,
   listPurchaseItems,
   listPurchases,
   listSuppliers,
   orderPatterns,
-} from "@/modules/procurement/service";
+} from "@/modules/procurement/queries";
 import { listActiveBranches } from "@/modules/inventory/queries";
 import { StatCard } from "@/components/ui";
 import { requireStaff } from "@/lib/session";
+import { EditPurchaseForm } from "./edit-purchase-form";
 import { PayPurchase, ReceiveItem, RecordPurchaseForm } from "./purchase-forms";
 
 export default async function PurchasesPage() {
@@ -37,8 +38,10 @@ export default async function PurchasesPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-semibold">Stock Purchases</h1>
+        {/* #19: retired suppliers stay out of NEW purchases but remain selectable
+            when editing an old one, so a PO never loses its own supplier. */}
         <RecordPurchaseForm
-          suppliers={supplierRows.map((s) => ({ id: s.id, label: s.name }))}
+          suppliers={supplierRows.filter((s) => s.isActive).map((s) => ({ id: s.id, label: s.name }))}
           branches={branches.map((b) => ({ id: b.id, label: b.name }))}
         />
       </div>
@@ -91,6 +94,23 @@ export default async function PurchasesPage() {
                     Due {fmt(outstanding)}
                   </span>
                   <PayPurchase poId={r.id} outstanding={outstanding} />
+                  <EditPurchaseForm
+                    poId={r.id}
+                    poNo={r.poNo}
+                    supplierId={r.supplierId}
+                    purchaseDate={r.purchaseDate}
+                    notes={r.notes}
+                    amountPaid={r.amountPaid}
+                    lines={poItems.map((it) => ({
+                      id: it.id,
+                      model: it.model,
+                      color: it.color,
+                      qtyOrdered: it.qtyOrdered,
+                      qtyReceived: it.qtyReceived,
+                      unitCost: it.unitCost,
+                    }))}
+                    suppliers={supplierRows.map((s) => ({ id: s.id, label: s.name }))}
+                  />
                 </div>
               </div>
 
