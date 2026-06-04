@@ -2,20 +2,17 @@
 # Run from the repo root:  powershell -ExecutionPolicy Bypass -File .\scripts\push.ps1
 # NOTE: this file must stay ASCII-only (PowerShell 5.1 reads ps1 as ANSI).
 #
-# WINDOW: 23 March - 24 April 2026, continuing on from the last batch which
-# ended 19 March. Spread across days on purpose - 1 to 2 commits per day
-# lights up more squares than clumping them together.
+# WINDOW: 23 May, 24 May, 29 May and 4 June 2026 - the four days Sir asked for,
+# 3 to 4 commits on each.
 #
-# THIS BATCH: chunk 41 - the roadmap reconciliation, auto-settle (#15), the
-# Yadea-only warranty card (#14) and the handover checklist (#13).
+# THIS BATCH: chunk 42 - procurement edit paths (#19). Supplier edit and
+# retire, purchase order edit with received lines locked, plus the module split
+# that brings procurement in line with every other domain.
 #
 # Each file appears EXACTLY ONCE - git stages per path, so a repeated path
-# commits on its first appearance and silently skips afterwards. That is why
-# sales/service.ts, sales/queries.ts and sale-form.tsx each carry more than one
-# feature in a single commit: one path, one commit, no way around it.
+# commits on its first appearance and silently skips afterwards.
 #
-# Run AFTER db:generate, so the generated drizzle migration is picked up by the
-# final catch-all commit.
+# No migration in this batch - logic only.
 
 function Commit($msg, $paths, $date = $null) {
   git add $paths 2>$null
@@ -30,62 +27,28 @@ function Commit($msg, $paths, $date = $null) {
   }
 }
 
-Write-Host "Hussain Motors ERP - auto-settle, Yadea warranty card, handover checklist" -ForegroundColor Cyan
+Write-Host "Hussain Motors ERP - supplier and purchase order editing" -ForegroundColor Cyan
 
-# ---------------- Mon 23 Mar - 2 ----------------
-Commit "Docs: roadmap reconciled against the code it describes" @("ROADMAP.md") "2026-03-23T11:12:00+05:00"
-Commit "Docs: handover notes point at the reconciled queue" @("HANDOVER.md") "2026-03-23T20:36:00+05:00"
+# ---------------- Sat 23 May - 4 ----------------
+Commit "Procurement: role gate moved into permissions" @("src/modules/procurement/permissions.ts") "2026-05-23T10:18:00+05:00"
+Commit "Procurement: schemas moved into validators, edit schema added" @("src/modules/procurement/validators.ts") "2026-05-23T13:42:00+05:00"
+Commit "Procurement: read side moved into queries" @("src/modules/procurement/queries.ts") "2026-05-23T17:09:00+05:00"
+Commit "Procurement: supplier and purchase order editing" @("src/modules/procurement/service.ts") "2026-05-23T21:36:00+05:00"
 
-# ---------------- Thu 26 Mar - 2 ----------------
-Commit "Handover checklist: master list table" @("src/modules/handover-requirements/schema.ts") "2026-03-26T10:47:00+05:00"
-Commit "Handover checklist: who may view and who may manage" @("src/modules/handover-requirements/permissions.ts") "2026-03-26T19:21:00+05:00"
+# ---------------- Sun 24 May - 3 ----------------
+Commit "Suppliers: update and retire server actions" @("src/app/(dashboard)/suppliers/actions.ts") "2026-05-24T11:27:00+05:00"
+Commit "Suppliers: editable row with retire control" @("src/app/(dashboard)/suppliers/supplier-form.tsx") "2026-05-24T16:53:00+05:00"
+Commit "Suppliers: status column and edit rows" @("src/app/(dashboard)/suppliers/page.tsx") "2026-05-24T20:41:00+05:00"
 
-# ---------------- Mon 30 Mar - 2 ----------------
-Commit "Handover checklist: item validator" @("src/modules/handover-requirements/validators.ts") "2026-03-30T12:33:00+05:00"
-Commit "Handover checklist: list queries" @("src/modules/handover-requirements/queries.ts") "2026-03-30T21:08:00+05:00"
+# ---------------- Fri 29 May - 3 ----------------
+Commit "Purchases: update server action" @("src/app/(dashboard)/purchases/actions.ts") "2026-05-29T10:52:00+05:00"
+Commit "Purchases: edit form with received lines locked" @("src/app/(dashboard)/purchases/edit-purchase-form.tsx") "2026-05-29T15:34:00+05:00"
+Commit "Purchases: edit action, active-only supplier list" @("src/app/(dashboard)/purchases/page.tsx") "2026-05-29T20:18:00+05:00"
 
-# ---------------- Wed 1 Apr - 2 ----------------
-Commit "Handover checklist: create, rename and retire" @("src/modules/handover-requirements/service.ts") "2026-04-01T11:26:00+05:00"
-Commit "Schema barrel: register the handover module" @("src/db/schema.ts") "2026-04-01T20:04:00+05:00"
-
-# ---------------- Fri 3 Apr - 2 ----------------
-Commit "Sales schema: per-invoice handover snapshot" @("src/modules/sales/schema.ts") "2026-04-03T10:52:00+05:00"
-Commit "Sales validators: accept the handover checklist" @("src/modules/sales/validators.ts") "2026-04-03T19:38:00+05:00"
-
-# ---------------- Mon 6 Apr - 2 ----------------
-Commit "Sales: warranty-card requirement isolated to one rule" @("src/modules/sales/warranty.ts") "2026-04-06T11:14:00+05:00"
-Commit "Sales: auto-settle finished cases, Yadea warranty rule, handover rows" @("src/modules/sales/service.ts") "2026-04-06T20:27:00+05:00"
-
-# ---------------- Wed 8 Apr - 2 ----------------
-Commit "Sales queries: sold vehicle and handover checklist on the invoice" @("src/modules/sales/queries.ts") "2026-04-08T12:09:00+05:00"
-Commit "Handover checklist: server actions" @("src/app/(dashboard)/handover-requirements/actions.ts") "2026-04-08T21:15:00+05:00"
-
-# ---------------- Fri 10 Apr - 2 ----------------
-Commit "Handover checklist: add-item form" @("src/app/(dashboard)/handover-requirements/add-handover-item-form.tsx") "2026-04-10T10:41:00+05:00"
-Commit "Handover checklist: inline rename" @("src/app/(dashboard)/handover-requirements/edit-handover-item-form.tsx") "2026-04-10T19:53:00+05:00"
-
-# ---------------- Mon 13 Apr - 2 ----------------
-Commit "Handover checklist: retire and reactivate control" @("src/app/(dashboard)/handover-requirements/toggle-handover-item.tsx") "2026-04-13T11:37:00+05:00"
-Commit "Handover checklist: management page" @("src/app/(dashboard)/handover-requirements/page.tsx") "2026-04-13T20:22:00+05:00"
-
-# ---------------- Wed 15 Apr - 2 ----------------
-Commit "Sidebar: Handover Checklist under Retail" @("src/components/sidebar.tsx") "2026-04-15T12:48:00+05:00"
-Commit "New Sale page: supply the handover items" @("src/app/(dashboard)/sales/new/page.tsx") "2026-04-15T21:06:00+05:00"
-
-# ---------------- Fri 17 Apr - 2 ----------------
-Commit "New Sale: handover checklist, warranty card only for Yadea" @("src/app/(dashboard)/sales/new/sale-form.tsx") "2026-04-17T11:19:00+05:00"
-Commit "Invoice: print the handover checklist, badge only where a card exists" @("src/app/(dashboard)/sales/[id]/page.tsx") "2026-04-17T19:44:00+05:00"
-
-# ---------------- Mon 20 Apr - 2 ----------------
-Commit "Review queue: warranty warning only on Yadea sales" @("src/app/(dashboard)/approvals/page.tsx") "2026-04-20T10:33:00+05:00"
-Commit "Scripts: one-off settlement backfill for historic invoices" @("scripts/backfill-settlements.ts") "2026-04-20T20:51:00+05:00"
-
-# ---------------- Wed 22 Apr - 2 ----------------
-Commit "Scripts: seed the handover checklist" @("scripts/seed-handover-requirements.ts") "2026-04-22T12:26:00+05:00"
-Commit "Scripts: db:settle and db:seed:handover entry points" @("package.json") "2026-04-22T20:14:00+05:00"
-
-# ---------------- Fri 24 Apr - 1 ----------------
-Commit "Chore: migration and remaining pending files" @(".") "2026-04-24T21:31:00+05:00"
+# ---------------- Thu 4 Jun - 3 ----------------
+Commit "Docs: procurement edit paths, timezone finding recorded" @("ROADMAP.md") "2026-06-04T11:06:00+05:00"
+Commit "Docs: business rules complete, presentation queue remains" @("HANDOVER.md") "2026-06-04T16:22:00+05:00"
+Commit "Chore: push script and remaining pending files" @(".") "2026-06-04T21:44:00+05:00"
 
 Remove-Item Env:GIT_AUTHOR_DATE -ErrorAction SilentlyContinue
 Remove-Item Env:GIT_COMMITTER_DATE -ErrorAction SilentlyContinue
