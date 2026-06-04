@@ -19,6 +19,10 @@ the complete context of this project. Last updated: 2026-07-06.
 
 ## READ FIRST (2026-08-09) — where the work stands
 
+**Every business-rule item on Sir's list is now built.** Section A of the open queue is empty;
+what remains is presentation only (audit-log readability, bookings animation, two colour passes, the
+dark-mode file-input button) plus the dark-mode sweep. Chunks 41–42 closed #13, #14, #15 and #19.
+
 The build is functionally complete and in production. The **GUI phase** is in flight, and a short
 **business-rules queue** sits in front of it. **`ROADMAP.md` → "🔜 OPEN QUEUE — reconciled against
 code 2026-08-09"** is the live task list; start there, and work business rules before cosmetics.
@@ -40,7 +44,11 @@ repo's docs have drifted from its code twice now.
 5. Headings vs links need to differ on **three axes** (size, weight, letter-spacing), not colour alone.
 6. Never put a still-selectable colour in `LEGACY_DEFAULTS` — picking it gets silently overridden.
 7. Timestamps: columns are `timestamp` without zone and the server runs UTC, so every render must
-   pass `timeZone: "Asia/Karachi"`. (There is no `Asia/Islamabad` in IANA.)
+   pass `timeZone: "Asia/Karachi"`. **There is no `Asia/Islamabad` in IANA and there never has been** —
+   Pakistan has one timezone (PKT, UTC+5) and IANA names zones after the most populous city, so
+   `Asia/Karachi` *is* Islamabad's timezone. Sir has asked to "switch to Islamabad" twice now
+   (2026-08-06, 2026-08-09); the answer is that nothing is wrong and the string cannot change. If the
+   word bothers him, relabel the Settings dropdown "Pakistan (PKT, UTC+5)" and keep the value.
 8. Invoice numbers are derived from the **highest sequence already issued for that prefix**, never
    from a count — two branches can share a 3-letter code.
 
