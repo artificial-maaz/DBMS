@@ -268,33 +268,75 @@ buyer's missing mirrors is exactly as much of a problem as an installment buyer'
   whichever copy Sir prefers rather than hard-coding an exception.
 - **Needs migration** (`handover_requirements` + `invoice_handovers`).
 
+## ✅ Done — Procurement edit paths (2026-08-09, chunk 42)
+
+**#19 — three findings that changed the shape of this one before a line was written:**
+1. **Suppliers and Manufacturers are one table.** There is a single `suppliers` table and the form
+   already says "Supplier / Manufacturer Name". The roadmap described two jobs; it was one.
+2. **The maker-checker routing in the original #19 wording is impossible.** `canProcure` is
+   `creator | owner` only — no staff role can create a supplier or purchase in the first place, so
+   there are no staff submissions to review. Everyone who can reach this module is already an
+   approver. Noted in `permissions.ts` so it is not "fixed" again later.
+3. **`suppliers.isActive` was a dead column** — in the schema since day one, never read, never
+   written. Wiring it up cost almost nothing and solved a real problem: a supplier you have stopped
+   buying from cannot be deleted (POs reference it forever) and so cluttered the dropdown permanently.
+
+**Supplier edit + retire.** Every field editable (nothing on a supplier is referenced by the ledger,
+so there is no money integrity to protect). Retire/reactivate drops a supplier from the New Purchase
+dropdown while leaving its history untouched. The edit form owns the whole table ROW rather than a
+cell — seven fields only fit in a full-width row, and putting them in the name cell blew the column
+widths apart the moment anyone clicked Edit.
+
+**Purchase order edit — what is deliberately NOT editable, and why:**
+- **Branch** — the payment already posted `cash_out` to that branch's ledger. Moving the PO would
+  leave cash in one branch's book and the stock liability in another's. Company totals would still
+  balance; the per-branch books would quietly stop being true.
+- **Amount paid** — the ledger is append-only. Money moves only through `payPurchase`, which writes
+  a real entry. Neither field is *disabled* in the form; both are **absent from the edit schema
+  entirely**, because a field that cannot be edited should never arrive rather than arrive and be ignored.
+- **Any line with `qtyReceived > 0`** — its unit cost is already baked into received inventory, so
+  rewriting it would silently restate stock value. Received lines render read-only with an
+  "N received — locked" note: a form that lets you type and then refuses is worse than one that never
+  invited you. The server enforces it independently.
+- The total is always **recomputed from the final lines**, never taken from the client, and a new
+  total below what has already been paid is rejected. Row-locked throughout, so a concurrent receive
+  or payment cannot slip in mid-edit. The edit opens as an overlay — the Edit button sits in a tight
+  flex row beside the totals, where an inline multi-line editor would crush the header.
+
+**Module split (convention debt).** `procurement` was the last module still doing all four jobs in
+one file. Now `schema / service / queries / permissions / validators` like every other domain. Query
+bodies moved verbatim; `listPurchases` gained `supplierId`, `notes` for the edit form.
+**No migration** — logic only.
+
 ## 🔜 OPEN QUEUE — reconciled against code 2026-08-09
 
 Every item below was re-verified in the source before being listed; finished items were moved into
 the chunk-40 section above. **Business rules first, cosmetics last.**
 
 ### A. Business rules / features
-- **1. Editing for Suppliers, Manufacturers and Stock Purchases (#19).** No edit path exists — a typo
-  in a contact person is permanent. Add `update*` service functions + edit forms, routed through the
-  approval queue for staff (Creator/Owner direct), audit-logged like every other edit.
-  *Verified 2026-08-09: no `update*` export in `modules/procurement`.*
+*(Empty — all of Sir's business-rule items are built. Everything below is presentation.)*
 
 ### B. Readability / UX
-- **2. Audit Log "Details" column is raw JSON (#21)** — same problem the Review Queue had before it
+- **1. Audit Log "Details" column is raw JSON (#21)** — same problem the Review Queue had before it
   was fixed. Reuse the `PayloadSummary` approach from `approvals/page.tsx`: labelled key/value pairs,
   nested arrays as numbered lists, everything wrapping. *Verified 2026-08-09: `PayloadSummary` still
   exists only in `approvals/page.tsx`.*
-- **3. Missing animation in the Bookings action column (#12)** — the status buttons do not use the
+- **2. Missing animation in the Bookings action column (#12)** — the status buttons do not use the
   shared transition/`active:scale` treatment the other modules have. *Verified 2026-08-09: no
   `transition` or `active:scale` anywhere under `app/(dashboard)/bookings`.*
-- **4. Installment Cases: the bright red is too harsh (#16)** — replace with a warmer tone that sits
+- **3. Installment Cases: the bright red is too harsh (#16)** — replace with a warmer tone that sits
   with the burgundy tile background; blue must match between light and dark. *Verified 2026-08-09:
   still outstanding — `installments/page.tsx` uses raw `bg-red-100 / text-red-700 / bg-red-50`,
   which have no dark-mode variant, so this is a dark-mode bug as much as a taste one. The chunk-40
   jewel-tone commit re-toned the tiles but left the status colours.*
-- **5. Installment Plans page needs real work (#17):** company headings (YADEA, RAMZA…) should be bold
+- **4. Installment Plans page needs real work (#17):** company headings (YADEA, RAMZA…) should be bold
   and properly sized, table boxes reworked, dark mode is a mess, and the intro line is long enough
   to collide with the action button — shorten it.
+- **5. "Choose file" button is unreadable in dark mode (#20)** — System Settings (logo upload) and
+  Bulk Import (CSV). Re-raised by Sir 2026-08-09. *Do not guess at this one:* HANDOVER records that
+  file inputs need **both** `::file-selector-button` and `::-webkit-file-upload-button`, and that any
+  Tailwind `file:` utility left in the markup will outrank the stylesheet rule. Fix the markup and
+  the stylesheet together or it will look fixed in one browser and not the other.
 - ~~Stock Deliveries jewel-tone pass (#18)~~ ✅ **Done in chunk 40** (`Deliveries: jewel-tone tiles and pills`).
 
 ### C. Dark-mode sweep — what is actually left
@@ -318,6 +360,15 @@ concrete faults behind it:
   slate/gray residue.
 
 ### D. Known, still unresolved
+
+- **Timezone "Asia/Islamabad" — NOT POSSIBLE, and nothing is wrong.** Sir asked (2026-08-09) to move
+  from `Asia/Karachi` to `Asia/Islamabad`. There is no `Asia/Islamabad` in the IANA database and
+  there never has been. Pakistan has exactly **one** timezone (PKT, UTC+5) and IANA names each zone
+  after its most populous city, so `Asia/Karachi` **is** Islamabad's timezone — Lahore's, Peshawar's
+  and Quetta's too. Every timestamp in the app is already showing correct Pakistan time. If the word
+  "Karachi" in Settings is the objection, the label can say "Pakistan (PKT, UTC+5)" while the value
+  stays `Asia/Karachi`; that is a one-line copy change, not a timezone change. **Do not attempt to
+  switch the zone string — it will throw at runtime.**
 - **Favicon still shows ⚡.** The tab/taskbar icon comes from a build-time file, NOT the logo stored
   in System Settings. Fix = write Sir's logo to `src/app/icon.png` and update `app/manifest.ts`.
   **Needs the logo file as a transparent PNG from Sir** — the current one has a baked-in white
