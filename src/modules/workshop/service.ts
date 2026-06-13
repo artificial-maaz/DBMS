@@ -19,8 +19,10 @@ type Actor = { userId: string; role: string; branchId: number | null };
 
 export const FREE_COUPONS_PER_VEHICLE = 3;
 
+/** VIEW gate — Sir (2026-07-31): mechanics see the queue, coupons, and job details, read-only. */
 export const canUseWorkshop = (role: string) =>
   ["creator", "owner", "branch_manager", "mechanic"].includes(role);
+/** WRITE gate — all job creation/edits/status moves are BM-and-above; mechanics never mutate. */
 export const canManageJobs = (role: string) =>
   ["creator", "owner", "branch_manager"].includes(role);
 export const seesAllBranches = (role: string) => ["creator", "owner"].includes(role);
@@ -36,7 +38,7 @@ const createSchema = z.object({
 });
 
 export async function createJobCard(actor: Actor, raw: unknown) {
-  if (!canUseWorkshop(actor.role)) return { ok: false as const, error: "Not allowed." };
+  if (!canManageJobs(actor.role)) return { ok: false as const, error: "Not allowed." };
   const parsed = createSchema.safeParse(raw);
   if (!parsed.success) return { ok: false as const, error: parsed.error.issues[0]?.message ?? "Invalid input" };
   const input = parsed.data;
@@ -118,7 +120,7 @@ export async function advanceJob(
   actor: Actor,
   raw: { jobId: number; to: string; laborCharge?: string },
 ) {
-  if (!canUseWorkshop(actor.role)) return { ok: false as const, error: "Not allowed." };
+  if (!canManageJobs(actor.role)) return { ok: false as const, error: "Not allowed." };
   const labor = moneyZero.safeParse(raw.laborCharge ?? "");
   if (!labor.success) return { ok: false as const, error: "Invalid labor charge." };
 
@@ -185,7 +187,7 @@ export async function advanceJob(
  * Only while the job is open/in progress.
  */
 export async function addPartToJob(actor: Actor, raw: { jobId: number; partId: number; qty: number }) {
-  if (!canUseWorkshop(actor.role)) return { ok: false as const, error: "Not allowed." };
+  if (!canManageJobs(actor.role)) return { ok: false as const, error: "Not allowed." };
   if (!raw.qty || raw.qty < 1) return { ok: false as const, error: "Quantity must be at least 1." };
 
   try {
@@ -246,7 +248,7 @@ export async function addPartToJob(actor: Actor, raw: { jobId: number; partId: n
 
 /** Remove a part line (before delivery): stock restored, charge reduced. */
 export async function removePartFromJob(actor: Actor, lineId: number) {
-  if (!canUseWorkshop(actor.role)) return { ok: false as const, error: "Not allowed." };
+  if (!canManageJobs(actor.role)) return { ok: false as const, error: "Not allowed." };
   try {
     const result = await db.transaction(async (tx) => {
       const [line] = await tx.select().from(jobCardParts).where(eq(jobCardParts.id, lineId)).for("update");
