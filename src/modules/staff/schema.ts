@@ -12,6 +12,7 @@ export const staffRole = pgEnum("staff_role", [
   "silent_partner", // Sir #3 (2026-07-15): investor — read-only visibility, no management powers
   "branch_manager",
   "salesperson",
+  "assistant", // Sir (2026-07-31): BM's helper — view-only inventory + test drives, zero edit access
   "mechanic",
   "gate_staff",
 ]);
