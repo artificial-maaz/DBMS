@@ -3,7 +3,7 @@
  * The sidebar/UI may mirror these, but is never the enforcement point.
  */
 export function canViewInventory(role: string) {
-  return ["creator", "owner", "silent_partner", "branch_manager", "salesperson", "mechanic", "gate_staff"].includes(role);
+  return ["creator", "owner", "silent_partner", "branch_manager", "salesperson", "assistant", "mechanic", "gate_staff"].includes(role);
 }
 
 export function canCreateVehicle(role: string) {
