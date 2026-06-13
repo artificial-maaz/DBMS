@@ -19,14 +19,14 @@ export function canViewStaff(role: string) {
 }
 
 const GRANTABLE: Record<string, string[]> = {
-  creator: ["owner", "silent_partner", "branch_manager", "salesperson", "mechanic", "gate_staff"],
+  creator: ["owner", "silent_partner", "branch_manager", "salesperson", "assistant", "mechanic", "gate_staff"],
 };
 
 const staffSchema = z.object({
   name: z.string().trim().min(2, "Name required").max(120),
   email: z.string().trim().email("Valid email required"),
   password: z.string().min(8, "Temp password must be 8+ characters"),
-  role: z.enum(["owner", "silent_partner", "branch_manager", "salesperson", "mechanic", "gate_staff"]),
+  role: z.enum(["owner", "silent_partner", "branch_manager", "salesperson", "assistant", "mechanic", "gate_staff"]),
   branchId: z.coerce.number().int().optional(),
   designation: z.string().trim().max(120).optional().or(z.literal("")),
   cnic: z
@@ -160,7 +160,7 @@ export async function updateStaffProfile(actor: Actor, profileId: number, raw: u
   const target = await db.query.staffProfiles.findFirst({ where: (p, { eq }) => eq(p.id, profileId) });
   if (!target) return { ok: false as const, error: "Staff member not found." };
 
-  const needsBranch = target.role !== "owner" && target.role !== "creator";
+  const needsBranch = target.role !== "owner" && target.role !== "creator" && target.role !== "silent_partner";
   if (needsBranch && !input.branchId) {
     return { ok: false as const, error: "Employees must be assigned to a branch." };
   }
