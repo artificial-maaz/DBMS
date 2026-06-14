@@ -9,6 +9,9 @@ type Actor = { userId: string; role: string; branchId: number | null };
 
 export const canManageParts = (role: string) =>
   ["creator", "owner", "branch_manager"].includes(role);
+/** Sir (2026-07-31): mechanics read stock levels; assistants/gate staff have no parts access. */
+export const canViewParts = (role: string) =>
+  ["creator", "owner", "silent_partner", "branch_manager", "salesperson", "mechanic"].includes(role);
 export const canSeeCostPrice = (role: string) => ["creator", "owner", "silent_partner"].includes(role);
 export const seesAllBranches = (role: string) => ["creator", "owner", "silent_partner"].includes(role);
 
