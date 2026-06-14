@@ -16,9 +16,7 @@ export async function createVisitor(actor: Actor, raw: unknown) {
   if (!parsed.success) return { ok: false as const, error: parsed.error.issues[0]?.message ?? "Invalid input" };
   const input = parsed.data;
 
-  if (!seesAllBranches(actor.role) && input.branchId !== actor.branchId) {
-    return { ok: false as const, error: "You can only log visitors at your own branch." };
-  }
+  // Cross-branch ops (Sir 2026-07-31): visitors may be logged for any branch.
 
   try {
     const [row] = await db
