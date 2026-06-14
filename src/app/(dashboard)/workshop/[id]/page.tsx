@@ -21,7 +21,8 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
   const fmt = (v: string | number) => `Rs. ${Number(v).toLocaleString("en-PK")}`;
   const laborDue = job.warrantyStatus === "free_coupon" ? 0 : Number(job.laborCharge);
   const total = laborDue + Number(job.partsCharge);
-  const editable = job.status === "open" || job.status === "in_progress";
+  // Mechanics view job details read-only (Sir 2026-07-31); only BM+ edit parts/status.
+  const editable = canManageJobs(profile.role) && (job.status === "open" || job.status === "in_progress");
 
   return (
     <div className="mx-auto max-w-3xl space-y-6">
