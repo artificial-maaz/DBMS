@@ -48,12 +48,14 @@ export default async function WorkshopPage({
             </span>
           )}
         </h1>
-        <CreateJobForm
-          customers={customerRows.map((c) => ({ id: c.id, label: `${c.fullName} (${c.phone})` }))}
-          mechanics={mechanics.map((m) => ({ id: m.userId, label: m.name }))}
-          branches={branches.map((b) => ({ id: b.id, label: b.name }))}
-          fixedBranchId={all ? null : profile.branchId}
-        />
+        {manager && (
+          <CreateJobForm
+            customers={customerRows.map((c) => ({ id: c.id, label: `${c.fullName} (${c.phone})` }))}
+            mechanics={mechanics.map((m) => ({ id: m.userId, label: m.name }))}
+            branches={branches.map((b) => ({ id: b.id, label: b.name }))}
+            fixedBranchId={all ? null : profile.branchId}
+          />
+        )}
       </div>
 
       <form method="get" className="flex gap-3">
