@@ -18,9 +18,8 @@ export async function createCustomer(actor: Actor, raw: unknown) {
   }
   const input = parsed.data;
 
-  if (!seesAllBranches(actor.role) && input.branchId !== actor.branchId) {
-    return { ok: false as const, error: "You can only register customers in your own branch." };
-  }
+  // Cross-branch ops (Sir 2026-07-31): sales-floor roles may register customers
+  // for ANY branch — audit records actor+branch, maker-checker still reviews staff.
 
   try {
     const [row] = await db
@@ -69,9 +68,7 @@ export async function updateCustomer(actor: Actor, customerId: number, raw: unkn
   if (!seesAllBranches(actor.role) && existing.branchId !== actor.branchId) {
     return { ok: false as const, error: "You can only edit customers in your own branch." };
   }
-  if (!seesAllBranches(actor.role) && input.branchId !== actor.branchId) {
-    return { ok: false as const, error: "You can only assign customers to your own branch." };
-  }
+  // Cross-branch (2026-07-31): reassigning a customer to another branch is allowed.
 
   try {
     await db
