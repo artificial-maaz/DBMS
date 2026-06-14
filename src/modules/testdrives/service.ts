@@ -1,4 +1,4 @@
-import { and, desc, eq } from "drizzle-orm";
+import { and, desc, eq, or } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "@/db";
 import { branches, testDrives, user, vehicles } from "@/db/schema";
@@ -9,6 +9,9 @@ type Actor = { userId: string; role: string; branchId: number | null };
 
 export const canUseTestDrives = (role: string) =>
   ["creator", "owner", "branch_manager", "salesperson"].includes(role);
+/** Sir (2026-07-31): assistants may WATCH the test-drive board, never book or change outcomes. */
+export const canViewTestDrives = (role: string) =>
+  canUseTestDrives(role) || role === "assistant";
 export const seesAllBranches = (role: string) => ["creator", "owner"].includes(role);
 
 /** Fridays are closed across all branches (#17). */
@@ -39,9 +42,7 @@ export async function createTestDrive(actor: Actor, raw: unknown) {
   if (isFriday(when)) {
     return { ok: false as const, error: "Branches are closed on Fridays — pick another day." };
   }
-  if (!seesAllBranches(actor.role) && input.branchId !== actor.branchId) {
-    return { ok: false as const, error: "You can only book test drives at your own branch." };
-  }
+  // Cross-branch ops (Sir 2026-07-31): staff may book rides at any branch.
 
   try {
     const [row] = await db
@@ -83,9 +84,8 @@ export async function setTestDriveStatus(actor: Actor, id: number, to: string) {
   try {
     const ride = await db.query.testDrives.findFirst({ where: (t, { eq }) => eq(t.id, id) });
     if (!ride) return { ok: false as const, error: "Test drive not found." };
-    if (!seesAllBranches(actor.role) && ride.branchId !== actor.branchId) {
-      return { ok: false as const, error: "Wrong branch." };
-    }
+    // Cross-branch ops (Sir 2026-07-31): whoever can book a ride can close it out,
+    // including one they booked for another branch.
     if (!NEXT[ride.status]?.includes(to)) {
       return { ok: false as const, error: `A ${ride.status.replace("_", " ")} ride cannot become ${to.replace("_", " ")}.` };
     }
@@ -105,9 +105,20 @@ export async function setTestDriveStatus(actor: Actor, id: number, to: string) {
   }
 }
 
-export async function listTestDrives(opts: { role: string; ownBranchId: number | null; status?: string }) {
+export async function listTestDrives(opts: {
+  role: string;
+  ownBranchId: number | null;
+  ownUserId?: string;
+  status?: string;
+}) {
   const filters = [];
-  if (!seesAllBranches(opts.role)) filters.push(eq(testDrives.branchId, opts.ownBranchId ?? -1));
+  // Branch-scoped roles see their own branch's board PLUS anything they personally
+  // booked at another branch (cross-branch ops, 2026-07-31) — otherwise a ride they
+  // created elsewhere would vanish and could never be closed out.
+  if (!seesAllBranches(opts.role)) {
+    const own = eq(testDrives.branchId, opts.ownBranchId ?? -1);
+    filters.push(opts.ownUserId ? or(own, eq(testDrives.createdBy, opts.ownUserId))! : own);
+  }
   if (opts.status) filters.push(eq(testDrives.status, opts.status as never));
 
   return db
