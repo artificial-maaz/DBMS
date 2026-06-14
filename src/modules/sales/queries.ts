@@ -62,9 +62,10 @@ export async function getInvoiceDetail(opts: { id: number; role: string; ownBran
 /** Data the "New Sale" form needs: sellable stock + customers, branch-scoped. */
 export async function getSaleFormData(opts: { role: string; ownBranchId: number | null }) {
   const all = seesAllBranches(opts.role);
-  const stockWhere = all
-    ? eq(vehicles.status, "in_stock")
-    : and(eq(vehicles.status, "in_stock"), eq(vehicles.branchId, opts.ownBranchId ?? -1));
+  // Cross-branch ops (Sir 2026-07-31): sales-floor staff can sell ANY branch's
+  // stock, so the vehicle list is all-branch for everyone who can create a sale
+  // (labels carry the branch name; purchase prices are never in this query).
+  const stockWhere = eq(vehicles.status, "in_stock");
 
   const [stock, customerList, openBookings, plans, requirements] = await Promise.all([
     db
@@ -75,8 +76,10 @@ export async function getSaleFormData(opts: { role: string; ownBranchId: number 
         chassisNo: vehicles.chassisNo,
         salePrice: vehicles.salePrice,
         branchId: vehicles.branchId,
+        branchName: branches.name,
       })
       .from(vehicles)
+      .innerJoin(branches, eq(vehicles.branchId, branches.id))
       .where(stockWhere),
     db
       .select({ id: customers.id, fullName: customers.fullName, phone: customers.phone })
@@ -91,7 +94,10 @@ export async function getSaleFormData(opts: { role: string; ownBranchId: number 
   return {
     vehicles: stock.map((v) => ({
       id: v.id,
-      label: `${v.make} ${v.model} — ${v.chassisNo}`,
+      label:
+        !all && v.branchId !== opts.ownBranchId
+          ? `${v.make} ${v.model} — ${v.chassisNo} (${v.branchName})`
+          : `${v.make} ${v.model} — ${v.chassisNo}`,
       make: v.make,
       model: v.model,
       salePrice: v.salePrice,
