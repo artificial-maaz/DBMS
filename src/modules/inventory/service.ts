@@ -18,10 +18,8 @@ export async function createVehicle(actor: Actor, raw: unknown) {
   }
   const input = parsed.data;
 
-  // Branch managers can only register into their own branch.
-  if (!seesAllBranches(actor.role) && input.branchId !== actor.branchId) {
-    return { ok: false as const, error: "You can only register vehicles in your own branch." };
-  }
+  // Cross-branch ops (Sir 2026-07-31): BMs may register stock into ANY branch —
+  // collecting a consignment on another branch's behalf is normal here.
 
   // Employees cannot set purchase price even if they craft the request by hand.
   const purchasePrice =
