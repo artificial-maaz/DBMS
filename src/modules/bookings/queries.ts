@@ -9,11 +9,9 @@ import { seesAllBranches } from "./permissions";
  * needs a real customerId, so the link has to already be a customer).
  */
 export async function listOpenBookingsForSale(opts: { role: string; ownBranchId: number | null }) {
+  // Cross-branch ops (Sir 2026-07-31): all open bookings are selectable in New Sale —
+  // the service still enforces booking.branchId === vehicle.branchId at commit time.
   const filters: SQL[] = [eq(bookings.status, "open")];
-  if (!seesAllBranches(opts.role)) {
-    if (!opts.ownBranchId) return [];
-    filters.push(eq(bookings.branchId, opts.ownBranchId));
-  }
 
   const rows = await db
     .select({
