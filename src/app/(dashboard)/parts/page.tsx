@@ -1,4 +1,5 @@
-import { canManageParts, canSeeCostPrice, listParts, seesAllBranches } from "@/modules/parts/service";
+import { redirect } from "next/navigation";
+import { canManageParts, canSeeCostPrice, canViewParts, listParts, seesAllBranches } from "@/modules/parts/service";
 import { listActiveBranches } from "@/modules/inventory/queries";
 import { requireStaff } from "@/lib/session";
 import { AddPartForm, AdjustStock } from "./part-forms";
@@ -9,6 +10,7 @@ export default async function PartsPage({
   searchParams: Promise<{ branch?: string }>;
 }) {
   const { profile } = await requireStaff();
+  if (!canViewParts(profile.role)) redirect("/dashboard");
   const params = await searchParams;
   const showCost = canSeeCostPrice(profile.role);
   const manager = canManageParts(profile.role);
