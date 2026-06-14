@@ -53,9 +53,8 @@ export async function recordInstallmentPayment(
 
       const [inv] = await tx.select().from(invoices).where(eq(invoices.id, sched.invoiceId)).for("update");
       if (!inv) throw new Error("Invoice not found.");
-      if (!seesAllBranches(actor.role) && inv.branchId !== actor.branchId) {
-        throw new Error("You can only collect payments for your own branch.");
-      }
+      // Cross-branch (2026-07-31): any sales-floor staff may collect an installment —
+      // the cash-in still posts to the INVOICE's branch ledger, keeping books truthful.
 
       const remaining = r2(Number(sched.totalDue) + Number(sched.lateFee) - Number(sched.paidAmount));
       if (amount > remaining) throw new Error(`Amount exceeds remaining Rs. ${remaining}.`);
@@ -201,9 +200,9 @@ export async function createSale(actor: Actor, raw: unknown) {
 
       if (!vehicle) throw new Error("Vehicle not found.");
       if (vehicle.status !== "in_stock") throw new Error("This vehicle is not in stock.");
-      if (!seesAllBranches(actor.role) && vehicle.branchId !== actor.branchId) {
-        throw new Error("You can only sell vehicles from your own branch.");
-      }
+      // Cross-branch ops (Sir 2026-07-31): staff may sell ANY branch's stock — the
+      // invoice, ledger cash-in, and P&L all land at the VEHICLE's branch, so each
+      // branch's books stay truthful regardless of who made the sale.
 
       // 1b. Booking token reconciliation (#14): lock it, verify it's really
       // this customer's open booking, and cap the credit at the downpayment
@@ -216,9 +215,8 @@ export async function createSale(actor: Actor, raw: unknown) {
         if (!booking) throw new Error("Booking not found.");
         if (booking.status !== "open") throw new Error("This booking is no longer open.");
         if (booking.customerId !== input.customerId) throw new Error("This booking belongs to a different customer.");
-        if (!seesAllBranches(actor.role) && booking.branchId !== actor.branchId) {
-          throw new Error("You can only apply bookings from your own branch.");
-        }
+        // Cross-branch (2026-07-31): who applies the booking no longer matters —
+        // only WHERE it was taken does (checked right below against the vehicle).
         // Per-branch cash books must stay truthful: the token's cash-in sits in
         // the booking branch's ledger, so the sale must happen at that branch
         // (transfer the vehicle via Gate Pass first if it lives elsewhere).
