@@ -19,9 +19,9 @@ export async function createBooking(actor: Actor, raw: unknown) {
   if (!parsed.success) return { ok: false as const, error: parsed.error.issues[0]?.message ?? "Invalid input" };
   const input = parsed.data;
 
-  if (!seesAllBranches(actor.role) && input.branchId !== actor.branchId) {
-    return { ok: false as const, error: "You can only register bookings at your own branch." };
-  }
+  // Cross-branch ops (Sir 2026-07-31): tokens may be registered for any branch —
+  // the cash-in posts to the CHOSEN branch's ledger, and the sale must later happen
+  // at that same branch (enforced in sales/service.ts), so per-branch books stay true.
 
   try {
     const bookingId = await db.transaction(async (tx) => {
