@@ -8,9 +8,11 @@ type Branch = { id: number; name: string };
 export function AddCustomerForm({
   branches,
   fixedBranchId,
+  defaultBranchId,
 }: {
   branches: Branch[];
   fixedBranchId: number | null;
+  defaultBranchId?: number | null;
 }) {
   const [open, setOpen] = useState(false);
   const [state, formAction, pending] = useActionState<ActionState, FormData>(addCustomerAction, null);
@@ -56,7 +58,12 @@ export function AddCustomerForm({
                 />
               </>
             ) : (
-              <select name="branchId" required className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2">
+              <select
+                name="branchId"
+                required
+                defaultValue={defaultBranchId ?? ""}
+                className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2"
+              >
                 <option value="">Select branch…</option>
                 {branches.map((b) => (
                   <option key={b.id} value={b.id}>{b.name}</option>
