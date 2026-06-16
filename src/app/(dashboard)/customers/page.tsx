@@ -1,4 +1,5 @@
-import { canCreateCustomer, canEditCustomer, seesAllBranches } from "@/modules/customers/permissions";
+import { redirect } from "next/navigation";
+import { canCreateCustomer, canEditCustomer, canViewCustomers, seesAllBranches } from "@/modules/customers/permissions";
 import { listCustomers } from "@/modules/customers/queries";
 import { listActiveBranches } from "@/modules/inventory/queries";
 import { requireStaff } from "@/lib/session";
@@ -12,6 +13,7 @@ export default async function CustomersPage({
   searchParams: Promise<{ q?: string }>;
 }) {
   const { profile } = await requireStaff();
+  if (!canViewCustomers(profile.role)) redirect("/dashboard");
   const params = await searchParams;
 
   const [rows, branches] = await Promise.all([
@@ -19,7 +21,9 @@ export default async function CustomersPage({
     listActiveBranches(),
   ]);
   const editable = canEditCustomer(profile.role);
-  const fixedBranchId = seesAllBranches(profile.role) ? null : profile.branchId;
+  // Cross-branch ops (2026-07-31): branch is a free choice, defaulting to own.
+  const fixedBranchId = null;
+  const defaultBranchId = seesAllBranches(profile.role) ? null : profile.branchId;
 
   return (
     <div className="space-y-6">
@@ -28,7 +32,8 @@ export default async function CustomersPage({
         {canCreateCustomer(profile.role) && (
           <AddCustomerForm
             branches={branches.map((b) => ({ id: b.id, name: b.name }))}
-            fixedBranchId={seesAllBranches(profile.role) ? null : profile.branchId}
+            fixedBranchId={fixedBranchId}
+            defaultBranchId={defaultBranchId}
           />
         )}
       </div>
