@@ -34,7 +34,9 @@ export default async function BookingsPage() {
 
   const creatable = canCreateBooking(profile.role);
   const cancellable = canCancelBooking(profile.role);
-  const fixedBranchId = seesAllBranches(profile.role) ? null : profile.branchId;
+  // Cross-branch ops (2026-07-31): branch is a free choice, defaulting to own.
+  const fixedBranchId = null;
+  const defaultBranchId = seesAllBranches(profile.role) ? null : profile.branchId;
   const fmt = (v: string) => `Rs. ${Number(v).toLocaleString("en-PK")}`;
 
   const openTotal = rows.filter((r) => r.status === "open").reduce((acc, r) => acc + Number(r.tokenAmount), 0);
@@ -49,6 +51,7 @@ export default async function BookingsPage() {
             customers={customers.map((c) => ({ id: c.id, label: `${c.fullName} (${c.phone})` }))}
             visitors={visitors.filter((v) => v.status !== "converted").map((v) => ({ id: v.id, label: `${v.fullName} (${v.phone})` }))}
             fixedBranchId={fixedBranchId}
+            defaultBranchId={defaultBranchId}
           />
         )}
       </div>
