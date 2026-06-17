@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import { eq } from "drizzle-orm";
 import { db } from "@/db";
 import { vehicles } from "@/db/schema";
-import { canUseTestDrives, listTestDrives, seesAllBranches } from "@/modules/testdrives/service";
+import { canUseTestDrives, canViewTestDrives, listTestDrives, seesAllBranches } from "@/modules/testdrives/service";
 import { listCustomers } from "@/modules/customers/queries";
 import { listActiveBranches } from "@/modules/inventory/queries";
 import { requireStaff } from "@/lib/session";
@@ -20,13 +20,14 @@ export default async function TestDrivesPage({
 }: {
   searchParams: Promise<{ status?: string }>;
 }) {
-  const { profile } = await requireStaff();
-  if (!canUseTestDrives(profile.role)) redirect("/dashboard");
+  const { user, profile } = await requireStaff();
+  if (!canViewTestDrives(profile.role)) redirect("/dashboard");
   const params = await searchParams;
   const all = seesAllBranches(profile.role);
+  const usable = canUseTestDrives(profile.role); // assistants: watch-only
 
   const [rides, customerRows, branches, stock] = await Promise.all([
-    listTestDrives({ role: profile.role, ownBranchId: profile.branchId, status: params.status }),
+    listTestDrives({ role: profile.role, ownBranchId: profile.branchId, ownUserId: user.id, status: params.status }),
     listCustomers({ role: profile.role, ownBranchId: profile.branchId }),
     listActiveBranches(),
     db
@@ -35,7 +36,9 @@ export default async function TestDrivesPage({
       .where(eq(vehicles.status, "in_stock")),
   ]);
 
-  const rideable = all ? stock : stock.filter((v) => v.branchId === profile.branchId);
+  // Cross-branch ops (2026-07-31): any branch's stock is rideable; label carries branch.
+  const rideable = stock;
+  const branchName = (id: number) => branches.find((b) => b.id === id)?.name ?? "?";
   const now = Date.now();
   const upcoming = rides.filter((r) => r.status === "scheduled" && new Date(r.scheduledAt).getTime() >= now).length;
 
@@ -50,12 +53,21 @@ export default async function TestDrivesPage({
             </span>
           )}
         </h1>
-        <BookTestDriveForm
-          customers={customerRows.map((c) => ({ id: c.id, label: `${c.fullName} (${c.phone})` }))}
-          vehicles={rideable.map((v) => ({ id: v.id, label: `${v.make} ${v.model} — ${v.chassisNo}` }))}
-          branches={branches.map((b) => ({ id: b.id, label: b.name }))}
-          fixedBranchId={all ? null : profile.branchId}
-        />
+        {usable && (
+          <BookTestDriveForm
+            customers={customerRows.map((c) => ({ id: c.id, label: `${c.fullName} (${c.phone})` }))}
+            vehicles={rideable.map((v) => ({
+              id: v.id,
+              label:
+                !all && v.branchId !== profile.branchId
+                  ? `${v.make} ${v.model} — ${v.chassisNo} (${branchName(v.branchId)})`
+                  : `${v.make} ${v.model} — ${v.chassisNo}`,
+            }))}
+            branches={branches.map((b) => ({ id: b.id, label: b.name }))}
+            fixedBranchId={null}
+            defaultBranchId={all ? null : profile.branchId}
+          />
+        )}
       </div>
 
       <form method="get" className="flex gap-3">
@@ -115,7 +127,7 @@ export default async function TestDrivesPage({
                     </span>
                   </td>
                   <td className="px-4 py-2.5 text-right">
-                    <RideActions id={r.id} status={r.status} />
+                    {usable ? <RideActions id={r.id} status={r.status} /> : <span className="text-xs text-slate-400">—</span>}
                   </td>
                 </tr>
               );
