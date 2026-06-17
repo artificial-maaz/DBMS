@@ -39,7 +39,10 @@ export default async function VisitorsPage({
   const creatable = canCreateVisitor(profile.role);
   const editable = canEditVisitor(profile.role);
   const convertible = canConvertVisitor(profile.role);
+  // Cross-branch ops (2026-07-31): visitor create is a free branch choice (default own);
+  // edit stays scoped to rows they can already see.
   const fixedBranchId = seesAllBranches(profile.role) ? null : profile.branchId;
+  const defaultBranchId = fixedBranchId;
   const today = new Date().toISOString().slice(0, 10);
   const fmt = (v: string | null) => (v == null ? "—" : `Rs. ${Number(v).toLocaleString("en-PK")}`);
 
@@ -47,7 +50,7 @@ export default async function VisitorsPage({
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-semibold">Visitors & Leads</h1>
-        {creatable && <AddVisitorForm branches={branches.map((b) => ({ id: b.id, name: b.name }))} fixedBranchId={fixedBranchId} />}
+        {creatable && <AddVisitorForm branches={branches.map((b) => ({ id: b.id, name: b.name }))} fixedBranchId={null} defaultBranchId={defaultBranchId} />}
       </div>
 
       <CustomerTabs active="visitors" />
