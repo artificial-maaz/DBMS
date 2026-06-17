@@ -11,11 +11,13 @@ export function AddBookingForm({
   customers,
   visitors,
   fixedBranchId,
+  defaultBranchId,
 }: {
   branches: Branch[];
   customers: Person[];
   visitors: Person[];
   fixedBranchId: number | null;
+  defaultBranchId?: number | null;
 }) {
   const [open, setOpen] = useState(false);
   const [linkType, setLinkType] = useState<"customer" | "visitor">("customer");
@@ -120,14 +122,23 @@ export function AddBookingForm({
                   value={branches.find((b) => b.id === fixedBranchId)?.name ?? "Your branch"}
                   className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2"
                 />
+                <span className="mt-1 block text-xs text-slate-400">Locked to your branch — tokens always post to your own branch's ledger.</span>
               </>
             ) : (
-              <select name="branchId" required className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2">
-                <option value="">Select branch…</option>
-                {branches.map((b) => (
-                  <option key={b.id} value={b.id}>{b.name}</option>
-                ))}
-              </select>
+              <>
+                <select
+                  name="branchId"
+                  required
+                  defaultValue={defaultBranchId ?? ""}
+                  className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2"
+                >
+                  <option value="">Select branch…</option>
+                  {branches.map((b) => (
+                    <option key={b.id} value={b.id}>{b.name}</option>
+                  ))}
+                </select>
+                <span className="mt-1 block text-xs text-slate-400">Token posts to the CHOSEN branch's ledger; the sale must later happen at that branch.</span>
+              </>
             )}
           </label>
 
