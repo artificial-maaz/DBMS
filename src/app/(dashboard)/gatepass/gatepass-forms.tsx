@@ -4,11 +4,17 @@ import { useActionState, useEffect, useRef, useState, useTransition } from "reac
 import { cancelPassAction, issuePassAction, receivePassAction, type ActionState } from "./actions";
 
 type Opt = { id: number; label: string };
+type VehicleOpt = Opt & { branchId: number };
 
-export function IssuePassForm({ vehicles, branches }: { vehicles: Opt[]; branches: Opt[] }) {
+export function IssuePassForm({ vehicles, branches }: { vehicles: VehicleOpt[]; branches: Opt[] }) {
   const [open, setOpen] = useState(false);
+  const [vehicleId, setVehicleId] = useState("");
   const [state, formAction, pending] = useActionState<ActionState, FormData>(issuePassAction, null);
   const formRef = useRef<HTMLFormElement>(null);
+
+  // #2 (2026-07-31): the pass must show BOTH ends of the move, not just the destination.
+  const sourceBranchId = vehicles.find((v) => String(v.id) === vehicleId)?.branchId;
+  const sourceName = branches.find((b) => b.id === sourceBranchId)?.label;
 
   useEffect(() => {
     if (state?.ok) {
@@ -34,7 +40,13 @@ export function IssuePassForm({ vehicles, branches }: { vehicles: Opt[]; branche
         >
           <label className="text-sm">
             <span className="mb-1 block font-medium">Vehicle (in stock) *</span>
-            <select name="vehicleId" required className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2">
+            <select
+              name="vehicleId"
+              required
+              value={vehicleId}
+              onChange={(e) => setVehicleId(e.target.value)}
+              className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2"
+            >
               <option value="">Select vehicle…</option>
               {vehicles.map((v) => (
                 <option key={v.id} value={v.id}>{v.label}</option>
@@ -43,12 +55,24 @@ export function IssuePassForm({ vehicles, branches }: { vehicles: Opt[]; branche
           </label>
 
           <label className="text-sm">
+            <span className="mb-1 block font-medium">Source Branch</span>
+            <input
+              disabled
+              value={sourceName ?? "— select a vehicle first —"}
+              className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2"
+            />
+            <span className="mt-1 block text-xs text-slate-400">Where the vehicle currently sits — it ships FROM here.</span>
+          </label>
+
+          <label className="text-sm">
             <span className="mb-1 block font-medium">Destination Branch *</span>
             <select name="destBranchId" required className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2">
               <option value="">Select destination…</option>
-              {branches.map((b) => (
-                <option key={b.id} value={b.id}>{b.label}</option>
-              ))}
+              {branches
+                .filter((b) => b.id !== sourceBranchId)
+                .map((b) => (
+                  <option key={b.id} value={b.id}>{b.label}</option>
+                ))}
             </select>
           </label>
 
