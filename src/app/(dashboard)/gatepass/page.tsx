@@ -48,6 +48,7 @@ export default async function GatePassPage() {
           vehicles={transferable.map((v) => ({
             id: v.id,
             label: `${v.make} ${v.model} — ${v.chassisNo}`,
+            branchId: v.branchId,
           }))}
           branches={branchList.map((b) => ({ id: b.id, label: b.name }))}
         />
