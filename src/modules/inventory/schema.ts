@@ -1,4 +1,5 @@
 import {
+  date,
   integer,
   numeric,
   pgEnum,
@@ -33,6 +34,15 @@ export const vehicles = pgTable("vehicles", {
   salePrice: numeric("sale_price", { precision: 14, scale: 2 }),
   status: vehicleStatus("status").notNull().default("in_stock"),
   branchId: integer("branch_id").notNull().references(() => branches.id),
+  /**
+   * Sir #4 (2026-07-31): the consignment this unit arrived in. Nullable —
+   * vehicles registered before the Deliveries module (or added manually)
+   * simply have no batch. Plain integer, no FK, to keep inventory independent
+   * of the deliveries module (modularity rule).
+   */
+  deliveryId: integer("delivery_id"),
+  /** Arrival date — defaults to the delivery's date; drives age-in-stock. */
+  arrivedOn: date("arrived_on"),
   notes: text("notes"),
   createdBy: text("created_by").notNull(), // auth user id
   createdAt: timestamp("created_at").notNull().defaultNow(),
