@@ -10,6 +10,7 @@ const TYPE_LABELS: Record<string, string> = {
   "booking.cancel": "Booking Cancellation",
   "booking.refund": "Booking Refund",
   "vehicle.create": "Vehicle Registration",
+  "delivery.create": "Stock Delivery (batch intake)",
   "part.create": "Spare Part Registration",
   "part.adjust": "Stock Adjustment",
   "gatepass.issue": "Gate Pass — Issue",
