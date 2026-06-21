@@ -7,6 +7,7 @@ import { recordEntry } from "@/modules/ledger/service";
 import { createBooking, setBookingStatus } from "@/modules/bookings/service";
 import { createVehicle } from "@/modules/inventory/service";
 import { adjustStock, createPart } from "@/modules/parts/service";
+import { createDelivery } from "@/modules/deliveries/service";
 import { cancelGatePass, issueGatePass, receiveGatePass } from "@/modules/gatepass/service";
 import { advanceJob } from "@/modules/workshop/service";
 
@@ -63,6 +64,7 @@ const DISPATCH: Record<string, (actor: Actor, p: Payload) => Promise<Outcome>> =
   "booking.cancel": (a, p) => setBookingStatus(a, Number(p.bookingId), "cancelled"),
   "booking.refund": (a, p) => setBookingStatus(a, Number(p.bookingId), "refunded"),
   "vehicle.create": (a, p) => createVehicle(a, p),
+  "delivery.create": (a, p) => createDelivery(a, p),
   "part.create": (a, p) => createPart(a, p),
   "part.adjust": (a, p) => adjustStock(a, p),
   "job.deliver": (a, p) => advanceJob(a, { jobId: Number(p.jobId), to: "delivered" }),
