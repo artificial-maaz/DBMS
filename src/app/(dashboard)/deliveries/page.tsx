@@ -1,0 +1,130 @@
+import Link from "next/link";
+import { redirect } from "next/navigation";
+import { db } from "@/db";
+import { canRecordDelivery, canSeeUnitCost, canViewDeliveries, seesAllBranches } from "@/modules/deliveries/permissions";
+import { listDeliveries } from "@/modules/deliveries/queries";
+import { listActiveBranches } from "@/modules/inventory/queries";
+import { requireStaff } from "@/lib/session";
+import { AddDeliveryForm } from "./delivery-form";
+
+/**
+ * Stock Deliveries (Sir #4) — every inbound consignment, with how many units
+ * arrived and how many have since sold. Open one to see each unit's lifecycle.
+ */
+export default async function DeliveriesPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ branch?: string }>;
+}) {
+  const { profile } = await requireStaff();
+  if (!canViewDeliveries(profile.role)) redirect("/dashboard");
+  const params = await searchParams;
+  const all = seesAllBranches(profile.role);
+
+  const [rows, branches, supplierRows] = await Promise.all([
+    listDeliveries({
+      role: profile.role,
+      ownBranchId: profile.branchId,
+      branchId: params.branch ? Number(params.branch) : undefined,
+    }),
+    listActiveBranches(),
+    db.query.suppliers.findMany({
+      where: (s, { eq }) => eq(s.isActive, true),
+      orderBy: (s, { asc }) => asc(s.name),
+    }),
+  ]);
+
+  const totalUnits = rows.reduce((a, r) => a + r.units, 0);
+  const totalSold = rows.reduce((a, r) => a + r.soldUnits, 0);
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <h1 className="text-xl font-semibold">Stock Deliveries</h1>
+        {canRecordDelivery(profile.role) && (
+          <AddDeliveryForm
+            branches={branches.map((b) => ({ id: b.id, name: b.name }))}
+            suppliers={supplierRows.map((s) => ({ id: s.id, name: s.name }))}
+            defaultBranchId={all ? null : profile.branchId}
+            showCost={canSeeUnitCost(profile.role)}
+          />
+        )}
+      </div>
+
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+        <Card title="Consignments" value={rows.length} cls="bg-slate-900" />
+        <Card title="Units Received" value={totalUnits} cls="bg-sky-600" />
+        <Card title="Units Sold" value={totalSold} cls="bg-emerald-600" />
+      </div>
+
+      {all && (
+        <form method="get" className="flex gap-3">
+          <select name="branch" defaultValue={params.branch ?? ""} className="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm">
+            <option value="">All branches</option>
+            {branches.map((b) => (
+              <option key={b.id} value={b.id}>{b.name}</option>
+            ))}
+          </select>
+          <button className="rounded-lg bg-slate-900 px-4 py-1.5 text-sm text-white hover:bg-slate-700">Filter</button>
+        </form>
+      )}
+
+      <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white">
+        <table className="w-full text-sm">
+          <thead className="bg-slate-50 text-left text-xs uppercase tracking-wide text-slate-500">
+            <tr>
+              <th className="px-4 py-3">Delivery #</th>
+              <th className="px-4 py-3">Company / Supplier</th>
+              <th className="px-4 py-3">Branch</th>
+              <th className="px-4 py-3">Challan / Batch</th>
+              <th className="px-4 py-3">Received</th>
+              <th className="px-4 py-3">Units</th>
+              <th className="px-4 py-3">Sold</th>
+              <th className="px-4 py-3">Received By</th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.length === 0 && (
+              <tr>
+                <td colSpan={8} className="px-4 py-10 text-center text-slate-400">
+                  No deliveries recorded yet — register a consignment and its units land in inventory automatically.
+                </td>
+              </tr>
+            )}
+            {rows.map((r) => (
+              <tr key={r.id} className="border-t border-slate-100 hover:bg-slate-50">
+                <td className="px-4 py-2.5 font-mono text-xs font-medium">
+                  <Link href={`/deliveries/${r.id}`} className="text-indigo-700 hover:underline">{r.deliveryNo}</Link>
+                </td>
+                <td className="px-4 py-2.5 font-medium">{r.supplierName}</td>
+                <td className="px-4 py-2.5">{r.branchName}</td>
+                <td className="px-4 py-2.5 text-slate-500">
+                  {r.challanNo ?? "—"}
+                  {r.batchRef && <span className="block text-xs">batch {r.batchRef}</span>}
+                </td>
+                <td className="px-4 py-2.5 text-slate-500">{new Date(r.deliveredOn).toLocaleDateString("en-PK")}</td>
+                <td className="px-4 py-2.5 font-medium">{r.units}</td>
+                <td className="px-4 py-2.5">
+                  <span className={r.soldUnits === r.units && r.units > 0 ? "font-medium text-emerald-700" : ""}>
+                    {r.soldUnits}
+                  </span>
+                  <span className="text-slate-400"> / {r.units}</span>
+                </td>
+                <td className="px-4 py-2.5 text-slate-500">{r.receivedByName ?? "—"}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
+function Card({ title, value, cls }: { title: string; value: number; cls: string }) {
+  return (
+    <div className={`rounded-xl ${cls} p-5 text-white shadow-sm`}>
+      <p className="text-sm opacity-80">{title}</p>
+      <p className="mt-1 text-2xl font-semibold">{value}</p>
+    </div>
+  );
+}
