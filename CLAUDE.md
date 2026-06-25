@@ -26,9 +26,14 @@ role-scoped users.
 ## Access Model (RBAC — enforce server-side on every request)
 1. **Creator (Sir):** full access to all data, branches, users, roles, settings. Sole holder of codebase, server, and deploy credentials — no one else, including Owners, can modify the system itself.
 2. **Owners (4–5, changes over time):** full feature access (dashboards, P&L, all modules). No code/system access. Addable/removable by Creator.
-3. **Employees:** branch-scoped roles (branch sales manager → salesperson → mechanic → gate staff, etc.). Operational features only (customers, invoices, job cards). No access to P&L, total revenue, or salaries.
+3. **Employees:** branch-scoped roles, refined 2026-07-31: branch manager (full branch ops; usually doubles as the branch's salesperson) → salesperson (create bookings/test drives/sales/customers; kept for future use) → assistant (VIEW-ONLY inventory + test drives) → mechanic (VIEW-ONLY parts/workshop/coupons; all workshop edits are BM+) → gate staff. No employee sees P&L, total revenue, or salaries.
 4. **Customers:** excluded for now; schema should leave the door open.
 
+- **Cross-branch operations (2026-07-31):** BMs and salespersons may act for ANY branch (sell other
+  branches' stock, register their customers, collect their deliveries). Money always follows the
+  *thing*, not the actor: invoice/ledger/P&L post to the vehicle's branch, installment collections to
+  the invoice's branch, booking tokens to the chosen branch (and must be redeemed there). Every such
+  act is still maker-checker reviewed and audit-logged.
 - Invite-based onboarding (email invite → account → login/logout sessions).
 - Instant deactivation when anyone leaves; their historical actions are retained.
 - **Audit log from day one:** every action recorded (who, what, when, where).
@@ -42,7 +47,7 @@ role-scoped users.
 
 ## Module Phases
 - **Phase 1 (MVP):** auth + RBAC + branch management; serialized vehicle inventory (chassis/engine no., model, color, status); customer database; sales & invoicing (PDF) incl. installment plans + commissions; cash in/out ledger (hybrid model) + receivables.
-- **Phase 2:** dashboards & performance summaries; monthly P&L; spare parts inventory; gate pass (inter-branch vehicle transfers with approval trail).
+- **Phase 2:** dashboards & performance summaries; monthly P&L; spare parts inventory; gate pass (inter-branch vehicle transfers with approval trail); installment-case tracking (`/installments`); stock deliveries / batch intake (`/deliveries`).
 - **Phase 3:** workshop (repair queue, job cards, free-maintenance coupon tracking); HR (staff records, salaries, bonuses, rewards); procurement (vehicle/parts stock ordering).
 - **Phase 4+:** future features — architecture must absorb additions without touching existing modules.
 
