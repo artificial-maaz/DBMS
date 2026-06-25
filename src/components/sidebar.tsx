@@ -15,7 +15,7 @@ const NAV: Group[] = [
     title: "Showroom",
     items: [
       { label: "Inventory", href: "/inventory" },
-      { label: "Spare Parts", href: "/parts" },
+      { label: "Spare Parts", href: "/parts", roles: ["creator", "owner", "silent_partner", "branch_manager", "salesperson", "mechanic"] },
       { label: "Gate Passes", href: "/gatepass", roles: ["creator", "owner", "branch_manager", "gate_staff"] },
       { label: "Branches", href: "/branches", roles: ["creator", "owner"] },
     ],
@@ -23,12 +23,13 @@ const NAV: Group[] = [
   {
     title: "Retail",
     items: [
-      { label: "Customers", href: "/customers" },
-      { label: "Test Drives", href: "/test-drives", roles: ["creator", "owner", "branch_manager", "salesperson"] },
-      { label: "Bookings", href: "/bookings" },
-      { label: "Sales & Invoices", href: "/sales" },
-      { label: "Installment Plans", href: "/installment-plans" },
-      { label: "Document Checklist", href: "/document-requirements" },
+      { label: "Customers", href: "/customers", roles: ["creator", "owner", "silent_partner", "branch_manager", "salesperson"] },
+      { label: "Test Drives", href: "/test-drives", roles: ["creator", "owner", "branch_manager", "salesperson", "assistant"] },
+      { label: "Bookings", href: "/bookings", roles: ["creator", "owner", "silent_partner", "branch_manager", "salesperson"] },
+      { label: "Sales & Invoices", href: "/sales", roles: ["creator", "owner", "silent_partner", "branch_manager", "salesperson"] },
+      { label: "Installment Cases", href: "/installments", roles: ["creator", "owner", "silent_partner", "branch_manager"] },
+      { label: "Installment Plans", href: "/installment-plans", roles: ["creator", "owner", "branch_manager", "salesperson"] },
+      { label: "Document Checklist", href: "/document-requirements", roles: ["creator", "owner", "branch_manager", "salesperson"] },
     ],
   },
   {
@@ -50,6 +51,7 @@ const NAV: Group[] = [
   {
     title: "Supply Chain",
     items: [
+      { label: "Stock Deliveries", href: "/deliveries", roles: ["creator", "owner", "silent_partner", "branch_manager"] },
       { label: "Stock Purchases", href: "/purchases", roles: ["creator", "owner"] },
       { label: "Suppliers", href: "/suppliers", roles: ["creator", "owner"] },
     ],
