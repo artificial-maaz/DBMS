@@ -94,6 +94,51 @@ No migration needed — logic-only changes.
 5. ~~System Settings & Branding (#29)~~ ✅ **Done 2026-07-11:** singleton `system_settings` table (id=1), Creator-only `/system-settings` page. Company name + logo (≤200KB, stored as inline data URL — no blob storage needed) drive the sidebar; browser tab title via `generateMetadata` (config.ts = first-boot fallback); default excise fee + showroom profit pre-fill New Sale's registration-fee split. Commission rate %, warranty days, timezone stored for upcoming consumers (commission auto-suggest, warranty checks, date rendering). Theme color stored; full UI theming deferred to the polish pass (#31) — applying it properly means replacing hardcoded Tailwind palette classes across every page, a polish-phase job. **Needs migration** (new `system_settings` table).
 6. ~~Notifications (#27)~~ ✅ **Done 2026-07-14 (in-app):** 🔔 bell in the topbar (Creator only) with unread badge; `/notifications` feed DERIVED from the audit log (no second event pipeline) filtered to ~25 important actions (approvals, sales, payments, ledger, stock, staff changes, payroll, settings, imports, warranty-card marks). Per-user `notification_state` watermark — visiting the page marks all seen; your own actions never notify you. Workshop "Deliver & Collect" also gated through the approval queue this pass (was the noted gap). *Email/WhatsApp delivery of the same IMPORTANT_ACTIONS list = future, needs a provider.* **Needs migration** (`notification_state`).
 
+## ✅ Done — Cross-branch ops, Installment Cases, Deliveries (2026-07-31, chunk 33)
+Sir's post-test-pass feedback (6 points).
+- **#1 Cross-branch operations.** BM *and* salesperson may now act for any branch: branch is a
+  free dropdown defaulting to their own on Customers, Visitors, Bookings, Test Drives, Vehicle
+  registration and Deliveries; New Sale lists every branch's in-stock vehicles (other branches'
+  units labelled with the branch name). Own-branch service guards removed on those create paths.
+  **Invariants deliberately kept:** money always lands where the *thing* lives — invoice/ledger/P&L
+  post to the VEHICLE's branch, installment collections to the INVOICE's branch, booking tokens to
+  the CHOSEN branch (and a token must still be redeemed at its own branch). Lists stay branch-scoped
+  for focus; test drives additionally show rides the user personally booked elsewhere so they can be
+  closed out. Maker-checker + audit log unchanged, so every cross-branch act is reviewed and attributed.
+- **#2 Gate pass source branch.** The issue form now shows a read-only Source Branch the moment a
+  vehicle is picked, and filters that branch out of the destination list (the table already had From → To).
+- **#3 Installment Cases module** (`/installments`). Receivables control tower: KPI cards
+  (total/cleared/on-track/overdue), outstanding receivable + past-due totals, and one table per case —
+  progress (paid/total instalments), collected, balance, next due date or days-late + overdue amount,
+  status badge, filters by status and branch, worst-offenders first. Pure projection over
+  invoices + schedules: **no schema change**. Creator/Owner/Silent Partner all-branch; BM own branch.
+- **#4 Stock Deliveries module** (`/deliveries`). New `stock_deliveries` table + `vehicles.delivery_id`
+  and `vehicles.arrived_on`. Recording a consignment (supplier or free-text company, challan no., batch
+  ref, date, driver/transport) registers all its units into inventory in ONE atomic transaction —
+  duplicate chassis anywhere in the batch rolls the whole thing back. Detail page shows each unit's
+  full lifecycle: arrived date → sale date + invoice link → days held ("and counting" while unsold).
+  Unit cost is management-only. BM+ may record at any branch; staff submissions route through the
+  approval queue as `delivery.create`.
+- **#5 Document compensation** — no code change; behaviour confirmed and documented: installment sales
+  only, unticking a required document reveals an optional compensation amount + note, recorded on the
+  invoice as a waiver record, deliberately NOT added to the invoice total or ledger.
+- **#6 Email/API keys** — no code change; step-by-step Resend + cron-job.org setup written for Sir.
+
+## ✅ Done — Role hierarchy refinement (2026-07-31): Assistant role + view-only Mechanic
+Final hierarchy (Sir, 2026-07-31): **Creator** (god-level, sole code/system access) → **Owner**
+(everything except system changes) → *Silent Partner* (read-only investor, outside the op chain)
+→ **Branch Manager** (full branch ops; BM is usually also the branch's salesperson) → **Salesperson**
+(kept for the future: create bookings/test drives/sales/customers; NO ledger/P&L/accounting) →
+**Assistant** (BM's helper: VIEW-ONLY inventory + test-drive board, zero edit access) → **Mechanic**
+(VIEW-ONLY spare parts, workshop queue, job details, coupons — all workshop additions/edits are BM+)
+→ Gate Staff (gate passes only).
+- New `assistant` enum value (migration), Creator-grantable, branch-scoped, teal badge.
+- Mechanic demoted to read-only: all 4 workshop mutations (create job, advance status, add/remove parts) now BM+; mutation UI hidden from mechanics; labor rates were already view-only.
+- Tightened gates: `/customers` and `/parts` got missing server-side view gates; sidebar Retail/Parts links role-scoped (cosmetic; server enforces).
+- Global search fixes: Silent Partner was getting ZERO results (branch scope bug); mechanic/assistant/gate staff could surface customer+invoice hits through search despite no module access — both fixed.
+- Staff-edit bug: editing a Silent Partner demanded a branch (create path exempted them, edit path forgot) — fixed.
+- Booking form: branch field now says "Locked to your branch" — Sir flagged it as a suspected bug; it is the intended branch lock, now labelled.
+
 ## ✅ Done — ENDGAME chunk (2026-07-15): everything except GUI + WhatsApp
 - **Deep accounting (#22):** `/accounting` — General Journal (each ledger entry projected to a balanced DR/CR pair; reversals flagged), Trial Balance with integrity banner, Balance Sheet (cash + vehicle inventory at cost + parts stock + receivables + fixed assets vs supplier payables; equity as residual; equation footer). No new bookkeeping burden — all projected from the append-only ledger. Creator/Owner/Silent Partner.
 - **Fixed assets (#22):** `branch_assets` register at `/assets` (furniture/device/appliance/crockery), retire-not-delete, total feeds the Balance Sheet.
