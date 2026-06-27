@@ -13,6 +13,8 @@ one test Silent Partner (onboard via Staff; log in via incognito windows).
 - A2 Owner sees everything, but no Staff management buttons (view-only) and no System Settings.
 - A3 Silent Partner: sees Dashboard (financial cards), Sales, Inventory, Ledger, P&L, Accounting, Assets — but NO create/edit/approve buttons anywhere; Review Queue shows nothing actionable.
 - A4 Deactivate the salesperson mid-session → their next click bounces to login.
+- A5 Assistant (2026-07-31): sidebar shows only Dashboard/Inventory/Test Drives/Settings; test-drive board is watch-only (no Book button, no row actions); /customers, /parts, /bookings, /sales all bounce to dashboard; global search returns vehicles only.
+- A6 Mechanic view-only (2026-07-31): sees Workshop queue, job detail, coupons, Spare Parts, Labor Rates — but no "+ New Job Card", no status buttons, no add/remove parts, no stock adjust; direct form POSTs refused server-side ("Not allowed").
 
 ## B. Maker-checker (approval queue)
 - B1 Salesperson makes a cash sale → amber "sent for approval"; nothing in Sales/Inventory/Ledger yet.
@@ -46,6 +48,17 @@ one test Silent Partner (onboard via Staff; log in via incognito windows).
 - F2 With RESEND_API_KEY set: staff submission (approval.submit) → email arrives at your inbox.
 - F3 System Settings → "Send test daily report" → per-branch table email received.
 - F4 "Send test monthly report" → full report to you; if a silent partner exists, they get the limited summary (only after domain verification on Resend).
+
+## I. Cross-branch, Installments, Deliveries (2026-07-31)
+- I1 As a salesperson: New Sale lists another branch's in-stock bike (labelled with its branch) → sell it → queued → approve → invoice, ledger cash-in and P&L all land at the VEHICLE's branch, not yours.
+- I2 Register a customer / booking / test drive for another branch → branch dropdown defaults to your own but is changeable; booking token posts to the CHOSEN branch's ledger.
+- I3 Booking taken at Branch A cannot be applied to a Branch B vehicle (clear refusal, not a silent mismatch).
+- I4 A test drive you booked at another branch still appears on your board and can be marked completed.
+- I5 Gate pass: pick a vehicle → Source Branch fills in automatically; that branch is absent from the destination dropdown.
+- I6 `/installments`: counts add up (cleared + on-track + overdue = total); an invoice with a past-due unpaid instalment shows red with correct days-late; collecting the last instalment flips it to cleared.
+- I7 `/deliveries`: record a 3-unit consignment → all 3 appear in Inventory at that branch; detail page shows arrival dates; sell one → its row shows sale date + invoice link and stops counting days held.
+- I8 Delivery with a duplicate chassis (one already in stock) → refused, and NOTHING from that batch is saved.
+- I9 As a BM: delivery submits to the approval queue as "Stock Delivery (batch intake)"; approving it registers the units under the BM's name.
 
 ## G. Edge cases
 - G1 Duplicate chassis on Add Vehicle and on CSV import → clear per-row errors, nothing half-saved.
