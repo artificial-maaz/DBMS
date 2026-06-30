@@ -39,8 +39,13 @@ Follow the root `execution_workflow` strictly:
 - No monolithic files — enforce strict separation of concerns per module.
 - Use interfaces/abstractions at module boundaries to allow swapping implementations.
 
+## Repository
+- Remote: https://github.com/artificial-maaz/DBMS (private)
+- Default branch: `main`
+- Commit identity: artificial-maaz / maazhussain.work@gmail.com
+
 ## Current Status
-- Project initialized. Architecture phase not yet started.
+- Project initialized and pushed to GitHub. Architecture phase not yet started.
 
 ---
 
