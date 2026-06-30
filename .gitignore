@@ -1,0 +1,29 @@
+# OS / editor
+.DS_Store
+Thumbs.db
+*.swp
+.idea/
+.vscode/
+
+# Environment / secrets
+.env
+.env.*
+*.local
+
+# Logs
+*.log
+
+# Build / dependency artifacts (expand once stack is chosen)
+build/
+dist/
+bin/
+obj/
+target/
+node_modules/
+__pycache__/
+*.pyc
+
+# Local database data files
+*.db
+*.data
+data/
