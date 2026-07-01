@@ -1,6 +1,6 @@
 import { and, desc, eq, type SQL } from "drizzle-orm";
 import { db } from "@/db";
-import { branches, vehicles } from "@/db/schema";
+import { branches, stockDeliveries, vehicles } from "@/db/schema";
 import { canSeePurchasePrice, seesAllBranches } from "./permissions";
 
 export type VehicleRow = {
@@ -18,6 +18,10 @@ export type VehicleRow = {
   branchId: number;
   branchName: string;
   createdAt: Date;
+  /** Sir #4 (2026-07-31): when the unit physically arrived, and in which batch. */
+  arrivedOn: string | null;
+  deliveryId: number | null;
+  deliveryNo: string | null;
 };
 
 /**
@@ -60,9 +64,15 @@ export async function listVehicles(opts: {
       branchId: vehicles.branchId,
       branchName: branches.name,
       createdAt: vehicles.createdAt,
+      arrivedOn: vehicles.arrivedOn,
+      deliveryId: vehicles.deliveryId,
+      deliveryNo: stockDeliveries.deliveryNo,
     })
     .from(vehicles)
     .innerJoin(branches, eq(vehicles.branchId, branches.id))
+    // Left join: units registered manually (or before the Deliveries module)
+    // simply have no batch, and must still appear in the list.
+    .leftJoin(stockDeliveries, eq(vehicles.deliveryId, stockDeliveries.id))
     .where(filters.length ? and(...filters) : undefined)
     .orderBy(desc(vehicles.createdAt));
 
