@@ -27,6 +27,9 @@ export const HIGH_PRIORITY_ACTIONS = new Set([
   "staff.deactivate",
   "settings.update",
   "booking.refund",
+  // Sir #4 (2026-07-31): stock physically arriving is a money event — owners
+  // should hear about a consignment the moment it is booked in, not at month end.
+  "delivery.create",
 ]);
 
 export async function sendHighPriorityEmail(action: string, actorName: string, details: unknown) {
