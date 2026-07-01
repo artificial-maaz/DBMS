@@ -94,6 +94,29 @@ No migration needed — logic-only changes.
 5. ~~System Settings & Branding (#29)~~ ✅ **Done 2026-07-11:** singleton `system_settings` table (id=1), Creator-only `/system-settings` page. Company name + logo (≤200KB, stored as inline data URL — no blob storage needed) drive the sidebar; browser tab title via `generateMetadata` (config.ts = first-boot fallback); default excise fee + showroom profit pre-fill New Sale's registration-fee split. Commission rate %, warranty days, timezone stored for upcoming consumers (commission auto-suggest, warranty checks, date rendering). Theme color stored; full UI theming deferred to the polish pass (#31) — applying it properly means replacing hardcoded Tailwind palette classes across every page, a polish-phase job. **Needs migration** (new `system_settings` table).
 6. ~~Notifications (#27)~~ ✅ **Done 2026-07-14 (in-app):** 🔔 bell in the topbar (Creator only) with unread badge; `/notifications` feed DERIVED from the audit log (no second event pipeline) filtered to ~25 important actions (approvals, sales, payments, ledger, stock, staff changes, payroll, settings, imports, warranty-card marks). Per-user `notification_state` watermark — visiting the page marks all seen; your own actions never notify you. Workshop "Deliver & Collect" also gated through the approval queue this pass (was the noted gap). *Email/WhatsApp delivery of the same IMPORTANT_ACTIONS list = future, needs a provider.* **Needs migration** (`notification_state`).
 
+## ✅ Done — Production build repair + arrival tracking (2026-08-01, chunk 34)
+**The production build had been failing since early July** — Railway kept serving a 26-day-old
+image because every newer build died at the type check. `npm run dev` never type-checks the whole
+project, which is exactly why localhost looked healthy the whole time. Root causes, all fixed:
+- **Three `useTransition` misuses** (`toggle-branch`, `toggle-plan`, `toggle-requirement`): the
+  callback returned a server action's `Promise<{ok,error}>`, but React demands a void return.
+  Fixed by awaiting inside an async callback.
+- **Two "column typed to one table" bugs**: `balanceSheet`'s `br()` helper was typed
+  `typeof ledgerEntries.branchId` yet called with `vehicles`/`spareParts`/`invoices`/`purchaseOrders`
+  columns; `search`'s `branchScope` had the same fault. Both now take `AnyPgColumn`.
+- **Lesson recorded:** run `npm run build` (not just `npm run dev`) before every push — dev mode
+  will not catch these.
+
+Also shipped alongside:
+- **Inventory arrival column:** every vehicle row now shows its arrival date, **days in stock**
+  (live counter while unsold) and a link to the delivery batch it came in — this is what makes
+  Sir #4's "which vehicle came when" visible from the main inventory screen, not just the batch page.
+- **Consignment notifications:** `delivery.create` joined the high-priority email set, so owners
+  hear about arriving stock immediately rather than at month end.
+- **Test seeder extended:** seeds a real 2-unit consignment and a deliberately **overdue**
+  installment case (sold 5 months ago, nothing collected) so `/deliveries` and `/installments`
+  have meaningful data for test cases I6 and I7.
+
 ## ✅ Done — Cross-branch ops, Installment Cases, Deliveries (2026-07-31, chunk 33)
 Sir's post-test-pass feedback (6 points).
 - **#1 Cross-branch operations.** BM *and* salesperson may now act for any branch: branch is a
