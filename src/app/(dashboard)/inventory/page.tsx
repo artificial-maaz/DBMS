@@ -87,6 +87,7 @@ export default async function InventoryPage({
               <Th>Chassis / VIN</Th>
               <Th>Engine No.</Th>
               <Th>Branch</Th>
+              <Th>Arrived</Th>
               {showPrice && <Th>Purchase</Th>}
               <Th>Sale Price</Th>
               <Th>Status</Th>
@@ -96,7 +97,7 @@ export default async function InventoryPage({
           <tbody>
             {rows.length === 0 && (
               <tr>
-                <td colSpan={showPrice ? (editable ? 9 : 8) : (editable ? 8 : 7)} className="px-4 py-10 text-center text-slate-400">
+                <td colSpan={showPrice ? (editable ? 10 : 9) : (editable ? 9 : 8)} className="px-4 py-10 text-center text-slate-400">
                   No vehicles registered yet.
                 </td>
               </tr>
@@ -111,6 +112,26 @@ export default async function InventoryPage({
                 <td className="px-4 py-2.5 font-mono text-xs">{v.chassisNo}</td>
                 <td className="px-4 py-2.5 font-mono text-xs">{v.engineNo}</td>
                 <td className="px-4 py-2.5">{v.branchName}</td>
+                {/* Sir #4: how long this unit has been sitting, and which batch it came in. */}
+                <td className="px-4 py-2.5 text-xs">
+                  {v.arrivedOn ? (
+                    <>
+                      <span className="text-slate-600">{new Date(v.arrivedOn).toLocaleDateString("en-PK")}</span>
+                      {v.status === "in_stock" && (
+                        <span className="block text-slate-400">
+                          {Math.max(0, Math.floor((Date.now() - new Date(v.arrivedOn).getTime()) / 86_400_000))} days in stock
+                        </span>
+                      )}
+                      {v.deliveryId && (
+                        <a href={`/deliveries/${v.deliveryId}`} className="block font-mono text-indigo-600 hover:underline">
+                          {v.deliveryNo}
+                        </a>
+                      )}
+                    </>
+                  ) : (
+                    <span className="text-slate-300">—</span>
+                  )}
+                </td>
                 {showPrice && <td className="px-4 py-2.5">{fmt(v.purchasePrice)}</td>}
                 <td className="px-4 py-2.5">{fmt(v.salePrice)}</td>
                 <td className="px-4 py-2.5">
