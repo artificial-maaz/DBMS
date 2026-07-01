@@ -1,10 +1,13 @@
 import { and, desc, eq, ilike, or, sql, type SQL } from "drizzle-orm";
+import type { AnyPgColumn } from "drizzle-orm/pg-core";
 import { db } from "@/db";
 import { branches, customers, invoices, vehicles } from "@/db/schema";
 import { canViewCustomers } from "@/modules/customers/permissions";
 import { canViewSales } from "@/modules/sales/permissions";
 
-function branchScope(col: typeof vehicles.branchId, role: string, ownBranchId: number | null): SQL | undefined {
+// Accepts ANY table's branch_id column (vehicles, customers, invoices) — typing
+// it to one specific table breaks the production type check.
+function branchScope(col: AnyPgColumn, role: string, ownBranchId: number | null): SQL | undefined {
   return ["creator", "owner", "silent_partner"].includes(role) ? undefined : eq(col, ownBranchId ?? -1);
 }
 
