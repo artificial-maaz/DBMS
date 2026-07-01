@@ -1,4 +1,5 @@
 import { and, eq, gte, inArray, lte, sql } from "drizzle-orm";
+import type { AnyPgColumn } from "drizzle-orm/pg-core";
 import { db } from "@/db";
 import { branchAssets, invoices, ledgerEntries, purchaseOrders, spareParts, vehicles } from "@/db/schema";
 
@@ -84,7 +85,9 @@ export async function trialBalance(opts: { from?: string; to?: string; branchId?
 
 /** Balance sheet / statement of financial position — as of now. */
 export async function balanceSheet(branchId?: number) {
-  const br = (col: typeof ledgerEntries.branchId) => (branchId ? eq(col, branchId) : undefined);
+  // Every table below has its own branch_id column, so this helper must accept
+  // ANY of them — not just the ledger's (that mistake broke the build).
+  const br = (col: AnyPgColumn) => (branchId ? eq(col, branchId) : undefined);
 
   const [cash] = await db
     .select({
