@@ -18,6 +18,19 @@ invoices, hybrid cash ledger, P&L, spare parts, gate passes, workshop job cards,
 HR & payroll, procurement, audit log, global search. Polish and review backlog
 tracked in `ROADMAP.md`.
 
+## Local Development
+
+```bash
+npm install               # once
+cp .env.example .env      # fill DATABASE_URL (Neon), BETTER_AUTH_SECRET, BETTER_AUTH_URL
+npm run db:migrate        # apply migrations
+npm run db:seed           # create/repair the Creator account (also resets its password from .env)
+npm run dev               # http://localhost:3000
+```
+
+Schema changed? `npm run db:generate && npm run db:migrate`. Architecture notes
+live in `docs/ARCHITECTURE.md`; work queue in `ROADMAP.md`.
+
 ## Module Phases
 
 1. **MVP:** auth + RBAC + branches, serialized vehicle inventory, customers, sales & invoicing (PDF), cash ledger.
