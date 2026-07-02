@@ -6,11 +6,13 @@ import { sendTestReportAction } from "./actions";
 export function TestReports() {
   const [pending, start] = useTransition();
   const [msg, setMsg] = useState<string | null>(null);
+  const [failed, setFailed] = useState(false);
 
   const run = (kind: "daily" | "monthly") =>
     start(async () => {
       const res = await sendTestReportAction(kind);
-      setMsg(res?.ok ? `✔ ${kind} report sent — check your inbox.` : (res?.error ?? "Failed"));
+      setFailed(!res?.ok);
+      setMsg(res?.ok ? `Sent — ${kind} report is on its way, check your inbox (and spam).` : (res?.error ?? "Failed"));
     });
 
   return (
@@ -34,8 +36,16 @@ export function TestReports() {
         >
           {pending ? "Sending…" : "Send test monthly report"}
         </button>
-        {msg && <span className="text-sm text-slate-600">{msg}</span>}
       </div>
+      {msg && (
+        <p
+          className={`mt-3 rounded-lg px-3 py-2 text-sm ${
+            failed ? "bg-red-50 text-red-700" : "bg-emerald-50 text-emerald-700"
+          }`}
+        >
+          {msg}
+        </p>
+      )}
     </div>
   );
 }

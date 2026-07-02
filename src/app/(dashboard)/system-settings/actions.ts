@@ -13,9 +13,9 @@ export async function sendTestReportAction(kind: "daily" | "monthly"): Promise<A
   if (profile.role !== "creator") return { ok: false, error: "Creator only." };
   const { sendDailyReport, sendMonthlyReport } = await import("@/modules/reports/email-reports");
   const result = kind === "daily" ? await sendDailyReport() : await sendMonthlyReport();
-  return result.sent
-    ? { ok: true }
-    : { ok: false, error: "Not sent — is RESEND_API_KEY set in .env / Railway Variables?" };
+  // Show the REAL reason (2026-08-01) — a generic "is the key set?" message sent
+  // us hunting for a key that was already there.
+  return result.sent ? { ok: true } : { ok: false, error: result.error ?? "Not sent (no reason reported)." };
 }
 
 export async function updateSettingsAction(_prev: ActionState, formData: FormData): Promise<ActionState> {
