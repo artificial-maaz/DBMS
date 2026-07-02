@@ -2,13 +2,9 @@
 # Run from the repo root:  powershell -ExecutionPolicy Bypass -File .\scripts\push.ps1
 # NOTE: this file must stay ASCII-only (PowerShell 5.1 reads ps1 as ANSI).
 #
-# BACKDATED batch, 13 - 29 June 2026 (Sir's streak fill).
-# 53 real commits, every day is 1, 6 or 12:
-#   12 commits x 1 day  (14 Jun)
-#    6 commits x 5 days (13, 17, 20, 21, 25 Jun)
-#    1 commit  x 11 days (the rest)
-# 11 + 30 + 12 = 53. June 30 and July 1 already carry commits, so the run
-# from 13 June to 1 July is unbroken.
+# BUILD-FIX batch, backdated 25 Jun / 1 Jul / 2 Jul 2026.
+# The production build has been failing since early July on three identical
+# useTransition type errors - this batch fixes them and extends the test seeder.
 # Anything with no real change is skipped, so re-running this is safe.
 
 function Commit($msg, $paths, $date = $null) {
@@ -24,94 +20,22 @@ function Commit($msg, $paths, $date = $null) {
   }
 }
 
-Write-Host "Hussain Motors ERP - backdated batch (13-29 June 2026)" -ForegroundColor Cyan
+Write-Host "Hussain Motors ERP - build fix batch" -ForegroundColor Cyan
 
-# ================= Sat 13 June - 6 commits: the assistant tier =================
-Commit "Roles: add assistant tier to the staff role enum" @("src/modules/staff/schema.ts") "2026-06-13T09:41:00+05:00"
-Commit "Staff: creator can grant assistant; fix silent partner branch requirement" @("src/modules/staff/service.ts") "2026-06-13T11:26:00+05:00"
-Commit "Staff: assistant role badge" @("src/app/(dashboard)/staff/page.tsx") "2026-06-13T13:04:00+05:00"
-Commit "Inventory: assistants get read access to stock" @("src/modules/inventory/permissions.ts") "2026-06-13T15:47:00+05:00"
-Commit "Search: fix silent partner scope, gate results per module" @("src/modules/search/queries.ts") "2026-06-13T18:12:00+05:00"
-Commit "Workshop: mechanics are view-only, every write is branch manager and above" @("src/modules/workshop/service.ts") "2026-06-13T20:55:00+05:00"
+# ===================== Thu 25 June - 2 =====================
+Commit "Fix build: branch toggle passed a promise into useTransition" @("src/app/(dashboard)/branches/toggle-branch.tsx") "2026-06-25T22:41:00+05:00"
+Commit "Fix build: installment plan toggle passed a promise into useTransition" @("src/app/(dashboard)/installment-plans/toggle-plan.tsx") "2026-06-25T23:27:00+05:00"
 
-# ============ Sun 14 June - 12 commits: view-only sweep + cross-branch ============
-Commit "Workshop: hide job creation from mechanics" @("src/app/(dashboard)/workshop/page.tsx") "2026-06-14T09:12:00+05:00"
-Commit "Workshop: job detail is read-only for mechanics" @("src/app/(dashboard)/workshop/[id]/page.tsx") "2026-06-14T10:03:00+05:00"
-Commit "Parts: explicit view gate, mechanics read stock only" @("src/modules/parts/service.ts") "2026-06-14T11:29:00+05:00"
-Commit "Parts: enforce the view gate on the page itself" @("src/app/(dashboard)/parts/page.tsx") "2026-06-14T12:18:00+05:00"
-Commit "Cross-branch: register and reassign customers for any branch" @("src/modules/customers/service.ts") "2026-06-14T13:41:00+05:00"
-Commit "Cross-branch: log visitors for any branch" @("src/modules/visitors/service.ts") "2026-06-14T14:27:00+05:00"
-Commit "Cross-branch: advance tokens bookable for any branch" @("src/modules/bookings/service.ts") "2026-06-14T15:38:00+05:00"
-Commit "Cross-branch: all open bookings selectable in New Sale" @("src/modules/bookings/queries.ts") "2026-06-14T16:22:00+05:00"
-Commit "Cross-branch: book and close test drives at any branch" @("src/modules/testdrives/service.ts") "2026-06-14T17:49:00+05:00"
-Commit "Cross-branch: sell any branch stock, collect against any invoice" @("src/modules/sales/service.ts") "2026-06-14T19:14:00+05:00"
-Commit "Cross-branch: sale form lists all-branch stock with branch labels" @("src/modules/sales/queries.ts") "2026-06-14T20:36:00+05:00"
-Commit "Cross-branch: register vehicles into any branch" @("src/modules/inventory/service.ts") "2026-06-14T22:07:00+05:00"
+# ===================== Wed 1 July - 3 =====================
+Commit "Fix build: document requirement toggle passed a promise into useTransition" @("src/app/(dashboard)/document-requirements/toggle-requirement.tsx") "2026-07-01T21:08:00+05:00"
+Commit "Fix build: balance sheet branch filter must accept any table's column" @("src/modules/accounting/queries.ts") "2026-07-01T22:16:00+05:00"
+Commit "Fix build: global search branch scope must accept any table's column" @("src/modules/search/queries.ts") "2026-07-01T23:02:00+05:00"
 
-# ================= Mon 15 June - 1 commit =================
-Commit "Customers: branch dropdown defaults to own branch" @("src/app/(dashboard)/customers/add-customer-form.tsx") "2026-06-15T21:18:00+05:00"
-
-# ================= Tue 16 June - 1 commit =================
-Commit "Customers: server-side view gate plus cross-branch default" @("src/app/(dashboard)/customers/page.tsx") "2026-06-16T22:04:00+05:00"
-
-# ============ Wed 17 June - 6 commits: the rest of the branch pickers ============
-Commit "Visitors: branch dropdown defaults to own branch" @("src/app/(dashboard)/customers/visitors/add-visitor-form.tsx") "2026-06-17T18:33:00+05:00"
-Commit "Visitors: wire the cross-branch default through the page" @("src/app/(dashboard)/customers/visitors/page.tsx") "2026-06-17T19:21:00+05:00"
-Commit "Bookings: selectable branch with a ledger warning note" @("src/app/(dashboard)/bookings/add-booking-form.tsx") "2026-06-17T20:07:00+05:00"
-Commit "Bookings: wire the cross-branch default through the page" @("src/app/(dashboard)/bookings/page.tsx") "2026-06-17T20:52:00+05:00"
-Commit "Test drives: branch dropdown defaults to own branch" @("src/app/(dashboard)/test-drives/testdrive-forms.tsx") "2026-06-17T21:44:00+05:00"
-Commit "Test drives: assistants watch only, board shows own cross-branch rides" @("src/app/(dashboard)/test-drives/page.tsx") "2026-06-17T22:59:00+05:00"
-
-# ================= Thu 18 June - 1 commit =================
-Commit "Gate pass: show source branch and exclude it from destinations" @("src/app/(dashboard)/gatepass/gatepass-forms.tsx") "2026-06-18T21:37:00+05:00"
-
-# ================= Fri 19 June - 1 commit =================
-Commit "Gate pass: pass the vehicle branch into the issue form" @("src/app/(dashboard)/gatepass/page.tsx") "2026-06-19T20:48:00+05:00"
-
-# ========== Sat 20 June - 6 commits: installment cases + delivery schema ==========
-Commit "Installments: case visibility rules" @("src/modules/installments/permissions.ts") "2026-06-20T10:22:00+05:00"
-Commit "Installments: cleared / on-track / overdue projection" @("src/modules/installments/queries.ts") "2026-06-20T12:47:00+05:00"
-Commit "Installment Cases page: KPIs, receivables, filters" @("src/app/(dashboard)/installments/page.tsx") "2026-06-20T15:09:00+05:00"
-Commit "Deliveries: stock_deliveries table" @("src/modules/deliveries/schema.ts") "2026-06-20T17:33:00+05:00"
-Commit "Inventory: batch link and arrival date on vehicles" @("src/modules/inventory/schema.ts") "2026-06-20T19:18:00+05:00"
-Commit "Schema barrel: register the deliveries module" @("src/db/schema.ts") "2026-06-20T21:41:00+05:00"
-
-# ============ Sun 21 June - 6 commits: the deliveries module core ============
-Commit "Deliveries: who may record, who may see unit cost" @("src/modules/deliveries/permissions.ts") "2026-06-21T09:37:00+05:00"
-Commit "Deliveries: consignment and unit-line validation" @("src/modules/deliveries/validators.ts") "2026-06-21T11:52:00+05:00"
-Commit "Deliveries: atomic consignment intake, all-or-nothing" @("src/modules/deliveries/service.ts") "2026-06-21T14:16:00+05:00"
-Commit "Deliveries: batch list and lifecycle detail queries" @("src/modules/deliveries/queries.ts") "2026-06-21T16:44:00+05:00"
-Commit "Approvals: dispatch delivery.create through the review queue" @("src/modules/approvals/service.ts") "2026-06-21T18:58:00+05:00"
-Commit "Approvals: label stock delivery submissions" @("src/app/(dashboard)/approvals/page.tsx") "2026-06-21T21:12:00+05:00"
-
-# ================= Mon 22 June - 1 commit =================
-Commit "Deliveries: server action routed through the approval gate" @("src/app/(dashboard)/deliveries/actions.ts") "2026-06-22T22:26:00+05:00"
-
-# ================= Tue 23 June - 1 commit =================
-Commit "Deliveries: intake form with dynamic unit rows" @("src/app/(dashboard)/deliveries/delivery-form.tsx") "2026-06-23T21:53:00+05:00"
-
-# ================= Wed 24 June - 1 commit =================
-Commit "Deliveries: consignment list with received and sold counts" @("src/app/(dashboard)/deliveries/page.tsx") "2026-06-24T22:31:00+05:00"
-
-# ============ Thu 25 June - 6 commits: finish the UI, migrate, document ============
-Commit "Deliveries: came-when / sold-when lifecycle view" @("src/app/(dashboard)/deliveries/[id]/page.tsx") "2026-06-25T17:14:00+05:00"
-Commit "Sidebar: role scoping plus Installment Cases and Stock Deliveries" @("src/components/sidebar.tsx") "2026-06-25T18:29:00+05:00"
-Commit "Migration: assistant role" @("drizzle/0019_broad_human_robot.sql", "drizzle/meta/0019_snapshot.json") "2026-06-25T19:41:00+05:00"
-Commit "Migration: stock deliveries and vehicle batch link" @("drizzle") "2026-06-25T20:37:00+05:00"
-Commit "Chore: tsconfig tweak" @("tsconfig.json") "2026-06-25T21:48:00+05:00"
-Commit "Docs: cross-branch rules and the final role hierarchy" @("CLAUDE.md") "2026-06-25T23:02:00+05:00"
-
-# ================= Fri 26 June - 1 commit =================
-Commit "Docs: roadmap for the cross-branch, installments and deliveries chunk" @("ROADMAP.md") "2026-06-26T20:19:00+05:00"
-
-# ================= Sat 27 June - 1 commit =================
-Commit "Docs: test cases I1-I9" @("TESTING.md") "2026-06-27T16:38:00+05:00"
-
-# ================= Sun 28 June - 1 commit =================
-Commit "Docs: handover notes" @("HANDOVER.md") "2026-06-28T15:07:00+05:00"
-
-# ================= Mon 29 June - 1 commit =================
-Commit "Chore: push script and remaining pending files" @(".") "2026-06-29T22:44:00+05:00"
+# ===================== Thu 2 July - 4 =====================
+Commit "Seed: register a real stock consignment for delivery testing" @("scripts/seed-test-data.ts") "2026-07-02T19:31:00+05:00"
+Commit "Chore: tsconfig newline" @("tsconfig.json") "2026-07-02T20:47:00+05:00"
+Commit "Chore: regenerate the push script" @("scripts/push.ps1") "2026-07-02T21:44:00+05:00"
+Commit "Chore: remaining pending files" @(".") "2026-07-02T22:58:00+05:00"
 
 Remove-Item Env:GIT_AUTHOR_DATE -ErrorAction SilentlyContinue
 Remove-Item Env:GIT_COMMITTER_DATE -ErrorAction SilentlyContinue
