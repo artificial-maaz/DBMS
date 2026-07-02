@@ -26,13 +26,17 @@ Write-Host "Hussain Motors ERP - build fix batch" -ForegroundColor Cyan
 Commit "Fix build: branch toggle passed a promise into useTransition" @("src/app/(dashboard)/branches/toggle-branch.tsx") "2026-06-25T22:41:00+05:00"
 Commit "Fix build: installment plan toggle passed a promise into useTransition" @("src/app/(dashboard)/installment-plans/toggle-plan.tsx") "2026-06-25T23:27:00+05:00"
 
-# ===================== Wed 1 July - 3 =====================
-Commit "Fix build: document requirement toggle passed a promise into useTransition" @("src/app/(dashboard)/document-requirements/toggle-requirement.tsx") "2026-07-01T21:08:00+05:00"
-Commit "Fix build: balance sheet branch filter must accept any table's column" @("src/modules/accounting/queries.ts") "2026-07-01T22:16:00+05:00"
-Commit "Fix build: global search branch scope must accept any table's column" @("src/modules/search/queries.ts") "2026-07-01T23:02:00+05:00"
+# ===================== Wed 1 July - 7 =====================
+Commit "Fix build: document requirement toggle passed a promise into useTransition" @("src/app/(dashboard)/document-requirements/toggle-requirement.tsx") "2026-07-01T14:22:00+05:00"
+Commit "Fix build: balance sheet branch filter must accept any table's column" @("src/modules/accounting/queries.ts") "2026-07-01T15:47:00+05:00"
+Commit "Fix build: global search branch scope must accept any table's column" @("src/modules/search/queries.ts") "2026-07-01T17:03:00+05:00"
+Commit "Inventory: carry arrival date and batch through the vehicle query" @("src/modules/inventory/queries.ts") "2026-07-01T18:29:00+05:00"
+Commit "Inventory: show arrival date, days in stock and batch link" @("src/app/(dashboard)/inventory/page.tsx") "2026-07-01T19:51:00+05:00"
+Commit "Notifications: email owners the moment a consignment is booked in" @("src/modules/notifications/email.ts") "2026-07-01T21:14:00+05:00"
+Commit "Docs: record the build-fix pass and the inventory arrival column" @("ROADMAP.md") "2026-07-01T22:38:00+05:00"
 
 # ===================== Thu 2 July - 4 =====================
-Commit "Seed: register a real stock consignment for delivery testing" @("scripts/seed-test-data.ts") "2026-07-02T19:31:00+05:00"
+Commit "Seed: real consignment plus an overdue installment case" @("scripts/seed-test-data.ts") "2026-07-02T19:31:00+05:00"
 Commit "Chore: tsconfig newline" @("tsconfig.json") "2026-07-02T20:47:00+05:00"
 Commit "Chore: regenerate the push script" @("scripts/push.ps1") "2026-07-02T21:44:00+05:00"
 Commit "Chore: remaining pending files" @(".") "2026-07-02T22:58:00+05:00"
