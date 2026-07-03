@@ -13,15 +13,14 @@ Thumbs.db
 # Logs
 *.log
 
-# Build / dependency artifacts (expand once stack is chosen)
+# Build / dependency artifacts
+.next/
+out/
 build/
 dist/
-bin/
-obj/
-target/
 node_modules/
-__pycache__/
-*.pyc
+next-env.d.ts
+*.tsbuildinfo
 
 # Local database data files
 *.db

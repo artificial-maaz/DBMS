@@ -67,7 +67,8 @@ Follow the root `execution_workflow` strictly:
 - Note: an Obsidian vault (inner `DBMS/`, `.obsidian/`) lives inside this folder; it is gitignored.
 
 ## Current Status
-- Stack, ORM, auth, delivery, and Phase 1 business rules approved. Awaiting Sir's approval of the scaffolding checkpoint (folder structure + Phase 1 schema incl. installments/commissions/receivables).
+- Scaffolding complete (2026-07-04): Next.js 16 + TS project, Drizzle schemas for all Phase 1 modules (branches, staff, inventory, customers, sales incl. installments/commissions, ledger, audit), Better Auth config (invite-only, organization plugin), login page, PWA manifest.
+- Next: Sir runs `npm install` + `npm run dev`; then auth-schema generation, first migration, and audit middleware.
 
 ---
 
