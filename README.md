@@ -1,24 +1,21 @@
-# DBMS
+# Dealership ERP
 
-A custom Database Management System, built from the ground up.
+A multi-branch ERP for electric/motor vehicle dealerships in Pakistan — inventory,
+sales, accounting, HR, workshop, and reporting. Delivered as an installable PWA.
+
+> Formerly scoped as a ground-up database engine; re-scoped 2026-07-03. See `CLAUDE.md`.
+
+## Stack
+
+Next.js (App Router) + TypeScript · PostgreSQL · PWA delivery · cloud-hosted.
 
 ## Status
 
-Architecture phase — stack not yet finalized.
+Stack approved. Next: scaffolding proposal (project structure, ORM/auth choices,
+Phase 1 schema draft).
 
-## Scope
+## Module Phases
 
-Ground-up implementation covering the storage engine, data serialization and file
-format, query parser/lexer, query planner and optimizer, execution engine,
-transaction manager (ACID, locking, MVCC), indexing (B-Tree, Hash), and a client
-interface. No wrapping of existing engines.
-
-## Repository Layout
-
-- `CLAUDE.md` — project-specific instructions and architecture checkpoints.
-- (modules added as the architecture is approved)
-
-## Workflow
-
-Development follows a "Plan Before Code" checkpoint system: explore and architect,
-propose stack/design with trade-offs, approve, then execute in reviewable chunks.
+1. **MVP:** auth + RBAC + branches, serialized vehicle inventory, customers, sales & invoicing (PDF), cash ledger.
+2. Dashboards, monthly P&L, spare parts inventory, gate pass (inter-branch transfers).
+3. Workshop (repairs, job cards, maintenance coupon

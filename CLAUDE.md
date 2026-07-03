@@ -1,52 +1,28 @@
-# DBMS Project — Project-Specific Instructions
+# DBMS Project — Dealership ERP — Project-Specific Instructions
 
-This file overrides or extends the root `CLAUDE.md` for the custom Database Management System project only.
+This file overrides or extends the root `CLAUDE.md` for this project only.
+
+> **Project pivot (2026-07-03):** This project was originally scoped as a ground-up
+> database engine. That scope is retired. The real target, clarified and approved by
+> Sir, is a multi-branch vehicle dealership ERP (reference model: ebikeerp.com).
 
 ---
 
 ## Project Goal
-Architect and build a fully custom Database Management System from the ground up — covering the storage engine, query parser, execution engine, transaction manager, and client interface.
+A multi-branch ERP for Sir's electric/motor vehicle dealerships across Pakistan:
+inventory, sales, accounting, HR, workshop, and reporting — replacing fully manual
+operations. Delivered as an installable PWA, hosted in the cloud, accessed by
+role-scoped users.
 
-## Scope & Constraints
-- This is a ground-up implementation; do not wrap existing database engines (SQLite, PostgreSQL internals, etc.).
-- Prioritize correctness and architectural clarity before optimization.
-- Design decisions must be documented with the *why*, not just the *what*.
+## Approved Tech Stack (2026-07-03)
+- **Frontend + Backend:** Next.js (App Router) + TypeScript — single language across the stack.
+- **Database:** PostgreSQL (Sir's existing familiarity; correct fit for relational/financial data).
+- **Delivery:** PWA — installable from browser on desktop/Android/iOS. No app stores initially; Capacitor wrap later only if store presence is wanted.
+- **Hosting:** Cloud (VPS e.g. Hetzner, or Railway) + managed Postgres (Neon/Supabase). Runs 24/7 server-side; user devices are clients only. Target starting cost < $15/month.
+- *Why:* fastest path to production for a multi-user web/mobile ERP; pre-solved auth/PDF/dashboard ecosystem; scales from internal tool to multi-tenant SaaS if ever commercialized. C++ was considered and rejected (no user-visible benefit at this scale, 6–12 months slower).
+- ORM/auth/library choices to be proposed with pros/cons at the scaffolding checkpoint.
 
-## Tech Stack Decisions
-- Record all major tech/language/architecture decisions here as they are made and approved.
-- No stack decisions are final until explicitly approved by Sir.
-
-## Architecture Checkpoints
-Follow the root `execution_workflow` strictly:
-1. Explore & Architect before any code.
-2. Propose stack/design with pros/cons at national and international scale.
-3. Wait for approval at each checkpoint before proceeding.
-4. Execute in logical, reviewable chunks.
-
-## Module Breakdown (to be expanded)
-- [ ] Storage Engine (pages, buffer pool, disk I/O)
-- [ ] Data Serialization & File Format
-- [ ] Query Parser & Lexer
-- [ ] Query Planner & Optimizer
-- [ ] Execution Engine
-- [ ] Transaction Manager (ACID, locking, MVCC)
-- [ ] Indexing (B-Tree, Hash)
-- [ ] Client Interface / Query Language (SQL subset or custom DSL)
-- [ ] Networking layer (optional: server/client model)
-
-## Code Standards
-- All modules must be independently testable.
-- No monolithic files — enforce strict separation of concerns per module.
-- Use interfaces/abstractions at module boundaries to allow swapping implementations.
-
-## Repository
-- Remote: https://github.com/artificial-maaz/DBMS (private)
-- Default branch: `main`
-- Commit identity: artificial-maaz / maazhussain.work@gmail.com
-
-## Current Status
-- Project initialized and pushed to GitHub. Architecture phase not yet started.
-
----
-
-*Global rules in the root `CLAUDE.md` remain in effect unless explicitly overridden here.*
+## Access Model (RBAC — enforce server-side on every request)
+1. **Creator (Sir):** full access to all data, branches, users, roles, settings. Sole holder of codebase, server, and deploy credentials — no one else, including Owners, can modify the system itself.
+2. **Owners (4–5, changes over time):** full feature access (dashboards, P&L, all modules). No code/system access. Addable/removable by Creator.
+3. **Employees:** branch-scoped roles (branch sales manager → salesperson → mechanic → gate staff, 
