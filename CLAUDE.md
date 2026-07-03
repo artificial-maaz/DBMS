@@ -20,9 +20,8 @@ role-scoped users.
 - **Delivery:** PWA — installable from browser on desktop/Android/iOS. No app stores initially; Capacitor wrap later only if store presence is wanted.
 - **Hosting:** Cloud (VPS e.g. Hetzner, or Railway) + managed Postgres (Neon/Supabase). Runs 24/7 server-side; user devices are clients only. Target starting cost < $15/month.
 - *Why:* fastest path to production for a multi-user web/mobile ERP; pre-solved auth/PDF/dashboard ecosystem; scales from internal tool to multi-tenant SaaS if ever commercialized. C++ was considered and rejected (no user-visible benefit at this scale, 6–12 months slower).
-- ORM/auth/library choices to be proposed with pros/cons at the scaffolding checkpoint.
+- **ORM:** Drizzle (approved 2026-07-03) — SQL-first, matches Sir's Postgres fluency, best for ERP reporting queries. Prisma considered and declined.
+- **Auth:** Better Auth (approved 2026-07-03) — organization plugin gives invites, roles, members, session revocation out of the box; self-hosted in our Postgres. Auth.js is maintenance-mode; Clerk rejected (paid, hosted).
 
 ## Access Model (RBAC — enforce server-side on every request)
-1. **Creator (Sir):** full access to all data, branches, users, roles, settings. Sole holder of codebase, server, and deploy credentials — no one else, including Owners, can modify the system itself.
-2. **Owners (4–5, changes over time):** full feature access (dashboards, P&L, all modules). No code/system access. Addable/removable by Creator.
-3. **Employees:** branch-scoped roles (branch sales manager → salesperson → mechanic → gate staff, 
+1. **Creator (Sir):** full access to all data, branches, users, roles, settings. Sole holder of codebase, server, and deploy credentials — no one else, including O
