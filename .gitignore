@@ -27,3 +27,7 @@ __pycache__/
 *.db
 *.data
 data/
+
+# Obsidian vault artifacts
+DBMS/
+.obsidian/
