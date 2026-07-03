@@ -18,4 +18,16 @@ Phase 1 schema draft).
 
 1. **MVP:** auth + RBAC + branches, serialized vehicle inventory, customers, sales & invoicing (PDF), cash ledger.
 2. Dashboards, monthly P&L, spare parts inventory, gate pass (inter-branch transfers).
-3. Workshop (repairs, job cards, maintenance coupon
+3. Workshop (repairs, job cards, maintenance coupons), HR (salaries, bonuses), procurement.
+4. Future features as approved.
+
+## Access Model
+
+Creator (full system + sole code/deploy access) → Owners (full features, revocable) →
+Employees (branch-scoped operational roles) → Customers (excluded for now).
+Server-side RBAC, invite-based onboarding, instant deactivation, audit log from day one.
+
+## Workflow
+
+"Plan Before Code" checkpoints: architect → propose with trade-offs → approval →
+execute in reviewable chunks → push checkpoint.

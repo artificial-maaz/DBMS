@@ -24,4 +24,51 @@ role-scoped users.
 - **Auth:** Better Auth (approved 2026-07-03) — organization plugin gives invites, roles, members, session revocation out of the box; self-hosted in our Postgres. Auth.js is maintenance-mode; Clerk rejected (paid, hosted).
 
 ## Access Model (RBAC — enforce server-side on every request)
-1. **Creator (Sir):** full access to all data, branches, users, roles, settings. Sole holder of codebase, server, and deploy credentials — no one else, including O
+1. **Creator (Sir):** full access to all data, branches, users, roles, settings. Sole holder of codebase, server, and deploy credentials — no one else, including Owners, can modify the system itself.
+2. **Owners (4–5, changes over time):** full feature access (dashboards, P&L, all modules). No code/system access. Addable/removable by Creator.
+3. **Employees:** branch-scoped roles (branch sales manager → salesperson → mechanic → gate staff, etc.). Operational features only (customers, invoices, job cards). No access to P&L, total revenue, or salaries.
+4. **Customers:** excluded for now; schema should leave the door open.
+
+- Invite-based onboarding (email invite → account → login/logout sessions).
+- Instant deactivation when anyone leaves; their historical actions are retained.
+- **Audit log from day one:** every action recorded (who, what, when, where).
+
+## Business Rules (approved 2026-07-04, after full review of 112 ebikeerp reference screenshots)
+- **Installment sales are Phase 1:** settlement plan (cash | installment), advance downpayment, monthly amortization schedule with markup, receivables/balance-due tracking, late-fee support.
+- **Salesperson commissions:** per-sale commission recorded at invoice time; leaderboard now, payroll integration in Phase 3.
+- **Accounting = Hybrid:** simple cash in/out ledger UI (staff-friendly), but schema is double-entry-ready (categorized, append-only, reference-linked) so formal journals/trial balance/balance sheet can be added later without rework. Full double-entry considered and deferred.
+- **Invoice lines include registration/excise fee** (govt fee + showroom profit split).
+- **GUI reference = ebikeerp:** grouped sidebar by domain, global VIN/CNIC/invoice search, KPI-card dashboards, badge statuses, modal create-forms, print/PDF actions. Ours differs: true multi-branch core, hard server-side RBAC (employees never receive purchase price/P&L/salary fields), PWA/mobile-first, system-wide audit log, phased delivery.
+
+## Module Phases
+- **Phase 1 (MVP):** auth + RBAC + branch management; serialized vehicle inventory (chassis/engine no., model, color, status); customer database; sales & invoicing (PDF) incl. installment plans + commissions; cash in/out ledger (hybrid model) + receivables.
+- **Phase 2:** dashboards & performance summaries; monthly P&L; spare parts inventory; gate pass (inter-branch vehicle transfers with approval trail).
+- **Phase 3:** workshop (repair queue, job cards, free-maintenance coupon tracking); HR (staff records, salaries, bonuses, rewards); procurement (vehicle/parts stock ordering).
+- **Phase 4+:** future features — architecture must absorb additions without touching existing modules.
+
+## Architecture Checkpoints
+Follow the root `execution_workflow` strictly:
+1. Explore & Architect before any code.
+2. Propose design with pros/cons; wait for Sir's approval at each checkpoint.
+3. Execute in logical, reviewable chunks.
+4. Flag push checkpoints (status → add → commit → push).
+
+## Code Standards
+- Modular by domain (inventory, sales, HR, workshop…) — adding a module must not touch others.
+- All modules independently testable; interfaces/abstractions at module boundaries.
+- No monolithic files; strict separation of concerns.
+- Permissions enforced in the backend, never trusted to the UI.
+
+## Repository
+- Local path: `C:\Claude Projects\DBMS` (moved out of OneDrive 2026-07-04 to avoid sync/git conflicts)
+- Remote: https://github.com/artificial-maaz/DBMS (private)
+- Default branch: `main`
+- Commit identity: artificial-maaz / maazhussain.work@gmail.com
+- Note: an Obsidian vault (inner `DBMS/`, `.obsidian/`) lives inside this folder; it is gitignored.
+
+## Current Status
+- Stack, ORM, auth, delivery, and Phase 1 business rules approved. Awaiting Sir's approval of the scaffolding checkpoint (folder structure + Phase 1 schema incl. installments/commissions/receivables).
+
+---
+
+*Global rules in the root `CLAUDE.md` remain in effect unless explicitly overridden here.*
