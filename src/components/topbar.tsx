@@ -14,11 +14,13 @@ export function Topbar({ name, role }: { name: string; role: string }) {
 
   return (
     <header className="flex items-center justify-between border-b border-slate-200 bg-white px-6 py-3 print:hidden">
-      <input
-        placeholder="Search VIN, CNIC, invoice… (coming soon)"
-        disabled
-        className="w-72 rounded-lg border border-slate-200 bg-slate-50 px-3 py-1.5 text-sm"
-      />
+      <form action="/search" className="w-72">
+        <input
+          name="q"
+          placeholder="Search VIN, CNIC, phone, invoice…"
+          className="w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-1.5 text-sm outline-none focus:border-slate-500 focus:bg-white"
+        />
+      </form>
       <div className="flex items-center gap-3">
         <span className="text-sm font-medium">{name}</span>
         <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs capitalize text-slate-600">
