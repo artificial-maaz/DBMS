@@ -28,12 +28,15 @@ async function main() {
     plugins: [organization()],
   });
 
-  // 1. Creator user (skip if exists)
+  // 1. Creator user (create, or reset password to the .env value if exists)
   const existing = await db.query.user.findFirst({ where: (u, { eq }) => eq(u.email, email) });
   let userId: string;
   if (existing) {
     userId = existing.id;
-    console.log("Creator user already exists — skipping user creation.");
+    const ctx = await seedAuth.$context;
+    const hash = await ctx.password.hash(password);
+    await ctx.internalAdapter.updatePassword(userId, hash);
+    console.log("Creator user exists — password reset to SEED_CREATOR_PASSWORD from .env.");
   } else {
     const res = await seedAuth.api.signUpEmail({ body: { email, password, name } });
     userId = res.user.id;
