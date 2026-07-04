@@ -67,8 +67,9 @@ Follow the root `execution_workflow` strictly:
 - Note: an Obsidian vault (inner `DBMS/`, `.obsidian/`) lives inside this folder; it is gitignored.
 
 ## Current Status
-- Scaffolding complete (2026-07-04): Next.js 16 + TS project, Drizzle schemas for all Phase 1 modules (branches, staff, inventory, customers, sales incl. installments/commissions, ledger, audit), Better Auth config (invite-only, organization plugin), login page, PWA manifest.
-- Next: Sir runs `npm install` + `npm run dev`; then auth-schema generation, first migration, and audit middleware.
+- **Phase 1 modules complete (2026-07-04):** auth + session guard + RBAC dashboard; inventory (RBAC-stripped purchase price); customers (CNIC-normalized, searchable); sales (atomic transactions, per-branch invoice numbers, installment schedules, commissions, printable invoice PDF, payment collection with auto-settle); append-only cash ledger with filters/totals; branches admin; staff onboarding + deactivation with session revocation. All mutations audit-logged.
+- Verified working end-to-end by Sir against live Neon DB.
+- Remaining for Phase 1 polish: global VIN/CNIC/invoice search, PWA icons, audit log viewer, email-delivered invites (needs email provider), production deployment.
 
 ---
 

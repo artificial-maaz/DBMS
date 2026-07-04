@@ -23,6 +23,82 @@ const s = (n: number) => n.toFixed(2);
  *   → amortization schedule (installment) → audit.
  * If any step fails, everything rolls back — no half-sold vehicles, ever.
  */
+/**
+ * Record a payment against one installment — atomic:
+ *   schedule.paidAmount += amount (paid when covered) → ledger cash_in
+ *   → invoice.balanceDue -= amount (settled at zero) → audit.
+ */
+export async function recordInstallmentPayment(
+  actor: Actor,
+  raw: { scheduleId: number; amount: string },
+) {
+  if (!canCreateSale(actor.role)) return { ok: false as const, error: "Not allowed to collect payments." };
+  const amount = Number(raw.amount);
+  if (!raw.scheduleId || isNaN(amount) || amount <= 0) {
+    return { ok: false as const, error: "Enter a valid payment amount." };
+  }
+
+  try {
+    const result = await db.transaction(async (tx) => {
+      const [sched] = await tx
+        .select()
+        .from(installmentSchedules)
+        .where(eq(installmentSchedules.id, raw.scheduleId))
+        .for("update");
+      if (!sched) throw new Error("Installment not found.");
+      if (sched.status === "paid") throw new Error("This installment is already paid.");
+
+      const [inv] = await tx.select().from(invoices).where(eq(invoices.id, sched.invoiceId)).for("update");
+      if (!inv) throw new Error("Invoice not found.");
+      if (!seesAllBranches(actor.role) && inv.branchId !== actor.branchId) {
+        throw new Error("You can only collect payments for your own branch.");
+      }
+
+      const remaining = r2(Number(sched.totalDue) + Number(sched.lateFee) - Number(sched.paidAmount));
+      if (amount > remaining) throw new Error(`Amount exceeds remaining Rs. ${remaining}.`);
+
+      const newPaid = r2(Number(sched.paidAmount) + amount);
+      const fullyPaid = newPaid >= r2(Number(sched.totalDue) + Number(sched.lateFee));
+      await tx
+        .update(installmentSchedules)
+        .set({ paidAmount: s(newPaid), status: fullyPaid ? "paid" : sched.status, paidAt: fullyPaid ? new Date() : null })
+        .where(eq(installmentSchedules.id, sched.id));
+
+      await tx.insert(ledgerEntries).values({
+        branchId: inv.branchId,
+        direction: "cash_in",
+        category: "installment",
+        amount: s(amount),
+        description: `Installment #${sched.installmentNo} for ${inv.invoiceNo}`,
+        invoiceId: inv.id,
+        entryDate: new Date().toISOString().slice(0, 10),
+        createdBy: actor.userId,
+      });
+
+      const newBalance = r2(Number(inv.balanceDue) - amount);
+      await tx
+        .update(invoices)
+        .set({ balanceDue: s(Math.max(newBalance, 0)), status: newBalance <= 0 ? "settled" : inv.status })
+        .where(eq(invoices.id, inv.id));
+
+      return { invoiceId: inv.id, invoiceNo: inv.invoiceNo, branchId: inv.branchId, installmentNo: sched.installmentNo };
+    });
+
+    await writeAudit({
+      userId: actor.userId,
+      action: "installment.payment",
+      entity: "invoice",
+      entityId: result.invoiceId,
+      branchId: result.branchId,
+      details: { invoiceNo: result.invoiceNo, installmentNo: result.installmentNo, amount: s(amount) },
+    });
+
+    return { ok: true as const };
+  } catch (e) {
+    return { ok: false as const, error: e instanceof Error ? e.message : "Failed to record payment." };
+  }
+}
+
 export async function createSale(actor: Actor, raw: unknown) {
   if (!canCreateSale(actor.role)) return { ok: false as const, error: "Not allowed to create sales." };
 

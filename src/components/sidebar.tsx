@@ -41,7 +41,7 @@ const NAV: Group[] = [
 
 export function Sidebar({ role }: { role: string }) {
   return (
-    <aside className="flex w-56 shrink-0 flex-col bg-slate-900 text-slate-200">
+    <aside className="flex w-56 shrink-0 flex-col bg-slate-900 text-slate-200 print:hidden">
       <div className="flex items-center gap-2 px-4 py-5 text-lg font-semibold text-white">
         ⚡ Dealership ERP
       </div>

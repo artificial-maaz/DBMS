@@ -32,6 +32,27 @@ export async function listInvoices(opts: { role: string; ownBranchId: number | n
     .orderBy(desc(invoices.createdAt));
 }
 
+/** Full invoice detail — scoped: employees can only open their branch's invoices. */
+export async function getInvoiceDetail(opts: { id: number; role: string; ownBranchId: number | null }) {
+  const inv = await db.query.invoices.findFirst({
+    where: (i, { eq }) => eq(i.id, opts.id),
+  });
+  if (!inv) return null;
+  if (!seesAllBranches(opts.role) && inv.branchId !== opts.ownBranchId) return null;
+
+  const [customer, branch, items, schedule] = await Promise.all([
+    db.query.customers.findFirst({ where: (c, { eq }) => eq(c.id, inv.customerId) }),
+    db.query.branches.findFirst({ where: (b, { eq }) => eq(b.id, inv.branchId) }),
+    db.query.invoiceItems.findMany({ where: (it, { eq }) => eq(it.invoiceId, inv.id) }),
+    db.query.installmentSchedules.findMany({
+      where: (sc, { eq }) => eq(sc.invoiceId, inv.id),
+      orderBy: (sc, { asc }) => asc(sc.installmentNo),
+    }),
+  ]);
+
+  return { invoice: inv, customer, branch, items, schedule };
+}
+
 /** Data the "New Sale" form needs: sellable stock + customers, branch-scoped. */
 export async function getSaleFormData(opts: { role: string; ownBranchId: number | null }) {
   const all = seesAllBranches(opts.role);

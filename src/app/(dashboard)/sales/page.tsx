@@ -58,7 +58,11 @@ export default async function SalesPage() {
             )}
             {rows.map((r) => (
               <tr key={r.id} className="border-t border-slate-100 hover:bg-slate-50">
-                <td className="px-4 py-2.5 font-mono text-xs font-medium text-indigo-700">{r.invoiceNo}</td>
+                <td className="px-4 py-2.5 font-mono text-xs font-medium">
+                  <Link href={`/sales/${r.id}`} className="text-indigo-700 hover:underline">
+                    {r.invoiceNo}
+                  </Link>
+                </td>
                 <td className="px-4 py-2.5">{r.customerName}</td>
                 <td className="px-4 py-2.5">
                   <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${PLAN_BADGE[r.settlementPlan]}`}>
