@@ -1,0 +1,42 @@
+import { z } from "zod";
+
+/**
+ * Shared input normalizers. Staff type money as "1,50,000", "Rs. 150000",
+ * phones as "+92 300-1234567", CNICs without dashes — all must just work.
+ */
+
+const cleanMoney = (v: unknown) =>
+  typeof v === "string" ? v.replace(/rs\.?/i, "").replace(/[,\s]/g, "") : v;
+
+/** Required amount; commas/Rs./spaces tolerated. */
+export const moneyRequired = z.preprocess(
+  cleanMoney,
+  z.string().regex(/^\d+(\.\d{1,2})?$/, "Enter a valid amount (commas are fine)"),
+);
+
+/** Optional amount; empty stays "" (callers store null). */
+export const moneyOptional = z.preprocess(
+  cleanMoney,
+  z.string().regex(/^(\d+(\.\d{1,2})?)?$/, "Enter a valid amount (commas are fine)"),
+);
+
+/** Optional amount; empty becomes "0". */
+export const moneyZero = z.preprocess(
+  cleanMoney,
+  z
+    .string()
+    .regex(/^(\d+(\.\d{1,2})?)?$/, "Enter a valid amount (commas are fine)")
+    .transform((v) => (v === "" ? "0" : v)),
+);
+
+/** "+92 300 1234567" / "0092..." / "0300-1234567" → "03001234567" */
+export const phoneNumber = z.preprocess(
+  (v) => {
+    if (typeof v !== "string") return v;
+    let s = v.replace(/[\s()./-]/g, "");
+    if (s.startsWith("+92")) s = "0" + s.slice(3);
+    else if (s.startsWith("0092")) s = "0" + s.slice(4);
+    return s;
+  },
+  z.string().regex(/^0\d{9,10}$/, "Phone like 03001234567"),
+);

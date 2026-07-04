@@ -1,4 +1,4 @@
-import { and, desc, eq, ilike, or, type SQL } from "drizzle-orm";
+import { and, desc, eq, ilike, or, sql, type SQL } from "drizzle-orm";
 import { db } from "@/db";
 import { branches, customers } from "@/db/schema";
 import { seesAllBranches } from "./permissions";
@@ -24,9 +24,14 @@ export async function listCustomers(opts: {
 
   if (opts.q) {
     const like = `%${opts.q.trim()}%`;
-    filters.push(
-      or(ilike(customers.fullName, like), ilike(customers.phone, like), ilike(customers.cnic, like))!,
-    );
+    const conds = [ilike(customers.fullName, like), ilike(customers.phone, like), ilike(customers.cnic, like)];
+    // Digit-only matching: "3420256087749" finds the dashed CNIC, "+92 300…" finds the phone.
+    const qDigits = opts.q.replace(/\D/g, "");
+    if (qDigits.length >= 5) {
+      const dLike = `%${qDigits}%`;
+      conds.push(sql`replace(${customers.cnic}, '-', '') ilike ${dLike}`, ilike(customers.phone, dLike));
+    }
+    filters.push(or(...conds)!);
   }
 
   return db

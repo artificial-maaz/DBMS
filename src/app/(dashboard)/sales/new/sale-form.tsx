@@ -28,7 +28,10 @@ export function SaleForm({
   const [months, setMonths] = useState("12");
   const [totalMarkup, setTotalMarkup] = useState("");
 
-  const n = (v: string) => (v && !isNaN(Number(v)) ? Number(v) : 0);
+  const n = (v: string) => {
+    const x = Number(String(v).replace(/[,\s]/g, ""));
+    return isNaN(x) ? 0 : x;
+  };
   const total = useMemo(
     () => n(salePrice) - n(discount) + n(regGovt) + n(regProfit),
     [salePrice, discount, regGovt, regProfit],

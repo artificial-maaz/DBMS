@@ -1,25 +1,19 @@
 import { z } from "zod";
-
-const money = z
-  .string()
-  .trim()
-  .regex(/^\d+(\.\d{1,2})?$/, "Enter a valid amount")
-  .or(z.literal(""))
-  .transform((v) => (v === "" ? "0" : v));
+import { moneyRequired, moneyZero } from "@/lib/validation";
 
 export const createSaleSchema = z
   .object({
     customerId: z.coerce.number().int().positive("Customer is required"),
     vehicleId: z.coerce.number().int().positive("Vehicle is required"),
-    salePrice: z.string().trim().regex(/^\d+(\.\d{1,2})?$/, "Sale price is required"),
-    discount: money,
-    registrationFeeGovt: money,
-    registrationFeeProfit: money,
-    commissionAmount: money,
+    salePrice: moneyRequired,
+    discount: moneyZero,
+    registrationFeeGovt: moneyZero,
+    registrationFeeProfit: moneyZero,
+    commissionAmount: moneyZero,
     settlementPlan: z.enum(["cash", "installment"]),
-    downpayment: money,
+    downpayment: moneyZero,
     months: z.coerce.number().int().min(1).max(60).optional(),
-    totalMarkup: money,
+    totalMarkup: moneyZero,
     notes: z.string().trim().max(2000).optional().or(z.literal("")),
   })
   .superRefine((v, ctx) => {

@@ -1,4 +1,4 @@
-import { and, desc, eq, ilike, or, type SQL } from "drizzle-orm";
+import { and, desc, eq, ilike, or, sql, type SQL } from "drizzle-orm";
 import { db } from "@/db";
 import { branches, customers, invoices, vehicles } from "@/db/schema";
 
@@ -13,6 +13,14 @@ function branchScope(col: typeof vehicles.branchId, role: string, ownBranchId: n
  */
 export async function globalSearch(opts: { q: string; role: string; ownBranchId: number | null }) {
   const like = `%${opts.q.trim()}%`;
+  const qDigits = opts.q.replace(/\D/g, "");
+  const digitConds =
+    qDigits.length >= 5
+      ? [
+          sql`replace(${customers.cnic}, '-', '') ilike ${`%${qDigits}%`}`,
+          ilike(customers.phone, `%${qDigits}%`),
+        ]
+      : [];
 
   const [vehicleHits, customerHits, invoiceHits] = await Promise.all([
     db
@@ -47,7 +55,7 @@ export async function globalSearch(opts: { q: string; role: string; ownBranchId:
       .innerJoin(branches, eq(customers.branchId, branches.id))
       .where(
         and(
-          or(ilike(customers.fullName, like), ilike(customers.phone, like), ilike(customers.cnic, like)),
+          or(ilike(customers.fullName, like), ilike(customers.phone, like), ilike(customers.cnic, like), ...digitConds),
           branchScope(customers.branchId, opts.role, opts.ownBranchId),
         ),
       )

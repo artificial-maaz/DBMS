@@ -1,9 +1,5 @@
 import { z } from "zod";
-
-const money = z
-  .string()
-  .trim()
-  .regex(/^\d+(\.\d{1,2})?$/, "Enter a valid amount (e.g. 189000 or 189000.50)");
+import { moneyOptional } from "@/lib/validation";
 
 export const createVehicleSchema = z.object({
   make: z.string().trim().min(1, "Make is required").max(60),
@@ -12,8 +8,8 @@ export const createVehicleSchema = z.object({
   color: z.string().trim().max(40).optional().or(z.literal("")),
   chassisNo: z.string().trim().min(3, "Chassis no. required").max(50),
   engineNo: z.string().trim().min(3, "Engine no. required").max(50),
-  purchasePrice: money.optional().or(z.literal("")),
-  salePrice: money.optional().or(z.literal("")),
+  purchasePrice: moneyOptional,
+  salePrice: moneyOptional,
   branchId: z.coerce.number().int().positive("Branch is required"),
   notes: z.string().trim().max(2000).optional().or(z.literal("")),
 });
