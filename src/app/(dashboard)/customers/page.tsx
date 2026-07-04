@@ -1,4 +1,4 @@
-import { canCreateCustomer, canViewCustomers, seesAllBranches } from "@/modules/customers/permissions";
+import { canCreateCustomer, seesAllBranches } from "@/modules/customers/permissions";
 import { listCustomers } from "@/modules/customers/queries";
 import { listActiveBranches } from "@/modules/inventory/queries";
 import { requireStaff } from "@/lib/session";
@@ -7,23 +7,13 @@ import { AddCustomerForm } from "./add-customer-form";
 export default async function CustomersPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string; branch?: string }>;
+  searchParams: Promise<{ q?: string }>;
 }) {
   const { profile } = await requireStaff();
   const params = await searchParams;
 
-  if (!canViewCustomers(profile.role)) {
-    return <p className="text-sm text-slate-500">You don't have access to the customer registry.</p>;
-  }
-
-  const allBranches = seesAllBranches(profile.role);
   const [rows, branches] = await Promise.all([
-    listCustomers({
-      role: profile.role,
-      ownBranchId: profile.branchId,
-      q: params.q,
-      branchId: params.branch ? Number(params.branch) : undefined,
-    }),
+    listCustomers({ role: profile.role, ownBranchId: profile.branchId, q: params.q }),
     listActiveBranches(),
   ]);
 
@@ -34,26 +24,18 @@ export default async function CustomersPage({
         {canCreateCustomer(profile.role) && (
           <AddCustomerForm
             branches={branches.map((b) => ({ id: b.id, name: b.name }))}
-            fixedBranchId={allBranches ? null : profile.branchId}
+            fixedBranchId={seesAllBranches(profile.role) ? null : profile.branchId}
           />
         )}
       </div>
 
-      <form className="flex flex-wrap gap-3" method="get">
+      <form method="get" className="flex gap-3">
         <input
           name="q"
           defaultValue={params.q ?? ""}
           placeholder="Search name, phone, CNIC…"
-          className="w-72 rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm"
+          className="w-72 rounded-lg border border-slate-300 px-3 py-1.5 text-sm outline-none focus:border-slate-500"
         />
-        {allBranches && (
-          <select name="branch" defaultValue={params.branch ?? ""} className="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm">
-            <option value="">All branches</option>
-            {branches.map((b) => (
-              <option key={b.id} value={b.id}>{b.name}</option>
-            ))}
-          </select>
-        )}
         <button className="rounded-lg bg-slate-900 px-4 py-1.5 text-sm text-white hover:bg-slate-700">
           Search
         </button>
@@ -63,12 +45,12 @@ export default async function CustomersPage({
         <table className="w-full text-sm">
           <thead className="bg-slate-50 text-left text-xs uppercase tracking-wide text-slate-500">
             <tr>
-              <Th>Name</Th>
-              <Th>Phone</Th>
-              <Th>CNIC</Th>
-              <Th>City</Th>
-              <Th>Branch</Th>
-              <Th>Registered</Th>
+              <th className="px-4 py-3">Name</th>
+              <th className="px-4 py-3">Phone</th>
+              <th className="px-4 py-3">CNIC</th>
+              <th className="px-4 py-3">City</th>
+              <th className="px-4 py-3">Branch</th>
+              <th className="px-4 py-3">Registered</th>
             </tr>
           </thead>
           <tbody>
@@ -96,8 +78,4 @@ export default async function CustomersPage({
       </div>
     </div>
   );
-}
-
-function Th({ children }: { children: React.ReactNode }) {
-  return <th className="px-4 py-3">{children}</th>;
 }
