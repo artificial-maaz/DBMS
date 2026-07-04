@@ -15,6 +15,7 @@ const NAV: Group[] = [
     items: [
       { label: "Inventory", href: "/inventory" },
       { label: "Spare Parts", href: "/parts" },
+      { label: "Gate Passes", href: "/gatepass", roles: ["creator", "owner", "branch_manager", "gate_staff"] },
       { label: "Branches", href: "/branches", roles: ["creator", "owner"] },
     ],
   },

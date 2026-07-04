@@ -15,6 +15,13 @@
       "when": 1783201064423,
       "tag": "0001_friendly_cardiac",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1783201643264,
+      "tag": "0002_odd_wrecking_crew",
+      "breakpoints": true
     }
   ]
 }
