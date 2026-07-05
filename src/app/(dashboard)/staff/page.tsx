@@ -1,13 +1,13 @@
 import { redirect } from "next/navigation";
-import { canManageStaff, listStaff } from "@/modules/staff/service";
+import { canManageStaff, canViewStaff, listStaff } from "@/modules/staff/service";
 import { listActiveBranches } from "@/modules/inventory/queries";
 import { requireStaff } from "@/lib/session";
 import { AddStaffForm } from "./add-staff-form";
 import { ToggleStaff } from "./toggle-staff";
 
+/** #18: only the Creator can grant roles; Owners view the directory read-only. */
 const GRANTABLE: Record<string, string[]> = {
   creator: ["owner", "branch_manager", "salesperson", "mechanic", "gate_staff"],
-  owner: ["branch_manager", "salesperson", "mechanic", "gate_staff"],
 };
 
 const ROLE_BADGE: Record<string, string> = {
@@ -21,7 +21,8 @@ const ROLE_BADGE: Record<string, string> = {
 
 export default async function StaffPage() {
   const { profile } = await requireStaff();
-  if (!canManageStaff(profile.role)) redirect("/dashboard");
+  if (!canViewStaff(profile.role)) redirect("/dashboard");
+  const manager = canManageStaff(profile.role);
 
   const [rows, branches] = await Promise.all([listStaff(), listActiveBranches()]);
 
@@ -29,10 +30,12 @@ export default async function StaffPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-semibold">Staff & Access</h1>
-        <AddStaffForm
-          branches={branches.map((b) => ({ id: b.id, name: b.name }))}
-          grantableRoles={GRANTABLE[profile.role] ?? []}
-        />
+        {manager && (
+          <AddStaffForm
+            branches={branches.map((b) => ({ id: b.id, name: b.name }))}
+            grantableRoles={GRANTABLE[profile.role] ?? []}
+          />
+        )}
       </div>
 
       <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white">
@@ -72,7 +75,7 @@ export default async function StaffPage() {
                   </span>
                 </td>
                 <td className="px-4 py-2.5 text-right">
-                  {m.role !== "creator" && <ToggleStaff id={m.id} isActive={m.isActive} />}
+                  {manager && m.role !== "creator" && <ToggleStaff id={m.id} isActive={m.isActive} />}
                 </td>
               </tr>
             ))}

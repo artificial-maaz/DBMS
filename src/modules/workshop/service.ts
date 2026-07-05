@@ -1,7 +1,17 @@
-import { and, count, desc, eq } from "drizzle-orm";
+import { and, count, desc, eq, sql } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "@/db";
-import { branches, customers, jobCards, ledgerEntries, staffProfiles, user, vehicles } from "@/db/schema";
+import {
+  branches,
+  customers,
+  jobCardParts,
+  jobCards,
+  ledgerEntries,
+  partMovements,
+  spareParts,
+  staffProfiles,
+  user,
+} from "@/db/schema";
 import { writeAudit } from "@/lib/audit";
 import { moneyZero } from "@/lib/validation";
 
@@ -167,6 +177,153 @@ export async function advanceJob(
   } catch (e) {
     return { ok: false as const, error: e instanceof Error ? e.message : "Failed to update job." };
   }
+}
+
+/**
+ * Consume a spare part on a job: stock deducted (movement: workshop),
+ * line added at retail price, job.partsCharge accumulated — all atomic.
+ * Only while the job is open/in progress.
+ */
+export async function addPartToJob(actor: Actor, raw: { jobId: number; partId: number; qty: number }) {
+  if (!canUseWorkshop(actor.role)) return { ok: false as const, error: "Not allowed." };
+  if (!raw.qty || raw.qty < 1) return { ok: false as const, error: "Quantity must be at least 1." };
+
+  try {
+    const result = await db.transaction(async (tx) => {
+      const [job] = await tx.select().from(jobCards).where(eq(jobCards.id, raw.jobId)).for("update");
+      if (!job) throw new Error("Job card not found.");
+      if (!seesAllBranches(actor.role) && job.branchId !== actor.branchId) {
+        throw new Error("You can only manage jobs in your own branch.");
+      }
+      if (job.status !== "open" && job.status !== "in_progress") {
+        throw new Error("Parts can only be added while the job is open or in progress.");
+      }
+
+      const [part] = await tx.select().from(spareParts).where(eq(spareParts.id, raw.partId)).for("update");
+      if (!part) throw new Error("Part not found.");
+      if (part.branchId !== job.branchId) throw new Error("This part belongs to a different branch.");
+      if (part.currentQty < raw.qty) throw new Error(`Only ${part.currentQty} in stock.`);
+      if (!part.retailPrice) throw new Error("This part has no retail price set — set it in Spare Parts first.");
+
+      const amount = (Number(part.retailPrice) * raw.qty).toFixed(2);
+
+      await tx.insert(jobCardParts).values({
+        jobCardId: job.id,
+        partId: part.id,
+        qty: raw.qty,
+        unitPrice: part.retailPrice,
+        amount,
+      });
+      await tx.update(spareParts).set({ currentQty: part.currentQty - raw.qty }).where(eq(spareParts.id, part.id));
+      await tx.insert(partMovements).values({
+        partId: part.id,
+        delta: -raw.qty,
+        reason: "workshop",
+        note: `Job ${job.jobNo}`,
+        createdBy: actor.userId,
+      });
+      await tx
+        .update(jobCards)
+        .set({ partsCharge: sql`${jobCards.partsCharge} + ${amount}` })
+        .where(eq(jobCards.id, job.id));
+
+      return { jobNo: job.jobNo, branchId: job.branchId, partName: part.name, amount };
+    });
+
+    await writeAudit({
+      userId: actor.userId,
+      action: "job.part_add",
+      entity: "job_card",
+      entityId: raw.jobId,
+      branchId: result.branchId,
+      details: { jobNo: result.jobNo, part: result.partName, qty: raw.qty, amount: result.amount },
+    });
+    return { ok: true as const };
+  } catch (e) {
+    return { ok: false as const, error: e instanceof Error ? e.message : "Failed to add part." };
+  }
+}
+
+/** Remove a part line (before delivery): stock restored, charge reduced. */
+export async function removePartFromJob(actor: Actor, lineId: number) {
+  if (!canUseWorkshop(actor.role)) return { ok: false as const, error: "Not allowed." };
+  try {
+    const result = await db.transaction(async (tx) => {
+      const [line] = await tx.select().from(jobCardParts).where(eq(jobCardParts.id, lineId)).for("update");
+      if (!line) throw new Error("Line not found.");
+      const [job] = await tx.select().from(jobCards).where(eq(jobCards.id, line.jobCardId)).for("update");
+      if (!job) throw new Error("Job not found.");
+      if (!seesAllBranches(actor.role) && job.branchId !== actor.branchId) throw new Error("Wrong branch.");
+      if (job.status === "delivered" || job.status === "cancelled") {
+        throw new Error("Cannot modify a closed job.");
+      }
+
+      await tx.delete(jobCardParts).where(eq(jobCardParts.id, lineId));
+      await tx
+        .update(spareParts)
+        .set({ currentQty: sql`${spareParts.currentQty} + ${line.qty}` })
+        .where(eq(spareParts.id, line.partId));
+      await tx.insert(partMovements).values({
+        partId: line.partId,
+        delta: line.qty,
+        reason: "adjustment",
+        note: `Removed from job ${job.jobNo}`,
+        createdBy: actor.userId,
+      });
+      await tx
+        .update(jobCards)
+        .set({ partsCharge: sql`${jobCards.partsCharge} - ${line.amount}` })
+        .where(eq(jobCards.id, job.id));
+
+      return { jobNo: job.jobNo, branchId: job.branchId };
+    });
+
+    await writeAudit({
+      userId: actor.userId,
+      action: "job.part_remove",
+      entity: "job_card",
+      entityId: lineId,
+      branchId: result.branchId,
+      details: { jobNo: result.jobNo },
+    });
+    return { ok: true as const };
+  } catch (e) {
+    return { ok: false as const, error: e instanceof Error ? e.message : "Failed to remove part." };
+  }
+}
+
+export async function getJobDetail(opts: { id: number; role: string; ownBranchId: number | null }) {
+  const job = await db.query.jobCards.findFirst({ where: (j, { eq }) => eq(j.id, opts.id) });
+  if (!job) return null;
+  if (!seesAllBranches(opts.role) && job.branchId !== opts.ownBranchId) return null;
+
+  const [customer, branch, mechanic, lines] = await Promise.all([
+    db.query.customers.findFirst({ where: (c, { eq }) => eq(c.id, job.customerId) }),
+    db.query.branches.findFirst({ where: (b, { eq }) => eq(b.id, job.branchId) }),
+    job.mechanicId ? db.query.user.findFirst({ where: (u, { eq }) => eq(u.id, job.mechanicId!) }) : null,
+    db
+      .select({
+        id: jobCardParts.id,
+        qty: jobCardParts.qty,
+        unitPrice: jobCardParts.unitPrice,
+        amount: jobCardParts.amount,
+        partName: spareParts.name,
+      })
+      .from(jobCardParts)
+      .innerJoin(spareParts, eq(jobCardParts.partId, spareParts.id))
+      .where(eq(jobCardParts.jobCardId, job.id)),
+  ]);
+
+  return { job, customer, branch, mechanic, lines };
+}
+
+/** In-stock parts of the job's branch, for the add-part dropdown. */
+export async function listBranchParts(branchId: number) {
+  return db
+    .select({ id: spareParts.id, name: spareParts.name, currentQty: spareParts.currentQty, retailPrice: spareParts.retailPrice })
+    .from(spareParts)
+    .where(and(eq(spareParts.branchId, branchId), eq(spareParts.isActive, true)))
+    .orderBy(spareParts.name);
 }
 
 export async function listJobs(opts: { role: string; ownBranchId: number | null; status?: string }) {

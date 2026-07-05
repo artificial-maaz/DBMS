@@ -1,8 +1,9 @@
 import type { Metadata, Viewport } from "next";
+import { APP_NAME } from "@/lib/config";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Dealership ERP",
+  title: APP_NAME,
   description: "Multi-branch vehicle dealership management system",
   manifest: "/manifest.webmanifest",
 };

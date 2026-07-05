@@ -17,6 +17,7 @@ export const LEDGER_CATEGORIES = [
 
 export const createEntrySchema = z.object({
   direction: z.enum(["cash_in", "cash_out"]),
+  paymentMethod: z.enum(["cash", "online", "bank_transfer", "cheque"]).default("cash"),
   category: z.enum(LEDGER_CATEGORIES),
   amount: moneyRequired.refine((v) => Number(v) > 0, "Amount must be positive"),
   description: z.string().trim().min(3, "Description is required").max(500),

@@ -37,6 +37,9 @@ export function AddStaffForm({ branches, grantableRoles }: { branches: Branch[];
           <Field name="email" label="Login Email *" placeholder="ali@example.com" />
           <Field name="password" label="Temp Password * (8+ chars)" placeholder="they change it after login" />
           <Field name="designation" label="Designation" placeholder="e.g. Senior Sales Officer" />
+          <Field name="cnic" label="CNIC" placeholder="42201-1234567-1" />
+          <Field name="basicSalary" label="Basic Monthly Salary (Rs.)" placeholder="e.g. 40,000" />
+          <Field name="monthlyAllowances" label="Monthly Allowances (Rs.)" placeholder="e.g. 3,000" />
 
           <label className="text-sm">
             <span className="mb-1 block font-medium">Role *</span>

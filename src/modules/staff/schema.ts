@@ -1,4 +1,4 @@
-import { boolean, integer, pgEnum, pgTable, text, timestamp } from "drizzle-orm/pg-core";
+import { boolean, integer, numeric, pgEnum, pgTable, text, timestamp, varchar } from "drizzle-orm/pg-core";
 import { branches } from "../branches/schema";
 
 /**
@@ -27,6 +27,9 @@ export const staffProfiles = pgTable("staff_profiles", {
   role: staffRole("role").notNull(),
   branchId: integer("branch_id").references(() => branches.id),
   designation: text("designation"),
+  cnic: varchar("cnic", { length: 15 }), // #24
+  basicSalary: numeric("basic_salary", { precision: 12, scale: 2 }).notNull().default("0"),
+  monthlyAllowances: numeric("monthly_allowances", { precision: 12, scale: 2 }).notNull().default("0"),
   isActive: boolean("is_active").notNull().default(true),
   joinedAt: timestamp("joined_at").notNull().defaultNow(),
 });

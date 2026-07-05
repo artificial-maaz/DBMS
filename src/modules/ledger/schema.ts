@@ -13,6 +13,9 @@ import { invoices } from "../sales/schema";
 
 export const ledgerDirection = pgEnum("ledger_direction", ["cash_in", "cash_out"]);
 
+/** #28: how the money physically moved. */
+export const paymentMethod = pgEnum("payment_method", ["cash", "online", "bank_transfer", "cheque"]);
+
 /**
  * Hybrid ledger (approved 2026-07-04): staff see a simple cash in/out register,
  * but rows are categorized, reference-linked, and APPEND-ONLY — the shape full
@@ -26,6 +29,7 @@ export const ledgerEntries = pgTable("ledger_entries", {
   id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
   branchId: integer("branch_id").notNull().references(() => branches.id),
   direction: ledgerDirection("direction").notNull(),
+  paymentMethod: paymentMethod("payment_method").notNull().default("cash"), // #28
   category: varchar("category", { length: 60 }).notNull(), // sale, rent, utilities, salary…
   amount: numeric("amount", { precision: 14, scale: 2 }).notNull(),
   description: text("description").notNull(),

@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { and, count, eq, gte, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { customers, invoices, ledgerEntries, vehicles } from "@/db/schema";
@@ -48,29 +49,28 @@ export default async function DashboardPage() {
       <h1 className="text-xl font-semibold">Business Dashboard</h1>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <Card title="Vehicles in Stock" value={String(stock.n)} accent="bg-indigo-600" />
-        <Card title="Active Invoices" value={String(activeInvoices.n)} accent="bg-sky-600" />
-        <Card title="Customers" value={String(customerCount.n)} accent="bg-slate-600" />
+        <Card title="Vehicles in Stock" value={String(stock.n)} accent="bg-indigo-600" href="/inventory?status=in_stock" />
+        <Card title="Active Invoices" value={String(activeInvoices.n)} accent="bg-sky-600" href="/sales" />
+        <Card title="Customers" value={String(customerCount.n)} accent="bg-slate-600" href="/customers" />
         {financial && (
           <>
-            <Card title="Cash In (this month)" value={fmt(monthlyCashIn)} accent="bg-emerald-600" />
-            <Card title="Outstanding Receivables" value={fmt(receivables)} accent="bg-amber-600" />
+            <Card title="Cash In (this month)" value={fmt(monthlyCashIn)} accent="bg-emerald-600" href="/ledger?direction=cash_in" />
+            <Card title="Outstanding Receivables" value={fmt(receivables)} accent="bg-amber-600" href="/sales" />
           </>
         )}
       </div>
-
-      <p className="text-sm text-slate-500">
-        Modules are being built phase by phase — inventory and sales arrive next.
-      </p>
     </div>
   );
 }
 
-function Card({ title, value, accent }: { title: string; value: string; accent: string }) {
+function Card({ title, value, accent, href }: { title: string; value: string; accent: string; href: string }) {
   return (
-    <div className={`rounded-xl ${accent} p-5 text-white shadow-sm`}>
+    <Link
+      href={href}
+      className={`block rounded-xl ${accent} p-5 text-white shadow-sm transition hover:scale-[1.02] hover:shadow-md`}
+    >
       <p className="text-sm/5 opacity-80">{title}</p>
       <p className="mt-1 text-2xl font-semibold">{value}</p>
-    </div>
+    </Link>
   );
 }

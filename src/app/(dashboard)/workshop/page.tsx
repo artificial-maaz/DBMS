@@ -87,7 +87,9 @@ export default async function WorkshopPage({
             )}
             {jobs.map((j) => (
               <tr key={j.id} className="border-t border-slate-100 align-top hover:bg-slate-50">
-                <td className="px-4 py-2.5 font-mono text-xs font-medium text-indigo-700">{j.jobNo}</td>
+                <td className="px-4 py-2.5 font-mono text-xs font-medium">
+                  <a href={`/workshop/${j.id}`} className="text-indigo-700 hover:underline">{j.jobNo}</a>
+                </td>
                 <td className="px-4 py-2.5">
                   <span className="font-medium">{j.customerName}</span>
                   <span className="block font-mono text-xs text-slate-400">{j.chassisNo}</span>

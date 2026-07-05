@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { signIn } from "@/lib/auth-client";
+import { APP_NAME } from "@/lib/config";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -24,7 +25,7 @@ export default function LoginPage() {
         onSubmit={handleSubmit}
         className="w-full max-w-sm space-y-4 rounded-xl border border-slate-200 bg-white p-8 shadow-sm"
       >
-        <h1 className="text-xl font-semibold">Dealership ERP</h1>
+        <h1 className="text-xl font-semibold">{APP_NAME}</h1>
         <p className="text-sm text-slate-500">Sign in with your invited account</p>
 
         <input

@@ -33,6 +33,7 @@ export async function listEntries(opts: {
       .select({
         id: ledgerEntries.id,
         direction: ledgerEntries.direction,
+        paymentMethod: ledgerEntries.paymentMethod,
         category: ledgerEntries.category,
         amount: ledgerEntries.amount,
         description: ledgerEntries.description,

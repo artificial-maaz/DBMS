@@ -49,6 +49,16 @@ export function AddEntryForm({
           </label>
 
           <label className="text-sm">
+            <span className="mb-1 block font-medium">Payment Method *</span>
+            <select name="paymentMethod" required className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2">
+              <option value="cash">Cash</option>
+              <option value="online">Online payment</option>
+              <option value="bank_transfer">Bank transfer</option>
+              <option value="cheque">Cheque</option>
+            </select>
+          </label>
+
+          <label className="text-sm">
             <span className="mb-1 block font-medium">Category *</span>
             <select name="category" required className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2">
               {categories.map((c) => (

@@ -1,4 +1,4 @@
-# DBMS Project — Dealership ERP — Project-Specific Instructions
+# DBMS Project — Hussain Motors ERP — Project-Specific Instructions
 
 This file overrides or extends the root `CLAUDE.md` for this project only.
 
@@ -67,9 +67,12 @@ Follow the root `execution_workflow` strictly:
 - Note: an Obsidian vault (inner `DBMS/`, `.obsidian/`) lives inside this folder; it is gitignored.
 
 ## Current Status
-- **Phase 1 modules complete (2026-07-04):** auth + session guard + RBAC dashboard; inventory (RBAC-stripped purchase price); customers (CNIC-normalized, searchable); sales (atomic transactions, per-branch invoice numbers, installment schedules, commissions, printable invoice PDF, payment collection with auto-settle); append-only cash ledger with filters/totals; branches admin; staff onboarding + deactivation with session revocation. All mutations audit-logged.
-- Verified working end-to-end by Sir against live Neon DB.
-- Remaining for Phase 1 polish: global VIN/CNIC/invoice search, PWA icons, audit log viewer, email-delivered invites (needs email provider), production deployment.
+- **ALL PHASES COMPLETE (2026-07-05).** Deployed to production on Railway (auto-deploys from main); Neon Postgres; PWA installed on Sir's devices.
+- Phase 1: auth/RBAC/branches, inventory, customers, sales w/ installments + commissions + PDF invoices + payment collection, hybrid cash ledger, staff admin w/ session-revoking deactivation, audit log, global search, input normalization.
+- Phase 2: monthly P&L (COGS + markup recognition), spare parts (append-only movements), gate passes (issue/receive/cancel).
+- Phase 3: workshop (job cards, 3 free coupons per sold vehicle, labor waiver, parts consumption from stock), HR & payroll (salary+allowances on profiles, commission auto-integration, ledger-posted releases, overlap guard), procurement (suppliers, purchase orders w/ outstanding-balance payments).
+- Backlog / polish candidates: custom domain, email-delivered invites (needs provider), dev/prod DB split via Neon branching, payslip print view, part sales on invoices.
+- **2026-07-05: renamed to Hussain Motors ERP** (centralized in `src/lib/config.ts`). Staff management is Creator-only (#18). Full 31-point review backlog lives in `ROADMAP.md` — treat it as the work queue. Business context: overall manager is Owner Abrar Hussain; silent-investor owners need read-only visibility; branch managers often double as sales managers/mechanics; branches closed Fridays.
 
 ---
 

@@ -29,6 +29,7 @@ export async function recordEntry(actor: Actor, raw: unknown) {
       .values({
         branchId: input.branchId,
         direction: input.direction,
+        paymentMethod: input.paymentMethod,
         category: input.category,
         amount: input.amount,
         description: input.description,

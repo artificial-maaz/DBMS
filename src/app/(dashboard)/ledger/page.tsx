@@ -99,6 +99,7 @@ export default async function LedgerPage({
                 <td className="px-4 py-2.5 text-slate-500">{new Date(e.entryDate).toLocaleDateString("en-PK")}</td>
                 <td className="px-4 py-2.5">
                   <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs">{e.category}</span>
+                  <span className="ml-1 text-xs text-slate-400">{e.paymentMethod.replace("_", " ")}</span>
                 </td>
                 <td className="px-4 py-2.5">{e.description}</td>
                 <td className="px-4 py-2.5">{e.branchName}</td>

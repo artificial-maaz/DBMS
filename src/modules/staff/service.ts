@@ -6,17 +6,20 @@ import { z } from "zod";
 import { db } from "@/db";
 import { branches, session, staffProfiles, user } from "@/db/schema";
 import { writeAudit } from "@/lib/audit";
+import { moneyZero } from "@/lib/validation";
 
 type Actor = { userId: string; role: string };
 
+/** #18 (2026-07-05): staff management is CREATOR-ONLY. Owners view, never modify. */
 export function canManageStaff(role: string) {
+  return role === "creator";
+}
+export function canViewStaff(role: string) {
   return ["creator", "owner"].includes(role);
 }
 
-/** Owners can grant employee roles only; the Creator can also appoint Owners. */
 const GRANTABLE: Record<string, string[]> = {
   creator: ["owner", "branch_manager", "salesperson", "mechanic", "gate_staff"],
-  owner: ["branch_manager", "salesperson", "mechanic", "gate_staff"],
 };
 
 const staffSchema = z.object({
@@ -26,6 +29,17 @@ const staffSchema = z.object({
   role: z.enum(["owner", "branch_manager", "salesperson", "mechanic", "gate_staff"]),
   branchId: z.coerce.number().int().optional(),
   designation: z.string().trim().max(120).optional().or(z.literal("")),
+  cnic: z
+    .preprocess(
+      (v) => (typeof v === "string" ? v.replace(/\s/g, "") : v),
+      z
+        .string()
+        .regex(/^(\d{5}-\d{7}-\d|\d{13})?$/, "CNIC must be 13 digits")
+        .transform((v) => (v && !v.includes("-") ? `${v.slice(0, 5)}-${v.slice(5, 12)}-${v.slice(12)}` : v)),
+    )
+    .optional(),
+  basicSalary: moneyZero,
+  monthlyAllowances: moneyZero,
 });
 
 export async function listStaff() {
@@ -85,6 +99,9 @@ export async function createStaff(actor: Actor, raw: unknown) {
       role: input.role,
       branchId: needsBranch ? input.branchId : null,
       designation: input.designation || null,
+      cnic: input.cnic || null,
+      basicSalary: input.basicSalary,
+      monthlyAllowances: input.monthlyAllowances,
     });
 
     await writeAudit({

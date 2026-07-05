@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { APP_NAME } from "@/lib/config";
 
 type Item = { label: string; href: string; roles?: string[] };
 type Group = { title: string; items: Item[] };
@@ -40,9 +41,17 @@ const NAV: Group[] = [
     ],
   },
   {
+    title: "Supply Chain",
+    items: [
+      { label: "Stock Purchases", href: "/purchases", roles: ["creator", "owner"] },
+      { label: "Suppliers", href: "/suppliers", roles: ["creator", "owner"] },
+    ],
+  },
+  {
     title: "Admin",
     items: [
       { label: "Staff", href: "/staff", roles: ["creator", "owner"] },
+      { label: "HR & Payroll", href: "/hr", roles: ["creator", "owner"] },
       { label: "Audit Log", href: "/audit", roles: ["creator", "owner"] },
       { label: "Settings", href: "/settings" },
     ],
@@ -53,7 +62,7 @@ export function Sidebar({ role }: { role: string }) {
   return (
     <aside className="flex w-56 shrink-0 flex-col bg-slate-900 text-slate-200 print:hidden">
       <div className="flex items-center gap-2 px-4 py-5 text-lg font-semibold text-white">
-        ⚡ Dealership ERP
+        ⚡ {APP_NAME}
       </div>
       <nav className="flex-1 space-y-5 overflow-y-auto px-2 pb-6">
         {NAV.map((group) => {
