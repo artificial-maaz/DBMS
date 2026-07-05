@@ -42,7 +42,7 @@ export default async function InvoiceDetailPage({ params }: { params: Promise<{ 
           </div>
           <div className="text-right">
             <p className="font-mono text-lg font-semibold">{invoice.invoiceNo}</p>
-            <p className="text-sm text-slate-500">Date: {d(invoice.createdAt)}</p>
+            <p className="text-sm text-slate-500">Date: {d(invoice.saleDate)}</p>
             <p className="mt-1">
               <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-medium capitalize text-emerald-700">
                 {invoice.status} · {invoice.settlementPlan}

@@ -12,9 +12,14 @@ Status legend: ✅ done · 🔜 next up · 📋 planned · 💬 answered/decisio
 - #24 CNIC field on staff onboarding (normalized like customers).
 - #28 Payment method (cash / online / bank transfer / cheque) on ledger entries, shown in register.
 
+## ✅ Done — Edit flows pass (2026-07-06)
+- #3 Editable staff name (incl. Creator's own display name), customer records, vehicle specs (locked once "sold"; branch reassignment intentionally excluded — goes through Gate Pass).
+- #5 Backdated sale entry: "Sale Date" field on New Sale (defaults today, no future dates). Drives invoice numbering, ledger `entryDate`, installment due dates, and the P&L period — a backdated sale now lands in its correct historical month, not the entry month.
+- #6 Branch edit (name/city/address/phone), staff edit (branch/designation/CNIC/salary/allowances/joined date), Branch Manager badge text-wrap fixed (`whitespace-nowrap`).
+- **Needs migration:** `saleDate` column added to `invoices` (schema-only so far — run the ritual below).
+
 ## 🔜 Next up (core features, pre-polish — per #8)
-1. **Edit flows (#3, #5, #6):** edit forms for customers, branches, staff profiles (incl. names, joined date), vehicle details; backdated entry support for sales (sale date field) — ledger already supports backdating via its date field.
-2. **Visitors & leads module (#4, #9-groundwork):** walk-in/event visitor capture (name, phone, interest, budget, follow-up date), separate from customers; convert-to-customer action; follow-up due list.
+1. **Visitors & leads module (#4, #9-groundwork):** walk-in/event visitor capture (name, phone, interest, budget, follow-up date), separate from customers; convert-to-customer action; follow-up due list.
 3. **Advance bookings (#14):** token money register (amount, model wanted, customer/visitor link) → cash-in ledger post; bookings board feeding stock-order decisions; conversion to sale applies token as part of downpayment.
 4. **Installment plans module (#16):** dedicated view of all plans; editable schedules (adjust downpayment/monthly amounts pre-agreement, re-amortize); custom per-bike markup already supported at sale time.
 5. **Guarantor details for installments (#21):** guarantor names, CNICs, addresses, contacts on installment sales; required at sale creation.

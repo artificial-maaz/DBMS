@@ -1,0 +1,1 @@
+ALTER TABLE "invoices" ADD COLUMN "sale_date" date DEFAULT CURRENT_DATE NOT NULL;

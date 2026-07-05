@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { createBranch, setBranchActive } from "@/modules/branches/service";
+import { createBranch, setBranchActive, updateBranch } from "@/modules/branches/service";
 import { requireStaff } from "@/lib/session";
 
 export type ActionState = { ok: boolean; error?: string } | null;
@@ -9,6 +9,18 @@ export type ActionState = { ok: boolean; error?: string } | null;
 export async function addBranchAction(_prev: ActionState, formData: FormData): Promise<ActionState> {
   const { user, profile } = await requireStaff();
   const result = await createBranch({ userId: user.id, role: profile.role }, Object.fromEntries(formData));
+  if (!result.ok) return { ok: false, error: result.error };
+  revalidatePath("/branches");
+  return { ok: true };
+}
+
+export async function updateBranchAction(
+  branchId: number,
+  _prev: ActionState,
+  formData: FormData,
+): Promise<ActionState> {
+  const { user, profile } = await requireStaff();
+  const result = await updateBranch({ userId: user.id, role: profile.role }, branchId, Object.fromEntries(formData));
   if (!result.ok) return { ok: false, error: result.error };
   revalidatePath("/branches");
   return { ok: true };

@@ -48,6 +48,38 @@ export async function createBranch(actor: Actor, raw: unknown) {
   }
 }
 
+/** #6 (2026-07-06): edit an existing branch's details — name, city, address, phone. */
+export async function updateBranch(actor: Actor, branchId: number, raw: unknown) {
+  if (!canManageBranches(actor.role)) return { ok: false as const, error: "Not allowed." };
+  const parsed = branchSchema.safeParse(raw);
+  if (!parsed.success) return { ok: false as const, error: parsed.error.issues[0]?.message ?? "Invalid input" };
+
+  try {
+    await db
+      .update(branches)
+      .set({
+        name: parsed.data.name,
+        city: parsed.data.city,
+        address: parsed.data.address || null,
+        phone: parsed.data.phone || null,
+      })
+      .where(eq(branches.id, branchId));
+
+    await writeAudit({
+      userId: actor.userId,
+      action: "branch.update",
+      entity: "branch",
+      entityId: branchId,
+      branchId,
+      details: parsed.data,
+    });
+    return { ok: true as const };
+  } catch (e) {
+    const dup = e instanceof Error && e.message.includes("duplicate");
+    return { ok: false as const, error: dup ? "A branch with this name already exists." : "Failed to update branch." };
+  }
+}
+
 export async function setBranchActive(actor: Actor, branchId: number, isActive: boolean) {
   if (!canManageBranches(actor.role)) return { ok: false as const, error: "Not allowed." };
   await db.update(branches).set({ isActive }).where(eq(branches.id, branchId));

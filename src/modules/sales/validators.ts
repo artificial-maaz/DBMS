@@ -15,6 +15,11 @@ export const createSaleSchema = z
     months: z.coerce.number().int().min(1).max(60).optional(),
     totalMarkup: moneyZero,
     notes: z.string().trim().max(2000).optional().or(z.literal("")),
+    /** #5 (2026-07-06): defaults to today client-side; backdatable, never future-dated. */
+    saleDate: z
+      .string()
+      .regex(/^\d{4}-\d{2}-\d{2}$/, "Enter a valid sale date")
+      .refine((v) => v <= new Date().toISOString().slice(0, 10), "Sale date cannot be in the future"),
   })
   .superRefine((v, ctx) => {
     if (v.settlementPlan === "installment") {

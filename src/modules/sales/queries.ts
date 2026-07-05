@@ -23,13 +23,14 @@ export async function listInvoices(opts: { role: string; ownBranchId: number | n
       balanceDue: invoices.balanceDue,
       status: invoices.status,
       branchName: branches.name,
+      saleDate: invoices.saleDate,
       createdAt: invoices.createdAt,
     })
     .from(invoices)
     .innerJoin(customers, eq(invoices.customerId, customers.id))
     .innerJoin(branches, eq(invoices.branchId, branches.id))
     .where(filters.length ? and(...filters) : undefined)
-    .orderBy(desc(invoices.createdAt));
+    .orderBy(desc(invoices.saleDate), desc(invoices.createdAt));
 }
 
 /** Full invoice detail — scoped: employees can only open their branch's invoices. */

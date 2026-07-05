@@ -79,7 +79,7 @@ export default async function SalesPage() {
                   </span>
                 </td>
                 <td className="px-4 py-2.5 text-slate-500">
-                  {new Date(r.createdAt).toLocaleDateString("en-PK")}
+                  {new Date(r.saleDate).toLocaleDateString("en-PK")}
                 </td>
               </tr>
             ))}

@@ -3,6 +3,7 @@ import { canManageBranches } from "@/modules/branches/service";
 import { db } from "@/db";
 import { requireStaff } from "@/lib/session";
 import { AddBranchForm } from "./add-branch-form";
+import { EditBranchForm } from "./edit-branch-form";
 import { ToggleBranch } from "./toggle-branch";
 
 export default async function BranchesPage() {
@@ -47,7 +48,10 @@ export default async function BranchesPage() {
                   </span>
                 </td>
                 <td className="px-4 py-2.5 text-right">
-                  <ToggleBranch id={b.id} isActive={b.isActive} />
+                  <span className="inline-flex items-center gap-1">
+                    <EditBranchForm branch={{ id: b.id, name: b.name, city: b.city, address: b.address, phone: b.phone }} />
+                    <ToggleBranch id={b.id} isActive={b.isActive} />
+                  </span>
                 </td>
               </tr>
             ))}

@@ -50,8 +50,12 @@ export async function listStaff() {
       name: user.name,
       email: user.email,
       role: staffProfiles.role,
+      branchId: staffProfiles.branchId,
       branchName: branches.name,
       designation: staffProfiles.designation,
+      cnic: staffProfiles.cnic,
+      basicSalary: staffProfiles.basicSalary,
+      monthlyAllowances: staffProfiles.monthlyAllowances,
       isActive: staffProfiles.isActive,
       joinedAt: staffProfiles.joinedAt,
     })
@@ -120,6 +124,71 @@ export async function createStaff(actor: Actor, raw: unknown) {
       : "Failed to onboard staff member.";
     return { ok: false as const, error: msg };
   }
+}
+
+const updateStaffSchema = z.object({
+  name: z.string().trim().min(2, "Name required").max(120),
+  branchId: z.coerce.number().int().optional(),
+  designation: z.string().trim().max(120).optional().or(z.literal("")),
+  cnic: z
+    .preprocess(
+      (v) => (typeof v === "string" ? v.replace(/\s/g, "") : v),
+      z
+        .string()
+        .regex(/^(\d{5}-\d{7}-\d|\d{13})?$/, "CNIC must be 13 digits")
+        .transform((v) => (v && !v.includes("-") ? `${v.slice(0, 5)}-${v.slice(5, 12)}-${v.slice(12)}` : v)),
+    )
+    .optional(),
+  basicSalary: moneyZero,
+  monthlyAllowances: moneyZero,
+  joinedAt: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Enter a valid joined date"),
+});
+
+/**
+ * #3/#6 (2026-07-06): edit an existing staff member — name (incl. Creator's own
+ * display name), branch, designation, CNIC, salary/allowances, joined date.
+ * Creator-only, same as onboarding. Name lives on the auth `user` row, not the
+ * staff profile, so it's a two-table update.
+ */
+export async function updateStaffProfile(actor: Actor, profileId: number, raw: unknown) {
+  if (!canManageStaff(actor.role)) return { ok: false as const, error: "Not allowed to edit staff." };
+
+  const parsed = updateStaffSchema.safeParse(raw);
+  if (!parsed.success) return { ok: false as const, error: parsed.error.issues[0]?.message ?? "Invalid input" };
+  const input = parsed.data;
+
+  const target = await db.query.staffProfiles.findFirst({ where: (p, { eq }) => eq(p.id, profileId) });
+  if (!target) return { ok: false as const, error: "Staff member not found." };
+
+  const needsBranch = target.role !== "owner" && target.role !== "creator";
+  if (needsBranch && !input.branchId) {
+    return { ok: false as const, error: "Employees must be assigned to a branch." };
+  }
+
+  await db
+    .update(staffProfiles)
+    .set({
+      branchId: needsBranch ? input.branchId : null,
+      designation: input.designation || null,
+      cnic: input.cnic || null,
+      basicSalary: input.basicSalary,
+      monthlyAllowances: input.monthlyAllowances,
+      joinedAt: new Date(input.joinedAt),
+    })
+    .where(eq(staffProfiles.id, profileId));
+
+  await db.update(user).set({ name: input.name }).where(eq(user.id, target.userId));
+
+  await writeAudit({
+    userId: actor.userId,
+    action: "staff.update",
+    entity: "staff_profile",
+    entityId: profileId,
+    branchId: needsBranch ? input.branchId : target.branchId,
+    details: { name: input.name },
+  });
+
+  return { ok: true as const };
 }
 
 /** Deactivate: profile flag + delete ALL their sessions → instant lockout. */

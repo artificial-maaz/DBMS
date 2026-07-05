@@ -3,6 +3,7 @@ import { canManageStaff, canViewStaff, listStaff } from "@/modules/staff/service
 import { listActiveBranches } from "@/modules/inventory/queries";
 import { requireStaff } from "@/lib/session";
 import { AddStaffForm } from "./add-staff-form";
+import { EditStaffForm } from "./edit-staff-form";
 import { ToggleStaff } from "./toggle-staff";
 
 /** #18: only the Creator can grant roles; Owners view the directory read-only. */
@@ -58,7 +59,9 @@ export default async function StaffPage() {
                 <td className="px-4 py-2.5 font-medium">{m.name}</td>
                 <td className="px-4 py-2.5 text-slate-600">{m.email}</td>
                 <td className="px-4 py-2.5">
-                  <span className={`rounded-full px-2 py-0.5 text-xs font-medium capitalize ${ROLE_BADGE[m.role]}`}>
+                  <span
+                    className={`whitespace-nowrap rounded-full px-2.5 py-0.5 text-xs font-medium capitalize ${ROLE_BADGE[m.role]}`}
+                  >
                     {m.role.replace("_", " ")}
                   </span>
                 </td>
@@ -75,7 +78,25 @@ export default async function StaffPage() {
                   </span>
                 </td>
                 <td className="px-4 py-2.5 text-right">
-                  {manager && m.role !== "creator" && <ToggleStaff id={m.id} isActive={m.isActive} />}
+                  {manager && (
+                    <span className="inline-flex items-center gap-1">
+                      <EditStaffForm
+                        row={{
+                          id: m.id,
+                          name: m.name,
+                          role: m.role,
+                          branchId: m.branchId,
+                          designation: m.designation,
+                          cnic: m.cnic,
+                          basicSalary: m.basicSalary,
+                          monthlyAllowances: m.monthlyAllowances,
+                          joinedAt: m.joinedAt,
+                        }}
+                        branches={branches.map((b) => ({ id: b.id, name: b.name }))}
+                      />
+                      {m.role !== "creator" && <ToggleStaff id={m.id} isActive={m.isActive} />}
+                    </span>
+                  )}
                 </td>
               </tr>
             ))}

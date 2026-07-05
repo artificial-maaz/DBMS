@@ -17,6 +17,7 @@ export function SaleForm({
 }) {
   const router = useRouter();
   const [state, formAction, pending] = useActionState<SaleActionState, FormData>(createSaleAction, null);
+  const today = new Date().toISOString().slice(0, 10);
 
   const [vehicleId, setVehicleId] = useState("");
   const [plan, setPlan] = useState<"cash" | "installment">("cash");
@@ -93,6 +94,18 @@ export function SaleForm({
             </select>
           </label>
 
+          <label className="text-sm">
+            <span className="mb-1 block font-medium">Sale Date *</span>
+            <input
+              type="date"
+              name="saleDate"
+              required
+              defaultValue={today}
+              max={today}
+              className="w-full rounded-lg border border-slate-300 px-3 py-2 outline-none focus:border-slate-500"
+            />
+            <span className="mt-1 block text-xs text-slate-400">Backdate this to record a past sale.</span>
+          </label>
           <Money name="salePrice" label="Sale Price (Rs.) *" value={salePrice} onChange={setSalePrice} required />
           <Money name="discount" label="Discount (Rs.)" value={discount} onChange={setDiscount} />
           <Money name="registrationFeeGovt" label="Registration Fee — Govt (Rs.)" value={regGovt} onChange={setRegGovt} />

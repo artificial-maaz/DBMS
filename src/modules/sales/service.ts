@@ -146,11 +146,12 @@ export async function createSale(actor: Actor, raw: unknown) {
       }
 
       // 2. Per-branch invoice number: <BRANCHCODE>-<YEAR>-<SEQ>
-      const year = new Date().getFullYear();
+      // Keyed off saleDate (not createdAt) so a backdated sale lands in its own year's sequence.
+      const year = new Date(input.saleDate).getFullYear();
       const [{ n }] = await tx
         .select({ n: count() })
         .from(invoices)
-        .where(and(eq(invoices.branchId, vehicle.branchId), sql`extract(year from ${invoices.createdAt}) = ${year}`));
+        .where(and(eq(invoices.branchId, vehicle.branchId), sql`extract(year from ${invoices.saleDate}) = ${year}`));
       const code = vehicle.branchName.replace(/[^A-Za-z]/g, "").slice(0, 3).toUpperCase() || "BRN";
       const invoiceNo = `${code}-${year}-${String(n + 1).padStart(4, "0")}`;
 
@@ -173,6 +174,7 @@ export async function createSale(actor: Actor, raw: unknown) {
           commissionAmount: s(commission),
           notes: input.notes || null,
           createdBy: actor.userId,
+          saleDate: input.saleDate,
         })
         .returning({ id: invoices.id });
 
@@ -206,12 +208,14 @@ export async function createSale(actor: Actor, raw: unknown) {
               ? `Cash sale ${invoiceNo}`
               : `Downpayment for installment sale ${invoiceNo}`,
           invoiceId: inv.id,
-          entryDate: new Date().toISOString().slice(0, 10),
+          entryDate: input.saleDate,
           createdBy: actor.userId,
         });
       }
 
       // 7. Amortization schedule — monthly rows; last row absorbs rounding.
+      // Due dates count forward from saleDate, not "today" — a backdated sale
+      // gets a backdated (and likely already-due) first installment, correctly.
       if (input.settlementPlan === "installment" && input.months) {
         const m = input.months;
         const monthlyPrincipal = r2(principal / m);
@@ -220,7 +224,7 @@ export async function createSale(actor: Actor, raw: unknown) {
         let accP = 0;
         let accM = 0;
         for (let i = 1; i <= m; i++) {
-          const due = new Date();
+          const due = new Date(`${input.saleDate}T00:00:00`);
           due.setMonth(due.getMonth() + i);
           const p = i === m ? r2(principal - accP) : monthlyPrincipal;
           const mk = i === m ? r2(totalMarkup - accM) : monthlyMarkup;
@@ -247,7 +251,7 @@ export async function createSale(actor: Actor, raw: unknown) {
       entity: "invoice",
       entityId: result.invoiceId,
       branchId: result.branchId,
-      details: { invoiceNo: result.invoiceNo, plan: input.settlementPlan, total: s(total) },
+      details: { invoiceNo: result.invoiceNo, plan: input.settlementPlan, total: s(total), saleDate: input.saleDate },
     });
 
     return { ok: true as const, ...result };

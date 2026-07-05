@@ -41,7 +41,9 @@ export async function listCustomers(opts: {
       cnic: customers.cnic,
       phone: customers.phone,
       email: customers.email,
+      address: customers.address,
       city: customers.city,
+      branchId: customers.branchId,
       branchName: branches.name,
       createdAt: customers.createdAt,
     })

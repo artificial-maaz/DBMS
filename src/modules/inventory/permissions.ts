@@ -10,6 +10,11 @@ export function canCreateVehicle(role: string) {
   return ["creator", "owner", "branch_manager"].includes(role);
 }
 
+/** #3 (2026-07-06): same roles that can register may edit specs — blocked once sold (service.ts). */
+export function canEditVehicle(role: string) {
+  return canCreateVehicle(role);
+}
+
 /** Purchase price / margins: Creator + Owners ONLY. */
 export function canSeePurchasePrice(role: string) {
   return ["creator", "owner"].includes(role);

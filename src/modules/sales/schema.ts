@@ -1,3 +1,4 @@
+import { sql } from "drizzle-orm";
 import {
   date,
   integer,
@@ -50,6 +51,13 @@ export const invoices = pgTable("invoices", {
   status: invoiceStatus("status").notNull().default("active"),
   notes: text("notes"),
   createdBy: text("created_by").notNull(),
+  /**
+   * #5 (2026-07-06): the BUSINESS date of the sale — editable at entry so past
+   * sales can be backdated. Drives invoice numbering, ledger entryDate,
+   * installment due dates, and P&L period. `createdAt` stays untouched as the
+   * true audit timestamp of when the record was actually entered.
+   */
+  saleDate: date("sale_date").notNull().default(sql`CURRENT_DATE`),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 

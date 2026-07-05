@@ -1,7 +1,8 @@
-import { canSeePurchasePrice, canCreateVehicle, seesAllBranches } from "@/modules/inventory/permissions";
+import { canSeePurchasePrice, canCreateVehicle, canEditVehicle, seesAllBranches } from "@/modules/inventory/permissions";
 import { listActiveBranches, listVehicles } from "@/modules/inventory/queries";
 import { requireStaff } from "@/lib/session";
 import { AddVehicleForm } from "./add-vehicle-form";
+import { EditVehicleForm } from "./edit-vehicle-form";
 
 const STATUS_BADGE: Record<string, string> = {
   in_stock: "bg-emerald-100 text-emerald-700",
@@ -33,6 +34,7 @@ export default async function InventoryPage({
 
   const fmt = (v: string | null | undefined) =>
     v == null ? "—" : `Rs. ${Number(v).toLocaleString("en-PK")}`;
+  const editable = canEditVehicle(profile.role);
 
   return (
     <div className="space-y-6">
@@ -81,12 +83,13 @@ export default async function InventoryPage({
               {showPrice && <Th>Purchase</Th>}
               <Th>Sale Price</Th>
               <Th>Status</Th>
+              {editable && <th className="px-4 py-3 text-right">Action</th>}
             </tr>
           </thead>
           <tbody>
             {rows.length === 0 && (
               <tr>
-                <td colSpan={showPrice ? 8 : 7} className="px-4 py-10 text-center text-slate-400">
+                <td colSpan={showPrice ? (editable ? 9 : 8) : (editable ? 8 : 7)} className="px-4 py-10 text-center text-slate-400">
                   No vehicles registered yet.
                 </td>
               </tr>
@@ -108,6 +111,29 @@ export default async function InventoryPage({
                     {v.status.replace("_", " ")}
                   </span>
                 </td>
+                {editable && (
+                  <td className="px-4 py-2.5 text-right">
+                    {v.status !== "sold" ? (
+                      <EditVehicleForm
+                        row={{
+                          id: v.id,
+                          make: v.make,
+                          model: v.model,
+                          variant: v.variant,
+                          color: v.color,
+                          chassisNo: v.chassisNo,
+                          engineNo: v.engineNo,
+                          salePrice: v.salePrice,
+                          purchasePrice: v.purchasePrice,
+                          notes: v.notes,
+                        }}
+                        showPurchasePrice={showPrice}
+                      />
+                    ) : (
+                      <span className="text-xs text-slate-400">locked</span>
+                    )}
+                  </td>
+                )}
               </tr>
             ))}
           </tbody>

@@ -18,9 +18,11 @@ export async function getMonthlyPnl(opts: { year: number; month: number; branchI
   const startStr = start.toISOString().slice(0, 10);
   const endStr = end.toISOString().slice(0, 10);
 
+  // Keyed off saleDate (business date), not createdAt (record-entry timestamp) —
+  // #5 (2026-07-06): a backdated sale must land in the P&L period it actually happened in.
   const invFilters: SQL[] = [
-    gte(invoices.createdAt, start),
-    lt(invoices.createdAt, end),
+    gte(invoices.saleDate, startStr),
+    lt(invoices.saleDate, endStr),
     ne(invoices.status, "cancelled"),
   ];
   if (opts.branchId) invFilters.push(eq(invoices.branchId, opts.branchId));

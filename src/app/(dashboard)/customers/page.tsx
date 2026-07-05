@@ -1,8 +1,9 @@
-import { canCreateCustomer, seesAllBranches } from "@/modules/customers/permissions";
+import { canCreateCustomer, canEditCustomer, seesAllBranches } from "@/modules/customers/permissions";
 import { listCustomers } from "@/modules/customers/queries";
 import { listActiveBranches } from "@/modules/inventory/queries";
 import { requireStaff } from "@/lib/session";
 import { AddCustomerForm } from "./add-customer-form";
+import { EditCustomerForm } from "./edit-customer-form";
 
 export default async function CustomersPage({
   searchParams,
@@ -16,6 +17,8 @@ export default async function CustomersPage({
     listCustomers({ role: profile.role, ownBranchId: profile.branchId, q: params.q }),
     listActiveBranches(),
   ]);
+  const editable = canEditCustomer(profile.role);
+  const fixedBranchId = seesAllBranches(profile.role) ? null : profile.branchId;
 
   return (
     <div className="space-y-6">
@@ -51,12 +54,13 @@ export default async function CustomersPage({
               <th className="px-4 py-3">City</th>
               <th className="px-4 py-3">Branch</th>
               <th className="px-4 py-3">Registered</th>
+              {editable && <th className="px-4 py-3 text-right">Action</th>}
             </tr>
           </thead>
           <tbody>
             {rows.length === 0 && (
               <tr>
-                <td colSpan={6} className="px-4 py-10 text-center text-slate-400">
+                <td colSpan={editable ? 7 : 6} className="px-4 py-10 text-center text-slate-400">
                   No customers found.
                 </td>
               </tr>
@@ -71,6 +75,24 @@ export default async function CustomersPage({
                 <td className="px-4 py-2.5 text-slate-500">
                   {new Date(c.createdAt).toLocaleDateString("en-PK")}
                 </td>
+                {editable && (
+                  <td className="px-4 py-2.5 text-right">
+                    <EditCustomerForm
+                      row={{
+                        id: c.id,
+                        fullName: c.fullName,
+                        phone: c.phone,
+                        cnic: c.cnic,
+                        email: c.email,
+                        city: c.city,
+                        address: c.address,
+                        branchId: c.branchId,
+                      }}
+                      branches={branches.map((b) => ({ id: b.id, name: b.name }))}
+                      fixedBranchId={fixedBranchId}
+                    />
+                  </td>
+                )}
               </tr>
             ))}
           </tbody>

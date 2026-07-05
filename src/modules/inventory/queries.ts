@@ -14,6 +14,8 @@ export type VehicleRow = {
   status: "in_stock" | "sold" | "in_transit" | "in_repair";
   salePrice: string | null;
   purchasePrice?: string | null; // present ONLY for creator/owner
+  notes: string | null;
+  branchId: number;
   branchName: string;
   createdAt: Date;
 };
@@ -54,6 +56,8 @@ export async function listVehicles(opts: {
       status: vehicles.status,
       salePrice: vehicles.salePrice,
       ...(showPrice ? { purchasePrice: vehicles.purchasePrice } : {}),
+      notes: vehicles.notes,
+      branchId: vehicles.branchId,
       branchName: branches.name,
       createdAt: vehicles.createdAt,
     })
