@@ -56,6 +56,7 @@ const NAV: Group[] = [
     items: [
       { label: "Staff", href: "/staff", roles: ["creator", "owner"] },
       { label: "HR & Payroll", href: "/hr", roles: ["creator", "owner"] },
+      { label: "Bulk Import", href: "/import", roles: ["creator", "owner"] },
       { label: "Audit Log", href: "/audit", roles: ["creator", "owner"] },
       { label: "Settings", href: "/settings" },
     ],

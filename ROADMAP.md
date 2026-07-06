@@ -67,8 +67,14 @@ No migration needed — logic-only changes.
 - **Ordering Patterns** table: per model — times ordered, units ordered vs received (short-delivery flagged amber), total spent, last ordered. The order-planning view from Sir's owner loop (#23).
 - **Needs migration:** new `purchase_order_items` table.
 
+## ✅ Done — CSV bulk import (2026-07-06)
+- #19 New `/import` page (Admin, Creator/Owner). CSV format (Excel → Save As CSV; no xlsx library needed). Dependency-free parser in `lib/csv.ts` handles quotes/commas/CRLF/BOM.
+- Supports **vehicles, customers, visitors** — each reuses that module's existing zod create-schema (all normalizers apply: commas in money, +92 phones, dashless CNICs). Branch column takes the branch NAME (case-insensitive). Downloadable per-type templates with an example row.
+- **All-or-nothing:** every row validated first; any error → nothing saved + full per-row error list (incl. in-file and against-DB duplicate chassis/engine pre-checks) → fixing and re-uploading the same file is always safe. Max 2000 rows / 2 MB. Audit-logged as `import.<type>` with row count.
+- Test drives / warranty-claims import deferred: rides come one at a time in reality; warranty claims has no module yet.
+- No migration needed (no new tables).
+
 ## 🔜 Next up (core features, pre-polish — per #8)
-3. **CSV/Excel bulk import (#19):** inventory, customers/visitors, test drives, warranty claims.
 4. **Standard labor rates (#26):** predefined service/repair price list module; job cards pick from it.
 5. **System Settings & Branding (#29, #3-partial):** creator-only settings page — company name, theme color, logo upload, commission rate default, default excise fee, warranty duration, browser tab title, timezone. Replaces `config.ts` constants with DB-backed settings.
 6. **Notifications (#27):** audit-event-driven alerts to Creator (new logins, stock added, deactivations, suspicious actions) via email first (needs provider), WhatsApp later (see #9).
