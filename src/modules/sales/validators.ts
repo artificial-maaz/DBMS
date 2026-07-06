@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { moneyOptional, moneyRequired, moneyZero, phoneNumber } from "@/lib/validation";
+import { moneyOptional, moneyRequired, moneyZero, optionalId, phoneNumber } from "@/lib/validation";
 
 /** Same normalization as customers/staff CNIC: dashed or bare 13 digits, both accepted. */
 const cnic = z.preprocess(
@@ -65,7 +65,7 @@ export const createSaleSchema = z
     totalMarkup: moneyZero,
     notes: z.string().trim().max(2000).optional().or(z.literal("")),
     /** #14 (2026-07-06): apply an open booking's token as downpayment credit. */
-    bookingId: z.coerce.number().int().positive().optional(),
+    bookingId: optionalId,
     /** #5 (2026-07-06): defaults to today client-side; backdatable, never future-dated. */
     saleDate: z
       .string()
