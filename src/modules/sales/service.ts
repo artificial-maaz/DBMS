@@ -162,6 +162,12 @@ export async function createSale(actor: Actor, raw: unknown) {
         if (!seesAllBranches(actor.role) && booking.branchId !== actor.branchId) {
           throw new Error("You can only apply bookings from your own branch.");
         }
+        // Per-branch cash books must stay truthful: the token's cash-in sits in
+        // the booking branch's ledger, so the sale must happen at that branch
+        // (transfer the vehicle via Gate Pass first if it lives elsewhere).
+        if (booking.branchId !== vehicle.branchId) {
+          throw new Error("This booking was taken at a different branch than the vehicle — transfer the vehicle or refund the booking first.");
+        }
         bookingCredit = Number(booking.tokenAmount);
         lockedBookingId = booking.id;
 
@@ -282,10 +288,14 @@ export async function createSale(actor: Actor, raw: unknown) {
         await tx.insert(installmentSchedules).values(rows);
       }
 
-      // 8. Guarantor(s) — required for installment (enforced in validators), skipped for cash.
-      if (input.guarantors.length > 0) {
+      // 8. Guarantor(s) — required for installment (enforced in validators).
+      // Hard-stripped for cash sales: a crafted cash request with guarantor/
+      // document rows attached must not write orphan agreement data.
+      const saleGuarantors = input.settlementPlan === "installment" ? input.guarantors : [];
+      const saleDocuments = input.settlementPlan === "installment" ? input.documents : [];
+      if (saleGuarantors.length > 0) {
         await tx.insert(guarantors).values(
-          input.guarantors.map((g) => ({
+          saleGuarantors.map((g) => ({
             invoiceId: inv.id,
             fullName: g.fullName,
             cnic: g.cnic,
@@ -297,9 +307,9 @@ export async function createSale(actor: Actor, raw: unknown) {
 
       // 9. Document checklist (#20) — informational only, installment sales;
       // `provided=false` rows are exceptions (may carry a compensation note).
-      if (input.documents.length > 0) {
+      if (saleDocuments.length > 0) {
         await tx.insert(invoiceDocuments).values(
-          input.documents.map((d) => ({
+          saleDocuments.map((d) => ({
             invoiceId: inv.id,
             requirementId: d.requirementId,
             requirementName: d.requirementName,
@@ -316,8 +326,8 @@ export async function createSale(actor: Actor, raw: unknown) {
         branchId: vehicle.branchId,
         bookingId: lockedBookingId,
         bookingCredit,
-        guarantorCount: input.guarantors.length,
-        missingDocuments: input.documents.filter((d) => !d.provided).length,
+        guarantorCount: saleGuarantors.length,
+        missingDocuments: saleDocuments.filter((d) => !d.provided).length,
       };
     });
 

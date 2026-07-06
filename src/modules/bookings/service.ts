@@ -81,32 +81,34 @@ export async function createBooking(actor: Actor, raw: unknown) {
 export async function setBookingStatus(actor: Actor, bookingId: number, status: "cancelled" | "refunded") {
   if (!canCancelBooking(actor.role)) return { ok: false as const, error: "Not allowed." };
 
-  const booking = await db.query.bookings.findFirst({ where: (b, { eq }) => eq(b.id, bookingId) });
-  if (!booking) return { ok: false as const, error: "Booking not found." };
-  if (!seesAllBranches(actor.role) && booking.branchId !== actor.branchId) {
-    return { ok: false as const, error: "You can only manage bookings at your own branch." };
-  }
-  if (booking.status !== "open") {
-    return { ok: false as const, error: `This booking is already ${booking.status}.` };
-  }
-
   try {
-    await db.transaction(async (tx) => {
+    // Lock + re-check INSIDE the transaction: a concurrent sale (createSale
+    // locks this same row FOR UPDATE) could convert this booking mid-flight —
+    // checking status outside the tx risked refunding an already-applied token.
+    const booking = await db.transaction(async (tx) => {
+      const [b] = await tx.select().from(bookings).where(eq(bookings.id, bookingId)).for("update");
+      if (!b) throw new Error("Booking not found.");
+      if (!seesAllBranches(actor.role) && b.branchId !== actor.branchId) {
+        throw new Error("You can only manage bookings at your own branch.");
+      }
+      if (b.status !== "open") throw new Error(`This booking is already ${b.status}.`);
+
       await tx.update(bookings).set({ status }).where(eq(bookings.id, bookingId));
 
-      if (status === "refunded" && booking.ledgerEntryId) {
+      if (status === "refunded" && b.ledgerEntryId) {
         await tx.insert(ledgerEntries).values({
-          branchId: booking.branchId,
+          branchId: b.branchId,
           direction: "cash_out",
-          paymentMethod: booking.paymentMethod,
+          paymentMethod: b.paymentMethod,
           category: "booking_token",
-          amount: booking.tokenAmount,
-          description: `Refund — booking token for ${booking.modelWanted}`,
-          reversesEntryId: booking.ledgerEntryId,
+          amount: b.tokenAmount,
+          description: `Refund — booking token for ${b.modelWanted}`,
+          reversesEntryId: b.ledgerEntryId,
           entryDate: new Date().toISOString().slice(0, 10),
           createdBy: actor.userId,
         });
       }
+      return b;
     });
 
     await writeAudit({
@@ -119,7 +121,7 @@ export async function setBookingStatus(actor: Actor, bookingId: number, status: 
     });
 
     return { ok: true as const };
-  } catch {
-    return { ok: false as const, error: "Failed to update booking." };
+  } catch (e) {
+    return { ok: false as const, error: e instanceof Error ? e.message : "Failed to update booking." };
   }
 }

@@ -53,6 +53,14 @@ Status legend: ✅ done · 🔜 next up · 📋 planned · 💬 answered/decisio
 - Note: "book test drive while adding a customer" happens via the same page (link existing customer in the booking form) — a combined create-customer+ride form was skipped to keep the customer form lean; revisit only if staff friction shows.
 - **Needs migration:** new `test_drives` table (schema-only so far).
 
+## ✅ Done — Code review of 2026-07-06 session (Fable, 2026-07-06)
+Four fixes to the Sonnet-session modules after a full audit (sale transaction, bookings, visitors, validators):
+1. **Concurrency bug (real):** `setBookingStatus` checked booking status OUTSIDE its transaction with no row lock — a refund racing a concurrent sale-conversion could double-credit a token (refunded AND applied). Now locks `FOR UPDATE` and re-checks inside the tx, mirroring `createSale`'s lock; specific error messages surfaced instead of a generic catch.
+2. **Money integrity:** applying a booking to a sale now requires the booking's branch to equal the vehicle's branch — otherwise the token's cash-in sits in branch A's ledger while the sale's delta posts in branch B, silently skewing per-branch cash books (company total looked fine, per-branch didn't). Cross-branch case → transfer the vehicle via Gate Pass or refund the booking first.
+3. **Data hygiene:** guarantor + document rows are now hard-stripped server-side for CASH sales (validators only ignored them; a crafted request could write orphan agreement data onto a cash invoice).
+4. **Convert race:** `convertVisitorToCustomer` now locks the visitor row inside its transaction — double-clicking Convert can no longer create two customer rows for one lead (idempotent return preserved).
+No migration needed — logic-only changes.
+
 ## 🔜 Next up (core features, pre-polish — per #8)
 1. **Order history depth (#15):** structured PO line items (model × qty × color), ordered-vs-received reconciliation, order pattern history view.
 3. **CSV/Excel bulk import (#19):** inventory, customers/visitors, test drives, warranty claims.

@@ -105,24 +105,26 @@ export async function convertVisitorToCustomer(actor: Actor, visitorId: number) 
     return { ok: false as const, error: "You are not allowed to convert visitors." };
   }
 
-  const visitor = await db.query.visitors.findFirst({ where: (v, { eq }) => eq(v.id, visitorId) });
-  if (!visitor) return { ok: false as const, error: "Visitor not found." };
-  if (!seesAllBranches(actor.role) && visitor.branchId !== actor.branchId) {
-    return { ok: false as const, error: "You can only convert visitors at your own branch." };
-  }
-  if (visitor.status === "converted" && visitor.convertedCustomerId) {
-    return { ok: true as const, customerId: visitor.convertedCustomerId }; // idempotent — already converted
-  }
-
   try {
-    const customerId = await db.transaction(async (tx) => {
+    // Lock the visitor row inside the transaction — two staff double-clicking
+    // "Convert" concurrently must not create two customer rows for one lead.
+    const { customerId, visitor } = await db.transaction(async (tx) => {
+      const [v] = await tx.select().from(visitors).where(eq(visitors.id, visitorId)).for("update");
+      if (!v) throw new Error("Visitor not found.");
+      if (!seesAllBranches(actor.role) && v.branchId !== actor.branchId) {
+        throw new Error("You can only convert visitors at your own branch.");
+      }
+      if (v.status === "converted" && v.convertedCustomerId) {
+        return { customerId: v.convertedCustomerId, visitor: v }; // idempotent — already converted
+      }
+
       const [customer] = await tx
         .insert(customers)
         .values({
-          fullName: visitor.fullName,
-          phone: visitor.phone,
-          cnic: visitor.cnic,
-          branchId: visitor.branchId,
+          fullName: v.fullName,
+          phone: v.phone,
+          cnic: v.cnic,
+          branchId: v.branchId,
           createdBy: actor.userId,
         })
         .returning({ id: customers.id });
@@ -132,7 +134,7 @@ export async function convertVisitorToCustomer(actor: Actor, visitorId: number) 
         .set({ status: "converted", convertedCustomerId: customer.id })
         .where(eq(visitors.id, visitorId));
 
-      return customer.id;
+      return { customerId: customer.id, visitor: v };
     });
 
     await writeAudit({
@@ -145,7 +147,7 @@ export async function convertVisitorToCustomer(actor: Actor, visitorId: number) 
     });
 
     return { ok: true as const, customerId };
-  } catch {
-    return { ok: false as const, error: "Failed to convert visitor." };
+  } catch (e) {
+    return { ok: false as const, error: e instanceof Error ? e.message : "Failed to convert visitor." };
   }
 }
