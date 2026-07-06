@@ -13,7 +13,7 @@ export default async function NewSalePage({
   if (!canCreateSale(profile.role)) redirect("/sales");
   const params = await searchParams;
 
-  const { vehicles, customers, openBookings } = await getSaleFormData({
+  const { vehicles, customers, openBookings, plans } = await getSaleFormData({
     role: profile.role,
     ownBranchId: profile.branchId,
   });
@@ -27,6 +27,7 @@ export default async function NewSalePage({
         showCommission={canManageCommission(profile.role)}
         initialCustomerId={params.customerId ?? ""}
         openBookings={openBookings}
+        plans={plans}
       />
     </div>
   );

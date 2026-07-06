@@ -2,6 +2,7 @@ import { and, desc, eq, type SQL } from "drizzle-orm";
 import { db } from "@/db";
 import { branches, customers, invoices, vehicles } from "@/db/schema";
 import { listOpenBookingsForSale } from "@/modules/bookings/queries";
+import { listActivePlansForSale } from "@/modules/installment-plans/queries";
 import { seesAllBranches } from "./permissions";
 
 export async function listInvoices(opts: { role: string; ownBranchId: number | null; branchId?: number }) {
@@ -62,11 +63,11 @@ export async function getSaleFormData(opts: { role: string; ownBranchId: number 
     ? eq(vehicles.status, "in_stock")
     : and(eq(vehicles.status, "in_stock"), eq(vehicles.branchId, opts.ownBranchId ?? -1));
 
-  const [stock, customerList, openBookings] = await Promise.all([
+  const [stock, customerList, openBookings, plans] = await Promise.all([
     db
       .select({
         id: vehicles.id,
-        label: vehicles.make,
+        make: vehicles.make,
         model: vehicles.model,
         chassisNo: vehicles.chassisNo,
         salePrice: vehicles.salePrice,
@@ -80,12 +81,15 @@ export async function getSaleFormData(opts: { role: string; ownBranchId: number 
       .where(all ? undefined : eq(customers.branchId, opts.ownBranchId ?? -1))
       .orderBy(desc(customers.createdAt)),
     listOpenBookingsForSale({ role: opts.role, ownBranchId: opts.ownBranchId }),
+    listActivePlansForSale(),
   ]);
 
   return {
     vehicles: stock.map((v) => ({
       id: v.id,
-      label: `${v.label} ${v.model} — ${v.chassisNo}`,
+      label: `${v.make} ${v.model} — ${v.chassisNo}`,
+      make: v.make,
+      model: v.model,
       salePrice: v.salePrice,
     })),
     customers: customerList.map((c) => ({ id: c.id, label: `${c.fullName} (${c.phone})` })),
@@ -95,5 +99,6 @@ export async function getSaleFormData(opts: { role: string; ownBranchId: number 
       modelWanted: b.modelWanted,
       tokenAmount: b.tokenAmount,
     })),
+    plans,
   };
 }

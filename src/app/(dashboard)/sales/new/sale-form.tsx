@@ -4,8 +4,21 @@ import { useActionState, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createSaleAction, type SaleActionState } from "../actions";
 
-type Opt = { id: number; label: string; salePrice?: string | null };
+type Opt = { id: number; label: string; make?: string; model?: string; salePrice?: string | null };
 type OpenBooking = { id: number; customerId: number; modelWanted: string; tokenAmount: string };
+type Plan = {
+  id: number;
+  company: string;
+  model: string;
+  cashPrice: string;
+  advance: string;
+  monthly3: string; total3: string;
+  monthly6: string; total6: string;
+  monthly9: string; total9: string;
+  monthly12: string; total12: string;
+};
+
+const norm = (s: string) => s.trim().toLowerCase();
 
 export function SaleForm({
   vehicles,
@@ -13,12 +26,14 @@ export function SaleForm({
   showCommission,
   initialCustomerId,
   openBookings,
+  plans,
 }: {
   vehicles: Opt[];
   customers: Opt[];
   showCommission: boolean;
   initialCustomerId?: string;
   openBookings: OpenBooking[];
+  plans: Plan[];
 }) {
   const router = useRouter();
   const [state, formAction, pending] = useActionState<SaleActionState, FormData>(createSaleAction, null);
@@ -27,6 +42,7 @@ export function SaleForm({
   const [customerId, setCustomerId] = useState(initialCustomerId ?? "");
   const [bookingId, setBookingId] = useState("");
   const [vehicleId, setVehicleId] = useState("");
+  const [planDuration, setPlanDuration] = useState<"" | "3" | "6" | "9" | "12">("");
   const [plan, setPlan] = useState<"cash" | "installment">("cash");
   const [salePrice, setSalePrice] = useState("");
   const [discount, setDiscount] = useState("");
@@ -35,6 +51,21 @@ export function SaleForm({
   const [downpayment, setDownpayment] = useState("");
   const [months, setMonths] = useState("12");
   const [totalMarkup, setTotalMarkup] = useState("");
+
+  // #16: does the selected vehicle match an active company rate card?
+  const selectedVehicle = vehicles.find((v) => String(v.id) === vehicleId);
+  const matchedPlan = selectedVehicle?.make && selectedVehicle?.model
+    ? plans.find((p) => norm(p.company) === norm(selectedVehicle.make!) && norm(p.model) === norm(selectedVehicle.model!))
+    : undefined;
+
+  const applyPlanDuration = (d: "" | "3" | "6" | "9" | "12") => {
+    setPlanDuration(d);
+    if (!matchedPlan || !d) return;
+    const totalForDuration = Number((matchedPlan as unknown as Record<string, string>)[`total${d}`]);
+    setDownpayment(matchedPlan.advance);
+    setTotalMarkup(String(totalForDuration - Number(matchedPlan.cashPrice)));
+    setMonths(d);
+  };
 
   const n = (v: string) => {
     const x = Number(String(v).replace(/[,\s]/g, ""));
@@ -128,8 +159,14 @@ export function SaleForm({
               value={vehicleId}
               onChange={(e) => {
                 setVehicleId(e.target.value);
+                setPlanDuration(""); // rate card changes with the vehicle — don't carry a stale duration pick
                 const v = vehicles.find((x) => String(x.id) === e.target.value);
-                if (v?.salePrice) setSalePrice(v.salePrice);
+                const p = v?.make && v?.model
+                  ? plans.find((pl) => norm(pl.company) === norm(v.make!) && norm(pl.model) === norm(v.model!))
+                  : undefined;
+                // Rate card price wins over the per-unit listed price — it's the company-approved number.
+                if (p) setSalePrice(p.cashPrice);
+                else if (v?.salePrice) setSalePrice(v.salePrice);
               }}
               className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2"
             >
@@ -138,6 +175,11 @@ export function SaleForm({
                 <option key={v.id} value={v.id}>{v.label}</option>
               ))}
             </select>
+            {matchedPlan && (
+              <span className="mt-1 block text-xs text-emerald-600">
+                ✓ Matches {matchedPlan.company} rate card
+              </span>
+            )}
           </label>
 
           <label className="text-sm">
@@ -187,6 +229,25 @@ export function SaleForm({
 
         {plan === "installment" && (
           <div className="grid grid-cols-1 gap-4 rounded-lg bg-amber-50 p-4 sm:grid-cols-3">
+            {matchedPlan && (
+              <label className="text-sm sm:col-span-3">
+                <span className="mb-1 block font-medium">Plan Duration (from {matchedPlan.company} rate card)</span>
+                <select
+                  value={planDuration}
+                  onChange={(e) => applyPlanDuration(e.target.value as typeof planDuration)}
+                  className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 sm:w-64"
+                >
+                  <option value="">Custom (fill manually)</option>
+                  <option value="3">3 Months</option>
+                  <option value="6">6 Months</option>
+                  <option value="9">9 Months</option>
+                  <option value="12">12 Months</option>
+                </select>
+                <span className="mt-1 block text-xs text-slate-500">
+                  Fills advance/monthly/markup below from the rate card — still fully editable after.
+                </span>
+              </label>
+            )}
             <Money name="downpayment" label="Advance Downpayment (Rs.) *" value={downpayment} onChange={setDownpayment} required />
             <label className="text-sm">
               <span className="mb-1 block font-medium">Months *</span>

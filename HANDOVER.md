@@ -21,10 +21,12 @@ the complete context of this project. Last updated: 2026-07-05.
 - **Hussain Motors ERP** — multi-branch vehicle dealership ERP for Sir's own company.
   ALL 3 phases built, tested by Sir, LIVE in production. See CLAUDE.md for module list.
 - Work queue = `ROADMAP.md` (31-point review backlog; "Next up" list is ordered).
-  Edit flows (#3/#5/#6), Visitors & Leads (#4), and Advance Bookings (#14, incl.
-  full auto-reconciliation into New Sale) done 2026-07-06 — all three need the
-  migration ritual below, not yet run as of this writing. Next item when
-  resuming: **installment plans module** (#16).
+  Edit flows (#3/#5/#6), Visitors & Leads (#4), Advance Bookings (#14, incl.
+  full auto-reconciliation into New Sale), and Installment Plans (#16, seeded
+  with Sir's real United/Yadea/Ramza/Honda rate cards + New Sale auto-fill)
+  done 2026-07-06 — all four need the migration ritual below (+ `db:seed:plans`
+  for #16), not yet run as of this writing. Next item when resuming:
+  **guarantor details for installments (#21)**.
 
 ## Stack & infrastructure facts
 - Next.js 16 (App Router) + TypeScript, Drizzle ORM, PostgreSQL on **Neon**,

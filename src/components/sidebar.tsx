@@ -26,6 +26,7 @@ const NAV: Group[] = [
       { label: "Customers", href: "/customers" },
       { label: "Bookings", href: "/bookings" },
       { label: "Sales & Invoices", href: "/sales" },
+      { label: "Installment Plans", href: "/installment-plans" },
     ],
   },
   {

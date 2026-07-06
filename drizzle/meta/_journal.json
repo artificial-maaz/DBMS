@@ -64,6 +64,13 @@
       "when": 1783336016533,
       "tag": "0008_curly_omega_flight",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1783337824815,
+      "tag": "0009_flawless_stick",
+      "breakpoints": true
     }
   ]
 }

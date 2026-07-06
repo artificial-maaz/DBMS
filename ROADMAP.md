@@ -30,8 +30,13 @@ Status legend: ✅ done · 🔜 next up · 📋 planned · 💬 answered/decisio
 - **Full automatic reconciliation at sale time (Sir's explicit call, not the simpler manual-banner option):** New Sale detects a customer's open bookings, lets staff pick one to apply, and the sale transaction only posts the *delta* to the ledger (downpayment/total minus the token already received) — no double-counting the same cash. Booking flips to `converted` and links to the invoice. If the token exceeds what's actually due today, the sale is rejected with a clear message instead of guessing at an auto-refund.
 - **Needs migration:** new `bookings` table (schema-only so far).
 
+## ✅ Done — Installment Plans (2026-07-06)
+- #16 New `installment_plans` module — company rate card (company/model/cash price/advance + monthly & total for 3/6/9/12 months), Creator/Owner-managed at `/installment-plans`, seeded with Sir's real current rates: **United** (US 70, Classy Pro, Smart Pro, Sharp Pro), **Yadea** (M3, Ruibin S, M3H, T5L, EPOCH, VELAX, KEINESS), **Ramza** (Kuling, Linbo, Yaari Plus, Liberty, Liberty Ultra Lithium, S-75 Lithium), **Honda** (CD-70, Pridor 100, CG-125) — w.e.f. 2026-06-18, 20 models total.
+- Page groups by company, laid out exactly like the source rate cards (Model/Cash Price/Advance spanning Monthly + Total Price rows per duration). Retire/reactivate instead of delete — historical sales keep referring to the right numbers.
+- **New Sale auto-fill:** selecting a vehicle matches it to its rate card by make+model; a "Plan Duration" dropdown (3/6/9/12) then fills advance downpayment, months, and total markup straight from the card — still fully editable per sale (matches Sir's real-world practice of custom markups per negotiation).
+- **Needs migration:** new `installment_plans` table + `npm run db:seed:plans` (schema/seed-only so far).
+
 ## 🔜 Next up (core features, pre-polish — per #8)
-1. **Installment plans module (#16):** dedicated view of all plans; editable schedules (adjust downpayment/monthly amounts pre-agreement, re-amortize); custom per-bike markup already supported at sale time.
 5. **Guarantor details for installments (#21):** guarantor names, CNICs, addresses, contacts on installment sales; required at sale creation.
 6. **Documents checklist (#20):** per-invoice record of documents handed over vs withheld (cash = all originals; installments = withheld list), with release-on-settlement tracking.
 7. **Test drives (#17):** log + booking (date/time) at customer creation or standalone; Friday-closed validation for all branches.
