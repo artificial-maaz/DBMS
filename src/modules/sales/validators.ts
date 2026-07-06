@@ -15,6 +15,8 @@ export const createSaleSchema = z
     months: z.coerce.number().int().min(1).max(60).optional(),
     totalMarkup: moneyZero,
     notes: z.string().trim().max(2000).optional().or(z.literal("")),
+    /** #14 (2026-07-06): apply an open booking's token as downpayment credit. */
+    bookingId: z.coerce.number().int().positive().optional(),
     /** #5 (2026-07-06): defaults to today client-side; backdatable, never future-dated. */
     saleDate: z
       .string()

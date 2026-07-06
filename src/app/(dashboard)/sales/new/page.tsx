@@ -4,11 +4,16 @@ import { getSaleFormData } from "@/modules/sales/queries";
 import { requireStaff } from "@/lib/session";
 import { SaleForm } from "./sale-form";
 
-export default async function NewSalePage() {
+export default async function NewSalePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ customerId?: string }>;
+}) {
   const { profile } = await requireStaff();
   if (!canCreateSale(profile.role)) redirect("/sales");
+  const params = await searchParams;
 
-  const { vehicles, customers } = await getSaleFormData({
+  const { vehicles, customers, openBookings } = await getSaleFormData({
     role: profile.role,
     ownBranchId: profile.branchId,
   });
@@ -20,6 +25,8 @@ export default async function NewSalePage() {
         vehicles={vehicles}
         customers={customers}
         showCommission={canManageCommission(profile.role)}
+        initialCustomerId={params.customerId ?? ""}
+        openBookings={openBookings}
       />
     </div>
   );

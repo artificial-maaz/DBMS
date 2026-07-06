@@ -5,20 +5,27 @@ import { useRouter } from "next/navigation";
 import { createSaleAction, type SaleActionState } from "../actions";
 
 type Opt = { id: number; label: string; salePrice?: string | null };
+type OpenBooking = { id: number; customerId: number; modelWanted: string; tokenAmount: string };
 
 export function SaleForm({
   vehicles,
   customers,
   showCommission,
+  initialCustomerId,
+  openBookings,
 }: {
   vehicles: Opt[];
   customers: Opt[];
   showCommission: boolean;
+  initialCustomerId?: string;
+  openBookings: OpenBooking[];
 }) {
   const router = useRouter();
   const [state, formAction, pending] = useActionState<SaleActionState, FormData>(createSaleAction, null);
   const today = new Date().toISOString().slice(0, 10);
 
+  const [customerId, setCustomerId] = useState(initialCustomerId ?? "");
+  const [bookingId, setBookingId] = useState("");
   const [vehicleId, setVehicleId] = useState("");
   const [plan, setPlan] = useState<"cash" | "installment">("cash");
   const [salePrice, setSalePrice] = useState("");
@@ -40,6 +47,14 @@ export function SaleForm({
   const principal = Math.max(total - n(downpayment), 0);
   const monthly = plan === "installment" && n(months) > 0 ? (principal + n(totalMarkup)) / n(months) : 0;
   const fmt = (v: number) => `Rs. ${v.toLocaleString("en-PK", { maximumFractionDigits: 0 })}`;
+
+  // #14: bookings tied to whichever customer is currently selected.
+  const customerBookings = openBookings.filter((b) => String(b.customerId) === customerId);
+  const selectedBooking = customerBookings.find((b) => String(b.id) === bookingId);
+  const bookingCredit = selectedBooking ? n(selectedBooking.tokenAmount) : 0;
+  const amountDueTodayBase = plan === "installment" ? n(downpayment) : total;
+  const cashToCollectToday = Math.max(amountDueTodayBase - bookingCredit, 0);
+  const creditExceedsDue = bookingCredit > amountDueTodayBase;
 
   if (state?.ok) {
     return (
@@ -66,13 +81,44 @@ export function SaleForm({
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <label className="text-sm">
             <span className="mb-1 block font-medium">Customer *</span>
-            <select name="customerId" required className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2">
+            <select
+              name="customerId"
+              required
+              value={customerId}
+              onChange={(e) => {
+                setCustomerId(e.target.value);
+                setBookingId(""); // bookings list changes with the customer — don't carry a stale pick
+              }}
+              className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2"
+            >
               <option value="">Select customer…</option>
               {customers.map((c) => (
                 <option key={c.id} value={c.id}>{c.label}</option>
               ))}
             </select>
+            {initialCustomerId && (
+              <span className="mt-1 block text-xs text-emerald-600">Pre-selected from a converted visitor.</span>
+            )}
           </label>
+
+          {customerBookings.length > 0 && (
+            <label className="text-sm">
+              <span className="mb-1 block font-medium">Apply Booking Token</span>
+              <select
+                name="bookingId"
+                value={bookingId}
+                onChange={(e) => setBookingId(e.target.value)}
+                className="w-full rounded-lg border border-amber-300 bg-amber-50 px-3 py-2"
+              >
+                <option value="">No booking to apply</option>
+                {customerBookings.map((b) => (
+                  <option key={b.id} value={b.id}>
+                    {b.modelWanted} — Rs. {Number(b.tokenAmount).toLocaleString("en-PK")} token
+                  </option>
+                ))}
+              </select>
+            </label>
+          )}
 
           <label className="text-sm">
             <span className="mb-1 block font-medium">Vehicle (in stock) *</span>
@@ -163,11 +209,18 @@ export function SaleForm({
           <textarea name="notes" rows={2} className="w-full rounded-lg border border-slate-300 px-3 py-2" />
         </label>
 
+        {creditExceedsDue && (
+          <p className="text-sm text-red-600">
+            This booking&apos;s token (Rs. {bookingCredit.toLocaleString("en-PK")}) is more than what&apos;s due today
+            (Rs. {amountDueTodayBase.toLocaleString("en-PK")}) — raise the downpayment or refund part of the booking
+            first.
+          </p>
+        )}
         {state && !state.ok && <p className="text-sm text-red-600">{state.error}</p>}
 
         <button
           type="submit"
-          disabled={pending}
+          disabled={pending || creditExceedsDue}
           className="rounded-lg bg-slate-900 px-5 py-2.5 text-sm font-medium text-white hover:bg-slate-700 disabled:opacity-50"
         >
           {pending ? "Finalizing…" : "Finalize Sale"}
@@ -192,6 +245,14 @@ export function SaleForm({
               <Row k={`Monthly × ${months || "?"}`} v={fmt(monthly)} bold />
             </div>
           </>
+        )}
+        {selectedBooking && (
+          <div className="rounded-lg bg-emerald-50 p-3">
+            <Row k="Booking token applied" v={`− ${fmt(bookingCredit)}`} />
+            <div className="mt-1 border-t border-emerald-100 pt-1">
+              <Row k="Cash to collect today" v={fmt(cashToCollectToday)} bold />
+            </div>
+          </div>
         )}
       </div>
     </form>

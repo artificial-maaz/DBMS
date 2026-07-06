@@ -4,6 +4,7 @@ import { listActiveBranches } from "@/modules/inventory/queries";
 import { requireStaff } from "@/lib/session";
 import { AddCustomerForm } from "./add-customer-form";
 import { EditCustomerForm } from "./edit-customer-form";
+import { CustomerTabs } from "./tabs";
 
 export default async function CustomersPage({
   searchParams,
@@ -31,6 +32,8 @@ export default async function CustomersPage({
           />
         )}
       </div>
+
+      <CustomerTabs active="customers" />
 
       <form method="get" className="flex gap-3">
         <input

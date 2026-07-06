@@ -5,8 +5,15 @@ import { z } from "zod";
  * phones as "+92 300-1234567", CNICs without dashes — all must just work.
  */
 
+/**
+ * BUG FIX (2026-07-06): a conditionally-rendered <input> (e.g. downpayment only
+ * shown for installment plans, purchasePrice only shown to creator/owner,
+ * commission only shown to roles that can set it) is simply ABSENT from
+ * FormData when its element never mounted — that's `undefined`, not `""`.
+ * Treat both the same so "field wasn't shown" behaves like "field left empty."
+ */
 const cleanMoney = (v: unknown) =>
-  typeof v === "string" ? v.replace(/rs\.?/i, "").replace(/[,\s]/g, "") : v;
+  v == null ? "" : typeof v === "string" ? v.replace(/rs\.?/i, "").replace(/[,\s]/g, "") : v;
 
 /** Required amount; commas/Rs./spaces tolerated. */
 export const moneyRequired = z.preprocess(

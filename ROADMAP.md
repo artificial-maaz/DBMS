@@ -18,10 +18,20 @@ Status legend: ✅ done · 🔜 next up · 📋 planned · 💬 answered/decisio
 - #6 Branch edit (name/city/address/phone), staff edit (branch/designation/CNIC/salary/allowances/joined date), Branch Manager badge text-wrap fixed (`whitespace-nowrap`).
 - **Needs migration:** `saleDate` column added to `invoices` (schema-only so far — run the ritual below).
 
+## ✅ Done — Visitors & Leads (2026-07-06)
+- #4 New `visitors` module — deliberately separate table from `customers` (not a flag), so buyer counts/search/dashboards stay clean and #9's WhatsApp follow-ups have a lead-only table to target. Fields: name, phone, CNIC (optional), interest, budget, source (walk-in/event/referral/online), status (new/contacted/follow_up/converted/lost), follow-up date, branch.
+- Lives under `/customers/visitors` (tab next to Customers, not its own sidebar item, per Sir's call).
+- Convert-to-customer: one action creates the real customer row, freezes the visitor record, and deep-links straight into New Sale with that customer pre-selected — matches the actual field workflow (lead walks in → convert → sell).
+- Follow-up list is just this page: sorted soonest-due-first, overdue ones flagged red.
+- **Needs migration:** new `visitors` table (schema-only so far).
+
+## ✅ Done — Advance Bookings (2026-07-06)
+- #14 New `bookings` module — token registered against either a customer or a visitor, posts straight to the Cash Ledger as cash-in immediately, lives at `/bookings` under Retail. Cancel forfeits the token (dealership keeps it, no reversal); refund posts a proper reversing cash-out entry against the exact original ledger row (`ledgerEntryId` tracks it).
+- **Full automatic reconciliation at sale time (Sir's explicit call, not the simpler manual-banner option):** New Sale detects a customer's open bookings, lets staff pick one to apply, and the sale transaction only posts the *delta* to the ledger (downpayment/total minus the token already received) — no double-counting the same cash. Booking flips to `converted` and links to the invoice. If the token exceeds what's actually due today, the sale is rejected with a clear message instead of guessing at an auto-refund.
+- **Needs migration:** new `bookings` table (schema-only so far).
+
 ## 🔜 Next up (core features, pre-polish — per #8)
-1. **Visitors & leads module (#4, #9-groundwork):** walk-in/event visitor capture (name, phone, interest, budget, follow-up date), separate from customers; convert-to-customer action; follow-up due list.
-3. **Advance bookings (#14):** token money register (amount, model wanted, customer/visitor link) → cash-in ledger post; bookings board feeding stock-order decisions; conversion to sale applies token as part of downpayment.
-4. **Installment plans module (#16):** dedicated view of all plans; editable schedules (adjust downpayment/monthly amounts pre-agreement, re-amortize); custom per-bike markup already supported at sale time.
+1. **Installment plans module (#16):** dedicated view of all plans; editable schedules (adjust downpayment/monthly amounts pre-agreement, re-amortize); custom per-bike markup already supported at sale time.
 5. **Guarantor details for installments (#21):** guarantor names, CNICs, addresses, contacts on installment sales; required at sale creation.
 6. **Documents checklist (#20):** per-invoice record of documents handed over vs withheld (cash = all originals; installments = withheld list), with release-on-settlement tracking.
 7. **Test drives (#17):** log + booking (date/time) at customer creation or standalone; Friday-closed validation for all branches.

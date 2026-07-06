@@ -21,8 +21,10 @@ the complete context of this project. Last updated: 2026-07-05.
 - **Hussain Motors ERP** — multi-branch vehicle dealership ERP for Sir's own company.
   ALL 3 phases built, tested by Sir, LIVE in production. See CLAUDE.md for module list.
 - Work queue = `ROADMAP.md` (31-point review backlog; "Next up" list is ordered).
-  Edit flows (#3/#5/#6) done 2026-07-06 (needs migration — see below). Next item
-  when resuming: **visitors & leads module** (#4).
+  Edit flows (#3/#5/#6), Visitors & Leads (#4), and Advance Bookings (#14, incl.
+  full auto-reconciliation into New Sale) done 2026-07-06 — all three need the
+  migration ritual below, not yet run as of this writing. Next item when
+  resuming: **installment plans module** (#16).
 
 ## Stack & infrastructure facts
 - Next.js 16 (App Router) + TypeScript, Drizzle ORM, PostgreSQL on **Neon**,
@@ -75,6 +77,23 @@ Then test locally, then: git add/commit/push (auto-deploys).
   verification. A failed bash `git checkout` also left a stale `.git/index.lock`
   that the sandbox couldn't delete (permission denied) — if git refuses to run
   for Sir, check for and delete `.git/index.lock` first.
+- **Real bug fixed 2026-07-06:** `cleanMoney` in `lib/validation.ts` only handled
+  `typeof v === "string"`, passing `undefined` straight through to `z.string()`,
+  which then rejects it as "expected string, received undefined." Any
+  conditionally-rendered money `<input>` (downpayment/totalMarkup — installment
+  only; commission — role-gated; vehicle purchasePrice — creator/owner only)
+  is simply ABSENT from FormData when unmounted, not an empty string — so cash
+  sales and non-privileged submits were broken pre-existing. Fixed by having
+  `cleanMoney` treat `null`/`undefined` the same as `""`. Watch for the same
+  pattern (conditional `<input>` + non-optional zod field) in future modules.
+- Occasional "Failed to get session" error (Better Auth's generic wrapper
+  message, thrown from `auth.api.getSession` in `lib/session.ts`) on the first
+  request after some idle time — confirmed 2026-07-06 to be a transient Neon
+  serverless-Postgres cold-start hiccup, not a code bug. Isolated by testing:
+  happened on a plain `/sales/new` load (not tied to any specific route or
+  recent change), resolved on refresh/retry. If it ever persists across
+  retries, get the actual terminal error text (Better Auth logs the real cause
+  server-side; the browser overlay only shows the generic message).
 - Repo previously lived in OneDrive: caused git index corruption + reverted writes.
   Now safe at `C:\Claude Projects\DBMS`. Inner `DBMS/` folder = gitignored Obsidian leftovers (deletable).
 - better-auth: public sign-up disabled; staff created server-side via a local

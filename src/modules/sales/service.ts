@@ -1,6 +1,7 @@
 import { and, count, eq, sql } from "drizzle-orm";
 import { db } from "@/db";
 import {
+  bookings,
   branches,
   installmentSchedules,
   invoiceItems,
@@ -145,6 +146,32 @@ export async function createSale(actor: Actor, raw: unknown) {
         throw new Error("You can only sell vehicles from your own branch.");
       }
 
+      // 1b. Booking token reconciliation (#14): lock it, verify it's really
+      // this customer's open booking, and cap the credit at the downpayment
+      // being applied — a token bigger than what's due today is a "fix the
+      // numbers first" situation, not something to silently invent a refund for.
+      let bookingCredit = 0;
+      let lockedBookingId: number | null = null;
+      if (input.bookingId) {
+        const [booking] = await tx.select().from(bookings).where(eq(bookings.id, input.bookingId)).for("update");
+        if (!booking) throw new Error("Booking not found.");
+        if (booking.status !== "open") throw new Error("This booking is no longer open.");
+        if (booking.customerId !== input.customerId) throw new Error("This booking belongs to a different customer.");
+        if (!seesAllBranches(actor.role) && booking.branchId !== actor.branchId) {
+          throw new Error("You can only apply bookings from your own branch.");
+        }
+        bookingCredit = Number(booking.tokenAmount);
+        lockedBookingId = booking.id;
+
+        if (bookingCredit > downpayment) {
+          throw new Error(
+            `Booking token (Rs. ${bookingCredit}) exceeds the downpayment being applied (Rs. ${downpayment}) — increase the downpayment or refund part of the booking first.`,
+          );
+        }
+      }
+      // Cash already sitting in the ledger from the booking — only the difference is new money today.
+      const newCashToCollect = r2(downpayment - bookingCredit);
+
       // 2. Per-branch invoice number: <BRANCHCODE>-<YEAR>-<SEQ>
       // Keyed off saleDate (not createdAt) so a backdated sale lands in its own year's sequence.
       const year = new Date(input.saleDate).getFullYear();
@@ -196,21 +223,32 @@ export async function createSale(actor: Actor, raw: unknown) {
       // 5. Vehicle sold
       await tx.update(vehicles).set({ status: "sold", updatedAt: new Date() }).where(eq(vehicles.id, vehicle.id));
 
-      // 6. Cash received now → ledger (append-only)
-      if (downpayment > 0) {
+      // 6. Cash received TODAY → ledger (append-only). If a booking token
+      // already covered part (or all) of this, only the delta posts here —
+      // the token's cash-in entry was already recorded at booking time.
+      if (newCashToCollect > 0) {
+        const creditNote = bookingCredit > 0 ? ` (Rs. ${bookingCredit} booking token already applied)` : "";
         await tx.insert(ledgerEntries).values({
           branchId: vehicle.branchId,
           direction: "cash_in",
           category: "sale",
-          amount: s(downpayment),
+          amount: s(newCashToCollect),
           description:
-            input.settlementPlan === "cash"
+            (input.settlementPlan === "cash"
               ? `Cash sale ${invoiceNo}`
-              : `Downpayment for installment sale ${invoiceNo}`,
+              : `Downpayment for installment sale ${invoiceNo}`) + creditNote,
           invoiceId: inv.id,
           entryDate: input.saleDate,
           createdBy: actor.userId,
         });
+      }
+
+      // 6b. Booking fulfilled — freeze it and point it at this invoice.
+      if (lockedBookingId) {
+        await tx
+          .update(bookings)
+          .set({ status: "converted", convertedInvoiceId: inv.id })
+          .where(eq(bookings.id, lockedBookingId));
       }
 
       // 7. Amortization schedule — monthly rows; last row absorbs rounding.
@@ -242,7 +280,13 @@ export async function createSale(actor: Actor, raw: unknown) {
         await tx.insert(installmentSchedules).values(rows);
       }
 
-      return { invoiceId: inv.id, invoiceNo, branchId: vehicle.branchId };
+      return {
+        invoiceId: inv.id,
+        invoiceNo,
+        branchId: vehicle.branchId,
+        bookingId: lockedBookingId,
+        bookingCredit,
+      };
     });
 
     await writeAudit({
@@ -251,7 +295,13 @@ export async function createSale(actor: Actor, raw: unknown) {
       entity: "invoice",
       entityId: result.invoiceId,
       branchId: result.branchId,
-      details: { invoiceNo: result.invoiceNo, plan: input.settlementPlan, total: s(total), saleDate: input.saleDate },
+      details: {
+        invoiceNo: result.invoiceNo,
+        plan: input.settlementPlan,
+        total: s(total),
+        saleDate: input.saleDate,
+        ...(result.bookingId ? { bookingId: result.bookingId, bookingCredit: s(result.bookingCredit) } : {}),
+      },
     });
 
     return { ok: true as const, ...result };

@@ -4,6 +4,7 @@ import { moneyRequired } from "@/lib/validation";
 export const LEDGER_CATEGORIES = [
   "sale",
   "installment",
+  "booking_token", // #14: advance/token bookings — usually auto-posted by bookings/service.ts, listed here like sale/installment for the manual-entry dropdown too
   "purchase",
   "rent",
   "utilities",

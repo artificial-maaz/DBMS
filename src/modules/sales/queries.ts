@@ -1,6 +1,7 @@
 import { and, desc, eq, type SQL } from "drizzle-orm";
 import { db } from "@/db";
 import { branches, customers, invoices, vehicles } from "@/db/schema";
+import { listOpenBookingsForSale } from "@/modules/bookings/queries";
 import { seesAllBranches } from "./permissions";
 
 export async function listInvoices(opts: { role: string; ownBranchId: number | null; branchId?: number }) {
@@ -61,7 +62,7 @@ export async function getSaleFormData(opts: { role: string; ownBranchId: number 
     ? eq(vehicles.status, "in_stock")
     : and(eq(vehicles.status, "in_stock"), eq(vehicles.branchId, opts.ownBranchId ?? -1));
 
-  const [stock, customerList] = await Promise.all([
+  const [stock, customerList, openBookings] = await Promise.all([
     db
       .select({
         id: vehicles.id,
@@ -78,6 +79,7 @@ export async function getSaleFormData(opts: { role: string; ownBranchId: number 
       .from(customers)
       .where(all ? undefined : eq(customers.branchId, opts.ownBranchId ?? -1))
       .orderBy(desc(customers.createdAt)),
+    listOpenBookingsForSale({ role: opts.role, ownBranchId: opts.ownBranchId }),
   ]);
 
   return {
@@ -87,5 +89,11 @@ export async function getSaleFormData(opts: { role: string; ownBranchId: number 
       salePrice: v.salePrice,
     })),
     customers: customerList.map((c) => ({ id: c.id, label: `${c.fullName} (${c.phone})` })),
+    openBookings: openBookings.map((b) => ({
+      id: b.id,
+      customerId: b.customerId,
+      modelWanted: b.modelWanted,
+      tokenAmount: b.tokenAmount,
+    })),
   };
 }
