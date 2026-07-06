@@ -1,7 +1,7 @@
-import { count, desc, eq, sql } from "drizzle-orm";
+import { count, desc, eq, inArray, sql } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "@/db";
-import { branches, ledgerEntries, purchaseOrders, suppliers } from "@/db/schema";
+import { branches, ledgerEntries, purchaseOrderItems, purchaseOrders, suppliers } from "@/db/schema";
 import { writeAudit } from "@/lib/audit";
 import { moneyRequired, moneyZero } from "@/lib/validation";
 
@@ -46,11 +46,27 @@ export async function createSupplier(actor: Actor, raw: unknown) {
   }
 }
 
+/** #15: one PO line — dynamic rows arrive as a single JSON field (same pattern as sale guarantors). */
+const poItemSchema = z.object({
+  model: z.string().trim().min(2, "Model required").max(120),
+  color: z.string().trim().max(40).optional().or(z.literal("")),
+  qtyOrdered: z.coerce.number().int().min(1, "Qty must be at least 1"),
+  unitCost: moneyRequired,
+});
+
+const itemsField = z.preprocess((v) => {
+  if (typeof v !== "string" || v.trim() === "") return [];
+  try {
+    return JSON.parse(v);
+  } catch {
+    return v;
+  }
+}, z.array(poItemSchema).min(1, "Add at least one line item"));
+
 const purchaseSchema = z.object({
   supplierId: z.coerce.number().int().positive("Supplier is required"),
   branchId: z.coerce.number().int().positive("Branch is required"),
-  description: z.string().trim().min(3, "Describe the purchase").max(1000),
-  totalCost: moneyRequired,
+  items: itemsField,
   amountPaid: moneyZero,
   purchaseDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Date required"),
   notes: z.string().trim().max(500).optional().or(z.literal("")),
@@ -61,9 +77,15 @@ export async function recordPurchase(actor: Actor, raw: unknown) {
   const parsed = purchaseSchema.safeParse(raw);
   if (!parsed.success) return { ok: false as const, error: parsed.error.issues[0]?.message ?? "Invalid input" };
   const i = parsed.data;
-  if (Number(i.amountPaid) > Number(i.totalCost)) {
-    return { ok: false as const, error: "Paid amount cannot exceed total cost." };
+
+  // #15: total is COMPUTED from the lines — no hand-typed total to drift from reality.
+  const totalCost = i.items.reduce((acc, it) => acc + it.qtyOrdered * Number(it.unitCost), 0).toFixed(2);
+  if (Number(i.amountPaid) > Number(totalCost)) {
+    return { ok: false as const, error: `Paid amount cannot exceed the computed total (Rs. ${totalCost}).` };
   }
+  const description = i.items
+    .map((it) => `${it.qtyOrdered}x ${it.model}${it.color ? ` (${it.color})` : ""}`)
+    .join(", ");
 
   try {
     const result = await db.transaction(async (tx) => {
@@ -75,14 +97,24 @@ export async function recordPurchase(actor: Actor, raw: unknown) {
           poNo,
           supplierId: i.supplierId,
           branchId: i.branchId,
-          description: i.description,
-          totalCost: i.totalCost,
+          description,
+          totalCost,
           amountPaid: i.amountPaid,
           purchaseDate: i.purchaseDate,
           notes: i.notes || null,
           createdBy: actor.userId,
         })
         .returning({ id: purchaseOrders.id });
+
+      await tx.insert(purchaseOrderItems).values(
+        i.items.map((it) => ({
+          poId: po.id,
+          model: it.model,
+          color: it.color || null,
+          qtyOrdered: it.qtyOrdered,
+          unitCost: it.unitCost,
+        })),
+      );
 
       if (Number(i.amountPaid) > 0) {
         await tx.insert(ledgerEntries).values({
@@ -104,12 +136,70 @@ export async function recordPurchase(actor: Actor, raw: unknown) {
       entity: "purchase_order",
       entityId: result.id,
       branchId: i.branchId,
-      details: { poNo: result.poNo, totalCost: i.totalCost, paid: i.amountPaid },
+      details: { poNo: result.poNo, totalCost, paid: i.amountPaid, lines: i.items.length },
     });
     return { ok: true as const };
   } catch {
     return { ok: false as const, error: "Failed to record purchase." };
   }
+}
+
+/** #15: receive stock against one line — accumulates, hard-capped at qtyOrdered. */
+export async function receivePurchaseItem(actor: Actor, itemId: number, qty: number) {
+  if (!canProcure(actor.role)) return { ok: false as const, error: "Not allowed." };
+  if (!qty || qty < 1) return { ok: false as const, error: "Quantity must be at least 1." };
+
+  try {
+    const result = await db.transaction(async (tx) => {
+      const [item] = await tx.select().from(purchaseOrderItems).where(eq(purchaseOrderItems.id, itemId)).for("update");
+      if (!item) throw new Error("Line item not found.");
+      const remaining = item.qtyOrdered - item.qtyReceived;
+      if (qty > remaining) throw new Error(`Only ${remaining} still expected on this line.`);
+
+      await tx
+        .update(purchaseOrderItems)
+        .set({ qtyReceived: item.qtyReceived + qty })
+        .where(eq(purchaseOrderItems.id, itemId));
+
+      const [po] = await tx.select().from(purchaseOrders).where(eq(purchaseOrders.id, item.poId));
+      return { poId: item.poId, poNo: po?.poNo, branchId: po?.branchId ?? null, model: item.model, newReceived: item.qtyReceived + qty };
+    });
+
+    await writeAudit({
+      userId: actor.userId,
+      action: "purchase.receive",
+      entity: "purchase_order",
+      entityId: result.poId,
+      branchId: result.branchId,
+      details: { poNo: result.poNo, model: result.model, qty, nowReceived: result.newReceived },
+    });
+    return { ok: true as const };
+  } catch (e) {
+    return { ok: false as const, error: e instanceof Error ? e.message : "Failed to receive stock." };
+  }
+}
+
+/** #15: ordering patterns — what you buy, how often, how much of it arrives. */
+export async function orderPatterns() {
+  return db
+    .select({
+      model: purchaseOrderItems.model,
+      timesOrdered: sql<number>`count(distinct ${purchaseOrderItems.poId})::int`,
+      totalOrdered: sql<number>`sum(${purchaseOrderItems.qtyOrdered})::int`,
+      totalReceived: sql<number>`sum(${purchaseOrderItems.qtyReceived})::int`,
+      totalSpent: sql<string>`sum(${purchaseOrderItems.qtyOrdered} * ${purchaseOrderItems.unitCost})`,
+      lastOrdered: sql<string>`max(${purchaseOrders.purchaseDate})`,
+    })
+    .from(purchaseOrderItems)
+    .innerJoin(purchaseOrders, eq(purchaseOrderItems.poId, purchaseOrders.id))
+    .groupBy(purchaseOrderItems.model)
+    .orderBy(sql`sum(${purchaseOrderItems.qtyOrdered}) desc`);
+}
+
+/** All lines for a set of POs (page groups them client-side). */
+export async function listPurchaseItems(poIds: number[]) {
+  if (poIds.length === 0) return [];
+  return db.select().from(purchaseOrderItems).where(inArray(purchaseOrderItems.poId, poIds));
 }
 
 /** Pay outstanding balance on a PO — ledger cash_out, atomic. */

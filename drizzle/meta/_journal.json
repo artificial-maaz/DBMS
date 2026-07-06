@@ -92,6 +92,13 @@
       "when": 1783356792231,
       "tag": "0012_boring_gunslinger",
       "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1783361645513,
+      "tag": "0013_goofy_the_leader",
+      "breakpoints": true
     }
   ]
 }

@@ -21,6 +21,8 @@ export const suppliers = pgTable("suppliers", {
  * expenses — inventory is an asset; it hits P&L as COGS when sold).
  */
 export const purchaseOrders = pgTable("purchase_orders", {
+  // NOTE (#15, 2026-07-06): line detail lives in purchase_order_items below.
+  // description stays for legacy rows and free-form notes about the order.
   id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
   poNo: varchar("po_no", { length: 30 }).notNull().unique(),
   supplierId: integer("supplier_id").notNull().references(() => suppliers.id),
@@ -32,4 +34,20 @@ export const purchaseOrders = pgTable("purchase_orders", {
   notes: text("notes"),
   createdBy: text("created_by").notNull(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+/**
+ * #15 (2026-07-06): structured PO lines — model × color × qty × unit cost.
+ * qtyReceived accumulates as shipments arrive (capped at qtyOrdered), giving
+ * ordered-vs-received reconciliation per line; order-pattern analytics
+ * aggregate over these rows by model.
+ */
+export const purchaseOrderItems = pgTable("purchase_order_items", {
+  id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+  poId: integer("po_id").notNull().references(() => purchaseOrders.id),
+  model: varchar("model", { length: 120 }).notNull(), // e.g. "Yadea G5 Pro"
+  color: varchar("color", { length: 40 }),
+  qtyOrdered: integer("qty_ordered").notNull(),
+  qtyReceived: integer("qty_received").notNull().default(0),
+  unitCost: numeric("unit_cost", { precision: 12, scale: 2 }).notNull(),
 });

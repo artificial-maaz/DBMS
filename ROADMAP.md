@@ -61,8 +61,13 @@ Four fixes to the Sonnet-session modules after a full audit (sale transaction, b
 4. **Convert race:** `convertVisitorToCustomer` now locks the visitor row inside its transaction — double-clicking Convert can no longer create two customer rows for one lead (idempotent return preserved).
 No migration needed — logic-only changes.
 
+## ✅ Done — PO line items & order history (2026-07-06)
+- #15 New `purchase_order_items` table: model × color × qty × unit cost per line. Record Purchase now uses dynamic line rows (JSON-field pattern); the PO **total is computed from the lines** (no hand-typed total to drift); description auto-generated. Legacy free-text POs still render their description.
+- **Ordered-vs-received:** per-line "Receive" action accumulates qtyReceived (hard-capped at ordered, row-locked); PO header badge shows pending / partial x/y / received; "Units Awaiting Delivery" KPI card.
+- **Ordering Patterns** table: per model — times ordered, units ordered vs received (short-delivery flagged amber), total spent, last ordered. The order-planning view from Sir's owner loop (#23).
+- **Needs migration:** new `purchase_order_items` table.
+
 ## 🔜 Next up (core features, pre-polish — per #8)
-1. **Order history depth (#15):** structured PO line items (model × qty × color), ordered-vs-received reconciliation, order pattern history view.
 3. **CSV/Excel bulk import (#19):** inventory, customers/visitors, test drives, warranty claims.
 4. **Standard labor rates (#26):** predefined service/repair price list module; job cards pick from it.
 5. **System Settings & Branding (#29, #3-partial):** creator-only settings page — company name, theme color, logo upload, commission rate default, default excise fee, warranty duration, browser tab title, timezone. Replaces `config.ts` constants with DB-backed settings.
