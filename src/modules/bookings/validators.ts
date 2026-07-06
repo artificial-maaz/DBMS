@@ -1,10 +1,10 @@
 import { z } from "zod";
-import { moneyRequired } from "@/lib/validation";
+import { moneyRequired, optionalId } from "@/lib/validation";
 
 export const createBookingSchema = z
   .object({
-    customerId: z.coerce.number().int().positive().optional(),
-    visitorId: z.coerce.number().int().positive().optional(),
+    customerId: optionalId,
+    visitorId: optionalId,
     modelWanted: z.string().trim().min(2, "Model wanted is required").max(200),
     tokenAmount: moneyRequired.refine((v) => Number(v) > 0, "Token amount must be positive"),
     paymentMethod: z.enum(["cash", "online", "bank_transfer", "cheque"]).default("cash"),

@@ -3,7 +3,7 @@ import { z } from "zod";
 import { db } from "@/db";
 import { branches, testDrives, user, vehicles } from "@/db/schema";
 import { writeAudit } from "@/lib/audit";
-import { phoneNumber } from "@/lib/validation";
+import { optionalId, phoneNumber } from "@/lib/validation";
 
 type Actor = { userId: string; role: string; branchId: number | null };
 
@@ -19,9 +19,9 @@ export function isFriday(dateTime: string | Date) {
 const createSchema = z.object({
   personName: z.string().trim().min(2, "Name required").max(120),
   phone: phoneNumber,
-  customerId: z.coerce.number().int().positive().optional(),
-  visitorId: z.coerce.number().int().positive().optional(),
-  vehicleId: z.coerce.number().int().positive().optional(),
+  customerId: optionalId,
+  visitorId: optionalId,
+  vehicleId: optionalId,
   vehicleText: z.string().trim().max(120).optional().or(z.literal("")),
   branchId: z.coerce.number().int().positive("Branch is required"),
   scheduledAt: z.string().min(10, "Date & time required"), // datetime-local value

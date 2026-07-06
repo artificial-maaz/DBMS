@@ -36,6 +36,17 @@ export const moneyZero = z.preprocess(
     .transform((v) => (v === "" ? "0" : v)),
 );
 
+/**
+ * Optional numeric id coming from a <select>: an unselected dropdown submits
+ * "" (empty string), NOT undefined — and z.coerce.number("") === 0, which then
+ * fails .positive() with a confusing "expected number to be >0". Map ""/null
+ * to undefined BEFORE coercion. Use this for every optional id field.
+ */
+export const optionalId = z.preprocess(
+  (v) => (v === "" || v == null ? undefined : v),
+  z.coerce.number().int().positive().optional(),
+);
+
 /** "+92 300 1234567" / "0092..." / "0300-1234567" → "03001234567" */
 export const phoneNumber = z.preprocess(
   (v) => {
