@@ -43,7 +43,7 @@ export async function getInvoiceDetail(opts: { id: number; role: string; ownBran
   if (!inv) return null;
   if (!seesAllBranches(opts.role) && inv.branchId !== opts.ownBranchId) return null;
 
-  const [customer, branch, items, schedule] = await Promise.all([
+  const [customer, branch, items, schedule, invoiceGuarantors] = await Promise.all([
     db.query.customers.findFirst({ where: (c, { eq }) => eq(c.id, inv.customerId) }),
     db.query.branches.findFirst({ where: (b, { eq }) => eq(b.id, inv.branchId) }),
     db.query.invoiceItems.findMany({ where: (it, { eq }) => eq(it.invoiceId, inv.id) }),
@@ -51,9 +51,10 @@ export async function getInvoiceDetail(opts: { id: number; role: string; ownBran
       where: (sc, { eq }) => eq(sc.invoiceId, inv.id),
       orderBy: (sc, { asc }) => asc(sc.installmentNo),
     }),
+    db.query.guarantors.findMany({ where: (g, { eq }) => eq(g.invoiceId, inv.id) }),
   ]);
 
-  return { invoice: inv, customer, branch, items, schedule };
+  return { invoice: inv, customer, branch, items, schedule, guarantors: invoiceGuarantors };
 }
 
 /** Data the "New Sale" form needs: sellable stock + customers, branch-scoped. */

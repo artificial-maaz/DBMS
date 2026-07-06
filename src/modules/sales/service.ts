@@ -3,6 +3,7 @@ import { db } from "@/db";
 import {
   bookings,
   branches,
+  guarantors,
   installmentSchedules,
   invoiceItems,
   invoices,
@@ -280,12 +281,26 @@ export async function createSale(actor: Actor, raw: unknown) {
         await tx.insert(installmentSchedules).values(rows);
       }
 
+      // 8. Guarantor(s) — required for installment (enforced in validators), skipped for cash.
+      if (input.guarantors.length > 0) {
+        await tx.insert(guarantors).values(
+          input.guarantors.map((g) => ({
+            invoiceId: inv.id,
+            fullName: g.fullName,
+            cnic: g.cnic,
+            phone: g.phone,
+            address: g.address || null,
+          })),
+        );
+      }
+
       return {
         invoiceId: inv.id,
         invoiceNo,
         branchId: vehicle.branchId,
         bookingId: lockedBookingId,
         bookingCredit,
+        guarantorCount: input.guarantors.length,
       };
     });
 
@@ -301,6 +316,7 @@ export async function createSale(actor: Actor, raw: unknown) {
         total: s(total),
         saleDate: input.saleDate,
         ...(result.bookingId ? { bookingId: result.bookingId, bookingCredit: s(result.bookingCredit) } : {}),
+        ...(result.guarantorCount > 0 ? { guarantorCount: result.guarantorCount } : {}),
       },
     });
 

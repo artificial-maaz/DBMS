@@ -74,6 +74,22 @@ export const invoiceItems = pgTable("invoice_items", {
 });
 
 /**
+ * Guarantor(s) vouching for an installment sale (#21, 2026-07-06). One-to-many:
+ * some high-value bikes need two guarantors, most need one. Captured at sale
+ * creation, required for installment plans; not editable after (matches the
+ * paperwork — a guarantor change is effectively a new agreement, not a typo fix).
+ */
+export const guarantors = pgTable("guarantors", {
+  id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+  invoiceId: integer("invoice_id").notNull().references(() => invoices.id),
+  fullName: varchar("full_name", { length: 120 }).notNull(),
+  cnic: varchar("cnic", { length: 15 }).notNull(),
+  phone: varchar("phone", { length: 20 }).notNull(),
+  address: text("address"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+/**
  * Amortization schedule — one row per monthly installment.
  * principal + markup = totalDue. Receivables = sum of unpaid totalDue
  * (+ lateFee) across schedules; balance-due tracking per business rules.

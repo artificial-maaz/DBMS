@@ -6,6 +6,7 @@ import { createSaleAction, type SaleActionState } from "../actions";
 
 type Opt = { id: number; label: string; make?: string; model?: string; salePrice?: string | null };
 type OpenBooking = { id: number; customerId: number; modelWanted: string; tokenAmount: string };
+type Guarantor = { fullName: string; cnic: string; phone: string; address: string };
 type Plan = {
   id: number;
   company: string;
@@ -51,6 +52,13 @@ export function SaleForm({
   const [downpayment, setDownpayment] = useState("");
   const [months, setMonths] = useState("12");
   const [totalMarkup, setTotalMarkup] = useState("");
+  // #21: at least one required for installment sales; empty array is a no-op for cash.
+  const [guarantorList, setGuarantorList] = useState<Guarantor[]>([]);
+  const addGuarantor = () =>
+    setGuarantorList((g) => [...g, { fullName: "", cnic: "", phone: "", address: "" }]);
+  const removeGuarantor = (i: number) => setGuarantorList((g) => g.filter((_, idx) => idx !== i));
+  const updateGuarantor = (i: number, field: keyof Guarantor, value: string) =>
+    setGuarantorList((g) => g.map((row, idx) => (idx === i ? { ...row, [field]: value } : row)));
 
   // #16: does the selected vehicle match an active company rate card?
   const selectedVehicle = vehicles.find((v) => String(v.id) === vehicleId);
@@ -265,6 +273,83 @@ export function SaleForm({
           </div>
         )}
 
+        {plan === "installment" && (
+          <div className="rounded-lg border border-slate-200 p-4">
+            <div className="mb-3 flex items-center justify-between">
+              <div>
+                <span className="block text-sm font-medium">Guarantor(s) *</span>
+                <span className="block text-xs text-slate-500">At least one required for an installment sale.</span>
+              </div>
+              <button
+                type="button"
+                onClick={addGuarantor}
+                className="rounded-md bg-slate-100 px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-200"
+              >
+                + Add Guarantor
+              </button>
+            </div>
+
+            {guarantorList.length === 0 && (
+              <p className="rounded-md bg-amber-50 px-3 py-2 text-xs text-amber-700">
+                No guarantor added yet — add at least one before finalizing.
+              </p>
+            )}
+
+            <div className="space-y-3">
+              {guarantorList.map((g, i) => (
+                <div key={i} className="grid grid-cols-1 gap-3 rounded-lg bg-slate-50 p-3 sm:grid-cols-2 lg:grid-cols-4">
+                  <label className="text-sm">
+                    <span className="mb-1 block font-medium">Full Name *</span>
+                    <input
+                      value={g.fullName}
+                      onChange={(e) => updateGuarantor(i, "fullName", e.target.value)}
+                      className="w-full rounded-lg border border-slate-300 px-3 py-2"
+                    />
+                  </label>
+                  <label className="text-sm">
+                    <span className="mb-1 block font-medium">CNIC *</span>
+                    <input
+                      value={g.cnic}
+                      onChange={(e) => updateGuarantor(i, "cnic", e.target.value)}
+                      placeholder="42201-1234567-1"
+                      className="w-full rounded-lg border border-slate-300 px-3 py-2"
+                    />
+                  </label>
+                  <label className="text-sm">
+                    <span className="mb-1 block font-medium">Phone *</span>
+                    <input
+                      value={g.phone}
+                      onChange={(e) => updateGuarantor(i, "phone", e.target.value)}
+                      placeholder="03001234567"
+                      className="w-full rounded-lg border border-slate-300 px-3 py-2"
+                    />
+                  </label>
+                  <div className="flex items-end gap-2">
+                    <label className="flex-1 text-sm">
+                      <span className="mb-1 block font-medium">Address</span>
+                      <input
+                        value={g.address}
+                        onChange={(e) => updateGuarantor(i, "address", e.target.value)}
+                        className="w-full rounded-lg border border-slate-300 px-3 py-2"
+                      />
+                    </label>
+                    <button
+                      type="button"
+                      onClick={() => removeGuarantor(i)}
+                      className="rounded-md px-2.5 py-2 text-xs font-medium text-red-600 hover:bg-red-50"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Dynamic rows don't map to plain FormData — send the whole list as one JSON field. */}
+            <input type="hidden" name="guarantors" value={JSON.stringify(guarantorList)} readOnly />
+          </div>
+        )}
+
         <label className="block text-sm">
           <span className="mb-1 block font-medium">Notes</span>
           <textarea name="notes" rows={2} className="w-full rounded-lg border border-slate-300 px-3 py-2" />
@@ -281,7 +366,7 @@ export function SaleForm({
 
         <button
           type="submit"
-          disabled={pending || creditExceedsDue}
+          disabled={pending || creditExceedsDue || (plan === "installment" && guarantorList.length === 0)}
           className="rounded-lg bg-slate-900 px-5 py-2.5 text-sm font-medium text-white hover:bg-slate-700 disabled:opacity-50"
         >
           {pending ? "Finalizing…" : "Finalize Sale"}

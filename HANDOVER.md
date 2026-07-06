@@ -22,11 +22,12 @@ the complete context of this project. Last updated: 2026-07-05.
   ALL 3 phases built, tested by Sir, LIVE in production. See CLAUDE.md for module list.
 - Work queue = `ROADMAP.md` (31-point review backlog; "Next up" list is ordered).
   Edit flows (#3/#5/#6), Visitors & Leads (#4), Advance Bookings (#14, incl.
-  full auto-reconciliation into New Sale), and Installment Plans (#16, seeded
-  with Sir's real United/Yadea/Ramza/Honda rate cards + New Sale auto-fill)
-  done 2026-07-06 — all four need the migration ritual below (+ `db:seed:plans`
-  for #16), not yet run as of this writing. Next item when resuming:
-  **guarantor details for installments (#21)**.
+  full auto-reconciliation into New Sale), Installment Plans (#16, seeded
+  with Sir's real United/Yadea/Ramza/Honda rate cards + New Sale auto-fill),
+  and Guarantor Details (#21, one-to-many `guarantors` table, required on
+  installment sales only) done 2026-07-06 — all five need the migration
+  ritual below (+ `db:seed:plans` for #16), not yet run as of this writing.
+  Next item when resuming: **documents checklist (#20)**.
 
 ## Stack & infrastructure facts
 - Next.js 16 (App Router) + TypeScript, Drizzle ORM, PostgreSQL on **Neon**,
@@ -102,3 +103,9 @@ Then test locally, then: git add/commit/push (auto-deploys).
   betterAuth instance in staff/service.ts; deactivation deletes session rows directly.
 - Next.js 16: searchParams/params are Promises (await them); pages must not export
   extra components.
+- **ROADMAP.md "Next up" numbering drifts every time an item is moved to Done**:
+  when the top item is completed and moved up into a "✅ Done" section, the
+  remaining numbered list must be renumbered back to 1..N in the SAME edit —
+  caught this out of sequence twice (2026-07-06) because the renumber was
+  forgotten/half-done. Always re-read the "Next up" block after editing it and
+  confirm it starts at 1 with no gaps before moving on.

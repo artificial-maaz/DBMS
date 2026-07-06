@@ -1,5 +1,31 @@
 import { z } from "zod";
-import { moneyRequired, moneyZero } from "@/lib/validation";
+import { moneyRequired, moneyZero, phoneNumber } from "@/lib/validation";
+
+/** Same normalization as customers/staff CNIC: dashed or bare 13 digits, both accepted. */
+const cnic = z.preprocess(
+  (v) => (typeof v === "string" ? v.replace(/\s/g, "") : v),
+  z
+    .string()
+    .regex(/^(\d{5}-\d{7}-\d|\d{13})$/, "CNIC must be 13 digits (e.g. 42201-1234567-1)")
+    .transform((v) => (v.includes("-") ? v : `${v.slice(0, 5)}-${v.slice(5, 12)}-${v.slice(12)}`)),
+);
+
+const guarantorSchema = z.object({
+  fullName: z.string().trim().min(2, "Guarantor name is required").max(120),
+  cnic,
+  phone: phoneNumber,
+  address: z.string().trim().max(500).optional().or(z.literal("")),
+});
+
+/** Sent as one hidden JSON field from the form (dynamic add/remove rows don't map cleanly to plain FormData). */
+const guarantorsField = z.preprocess((v) => {
+  if (typeof v !== "string" || v.trim() === "") return [];
+  try {
+    return JSON.parse(v);
+  } catch {
+    return v; // let zod reject it below with a clear message rather than silently dropping bad input
+  }
+}, z.array(guarantorSchema));
 
 export const createSaleSchema = z
   .object({
@@ -22,6 +48,8 @@ export const createSaleSchema = z
       .string()
       .regex(/^\d{4}-\d{2}-\d{2}$/, "Enter a valid sale date")
       .refine((v) => v <= new Date().toISOString().slice(0, 10), "Sale date cannot be in the future"),
+    /** #21 (2026-07-06): required for installment sales, at least one; forbidden/ignored for cash. */
+    guarantors: guarantorsField,
   })
   .superRefine((v, ctx) => {
     if (v.settlementPlan === "installment") {
@@ -32,6 +60,13 @@ export const createSaleSchema = z
         Number(v.salePrice) - Number(v.discount) + Number(v.registrationFeeGovt) + Number(v.registrationFeeProfit);
       if (Number(v.downpayment) >= total) {
         ctx.addIssue({ code: "custom", message: "Downpayment must be less than the total", path: ["downpayment"] });
+      }
+      if (v.guarantors.length < 1) {
+        ctx.addIssue({
+          code: "custom",
+          message: "At least one guarantor is required for an installment sale",
+          path: ["guarantors"],
+        });
       }
     }
   });

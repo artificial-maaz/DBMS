@@ -36,15 +36,19 @@ Status legend: ✅ done · 🔜 next up · 📋 planned · 💬 answered/decisio
 - **New Sale auto-fill:** selecting a vehicle matches it to its rate card by make+model; a "Plan Duration" dropdown (3/6/9/12) then fills advance downpayment, months, and total markup straight from the card — still fully editable per sale (matches Sir's real-world practice of custom markups per negotiation).
 - **Needs migration:** new `installment_plans` table + `npm run db:seed:plans` (schema/seed-only so far).
 
+## ✅ Done — Guarantor Details (2026-07-06)
+- #21 New `guarantors` table (one-to-many off `invoices` — Sir's call: some high-value bikes need two guarantors, not just one). Required at sale creation for installment plans (at least one; blocked both client- and server-side), never required/collected for cash sales. Fields: full name, CNIC (normalized, same regex as customers/staff), phone, address. Not editable after creation — a guarantor change is a new agreement, not a typo fix.
+- New Sale: dynamic add/remove guarantor rows shown only under Installment; sent as one JSON field (dynamic rows don't map to plain FormData). Invoice detail/print view lists guarantor(s) under the schedule.
+- **Needs migration:** new `guarantors` table (schema-only so far).
+
 ## 🔜 Next up (core features, pre-polish — per #8)
-5. **Guarantor details for installments (#21):** guarantor names, CNICs, addresses, contacts on installment sales; required at sale creation.
-6. **Documents checklist (#20):** per-invoice record of documents handed over vs withheld (cash = all originals; installments = withheld list), with release-on-settlement tracking.
-7. **Test drives (#17):** log + booking (date/time) at customer creation or standalone; Friday-closed validation for all branches.
-8. **Order history depth (#15):** structured PO line items (model × qty × color), ordered-vs-received reconciliation, order pattern history view.
-9. **CSV/Excel bulk import (#19):** inventory, customers/visitors, test drives, warranty claims.
-10. **Standard labor rates (#26):** predefined service/repair price list module; job cards pick from it.
-11. **System Settings & Branding (#29, #3-partial):** creator-only settings page — company name, theme color, logo upload, commission rate default, default excise fee, warranty duration, browser tab title, timezone. Replaces `config.ts` constants with DB-backed settings.
-12. **Notifications (#27):** audit-event-driven alerts to Creator (new logins, stock added, deactivations, suspicious actions) via email first (needs provider), WhatsApp later (see #9).
+1. **Documents checklist (#20):** per-invoice record of documents handed over vs withheld (cash = all originals; installments = withheld list), with release-on-settlement tracking.
+2. **Test drives (#17):** log + booking (date/time) at customer creation or standalone; Friday-closed validation for all branches.
+3. **Order history depth (#15):** structured PO line items (model × qty × color), ordered-vs-received reconciliation, order pattern history view.
+4. **CSV/Excel bulk import (#19):** inventory, customers/visitors, test drives, warranty claims.
+5. **Standard labor rates (#26):** predefined service/repair price list module; job cards pick from it.
+6. **System Settings & Branding (#29, #3-partial):** creator-only settings page — company name, theme color, logo upload, commission rate default, default excise fee, warranty duration, browser tab title, timezone. Replaces `config.ts` constants with DB-backed settings.
+7. **Notifications (#27):** audit-event-driven alerts to Creator (new logins, stock added, deactivations, suspicious actions) via email first (needs provider), WhatsApp later (see #9).
 
 ## 📋 Planned (bigger builds)
 - **WhatsApp integration (#9):** follow-up messages to visitors/leads via WhatsApp Business API (Meta approval + provider needed) — pairs with visitors module + notifications.

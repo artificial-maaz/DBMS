@@ -71,6 +71,13 @@
       "when": 1783337824815,
       "tag": "0009_flawless_stick",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1783339763644,
+      "tag": "0010_nostalgic_randall_flagg",
+      "breakpoints": true
     }
   ]
 }

@@ -17,7 +17,7 @@ export default async function InvoiceDetailPage({ params }: { params: Promise<{ 
     ownBranchId: profile.branchId,
   });
   if (!data) notFound();
-  const { invoice, customer, branch, items, schedule } = data;
+  const { invoice, customer, branch, items, schedule, guarantors } = data;
 
   const fmt = (v: string | null) => (v == null ? "—" : `Rs. ${Number(v).toLocaleString("en-PK")}`);
   const d = (v: Date | string) => new Date(v).toLocaleDateString("en-PK");
@@ -144,6 +144,22 @@ export default async function InvoiceDetailPage({ params }: { params: Promise<{ 
                 })}
               </tbody>
             </table>
+          </div>
+        )}
+
+        {guarantors.length > 0 && (
+          <div className="mt-8">
+            <h2 className="mb-2 text-sm font-semibold">Guarantor{guarantors.length > 1 ? "s" : ""}</h2>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              {guarantors.map((g) => (
+                <div key={g.id} className="rounded-lg border border-slate-200 p-3 text-sm">
+                  <p className="font-medium">{g.fullName}</p>
+                  <p className="text-slate-600">CNIC: {g.cnic}</p>
+                  <p className="text-slate-600">{g.phone}</p>
+                  {g.address && <p className="text-slate-600">{g.address}</p>}
+                </div>
+              ))}
+            </div>
           </div>
         )}
 
