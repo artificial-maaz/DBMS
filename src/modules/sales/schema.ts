@@ -1,5 +1,6 @@
 import { sql } from "drizzle-orm";
 import {
+  boolean,
   date,
   integer,
   numeric,
@@ -11,6 +12,7 @@ import {
 } from "drizzle-orm/pg-core";
 import { branches } from "../branches/schema";
 import { customers } from "../customers/schema";
+import { documentRequirements } from "../document-requirements/schema";
 import { vehicles } from "../inventory/schema";
 
 export const settlementPlan = pgEnum("settlement_plan", ["cash", "installment"]);
@@ -86,6 +88,24 @@ export const guarantors = pgTable("guarantors", {
   cnic: varchar("cnic", { length: 15 }).notNull(),
   phone: varchar("phone", { length: 20 }).notNull(),
   address: text("address"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+/**
+ * Per-invoice checklist snapshot (#20, 2026-07-06) — installment sales only.
+ * requirementName is snapshotted at sale time so renaming/retiring a
+ * requirement later never rewrites history. Not a hard gate: `provided=false`
+ * rows can carry a compensation note/amount instead of blocking the sale
+ * (Sir's explicit call — informational tracking, not validation).
+ */
+export const invoiceDocuments = pgTable("invoice_documents", {
+  id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+  invoiceId: integer("invoice_id").notNull().references(() => invoices.id),
+  requirementId: integer("requirement_id").notNull().references(() => documentRequirements.id),
+  requirementName: varchar("requirement_name", { length: 120 }).notNull(),
+  provided: boolean("provided").notNull().default(true),
+  compensationAmount: numeric("compensation_amount", { precision: 12, scale: 2 }),
+  compensationNote: text("compensation_note"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 

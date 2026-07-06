@@ -41,14 +41,24 @@ Status legend: ✅ done · 🔜 next up · 📋 planned · 💬 answered/decisio
 - New Sale: dynamic add/remove guarantor rows shown only under Installment; sent as one JSON field (dynamic rows don't map to plain FormData). Invoice detail/print view lists guarantor(s) under the schedule.
 - **Needs migration:** new `guarantors` table (schema-only so far).
 
+## ✅ Done — Document Checklist (2026-07-06)
+- #20 Reframed per Sir's direction: not "withheld until settlement" but a manageable list of installment-sale prerequisites (CNIC copy, utility bill, sale letter/agreement, form/token registration papers, spare key, tool kit, warranty card — seeded from Sir's confirmed list). New `document_requirements` master list, Creator/Owner-managed (add/rename/retire) at `/document-requirements`.
+- **Not a hard gate (Sir's explicit call):** New Sale shows the checklist only under Installment, defaulted all-checked; unchecking an item reveals an optional compensation amount + note instead of blocking the sale — a missing document can be waived with compensation on record rather than refusing the deal. Compensation is a tracked note only, doesn't touch the invoice total/ledger.
+- Per-invoice `invoice_documents` snapshot (requirement name captured at sale time, so renaming/retiring a requirement later never rewrites history). Invoice detail/print view lists each requirement's provided/waived status + compensation.
+- **Needs migration + seed:** new `document_requirements` + `invoice_documents` tables, `npm run db:seed:docs`.
+
+## ✅ Done — Test Drives (2026-07-06)
+- #17 New `test_drives` module at `/test-drives` (Retail). Rider = linked customer, lead, or pure walk-in (name/phone always snapshotted). Optional link to an in-stock vehicle OR free-text model of interest. Status lifecycle: scheduled → completed / no_show / cancelled; past-due scheduled rides flagged red ("mark outcome").
+- **Friday-closed rule enforced** server-side (rejects any Friday booking) and mirrored client-side (date field turns red + submit disabled).
+- Note: "book test drive while adding a customer" happens via the same page (link existing customer in the booking form) — a combined create-customer+ride form was skipped to keep the customer form lean; revisit only if staff friction shows.
+- **Needs migration:** new `test_drives` table (schema-only so far).
+
 ## 🔜 Next up (core features, pre-polish — per #8)
-1. **Documents checklist (#20):** per-invoice record of documents handed over vs withheld (cash = all originals; installments = withheld list), with release-on-settlement tracking.
-2. **Test drives (#17):** log + booking (date/time) at customer creation or standalone; Friday-closed validation for all branches.
-3. **Order history depth (#15):** structured PO line items (model × qty × color), ordered-vs-received reconciliation, order pattern history view.
-4. **CSV/Excel bulk import (#19):** inventory, customers/visitors, test drives, warranty claims.
-5. **Standard labor rates (#26):** predefined service/repair price list module; job cards pick from it.
-6. **System Settings & Branding (#29, #3-partial):** creator-only settings page — company name, theme color, logo upload, commission rate default, default excise fee, warranty duration, browser tab title, timezone. Replaces `config.ts` constants with DB-backed settings.
-7. **Notifications (#27):** audit-event-driven alerts to Creator (new logins, stock added, deactivations, suspicious actions) via email first (needs provider), WhatsApp later (see #9).
+1. **Order history depth (#15):** structured PO line items (model × qty × color), ordered-vs-received reconciliation, order pattern history view.
+3. **CSV/Excel bulk import (#19):** inventory, customers/visitors, test drives, warranty claims.
+4. **Standard labor rates (#26):** predefined service/repair price list module; job cards pick from it.
+5. **System Settings & Branding (#29, #3-partial):** creator-only settings page — company name, theme color, logo upload, commission rate default, default excise fee, warranty duration, browser tab title, timezone. Replaces `config.ts` constants with DB-backed settings.
+6. **Notifications (#27):** audit-event-driven alerts to Creator (new logins, stock added, deactivations, suspicious actions) via email first (needs provider), WhatsApp later (see #9).
 
 ## 📋 Planned (bigger builds)
 - **WhatsApp integration (#9):** follow-up messages to visitors/leads via WhatsApp Business API (Meta approval + provider needed) — pairs with visitors module + notifications.

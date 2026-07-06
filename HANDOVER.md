@@ -1,7 +1,7 @@
 # HANDOVER — Continuation Brief for Any Assistant/Model
 
 Read this + `CLAUDE.md` + `ROADMAP.md` before doing anything. Together they are
-the complete context of this project. Last updated: 2026-07-05.
+the complete context of this project. Last updated: 2026-07-06.
 
 ## Who you're working with
 - Address him as **"Sir"**. Technical peer (CS degree, full-stack + AI/ML) but NEW to
@@ -21,13 +21,114 @@ the complete context of this project. Last updated: 2026-07-05.
 - **Hussain Motors ERP** — multi-branch vehicle dealership ERP for Sir's own company.
   ALL 3 phases built, tested by Sir, LIVE in production. See CLAUDE.md for module list.
 - Work queue = `ROADMAP.md` (31-point review backlog; "Next up" list is ordered).
-  Edit flows (#3/#5/#6), Visitors & Leads (#4), Advance Bookings (#14, incl.
-  full auto-reconciliation into New Sale), Installment Plans (#16, seeded
-  with Sir's real United/Yadea/Ramza/Honda rate cards + New Sale auto-fill),
-  and Guarantor Details (#21, one-to-many `guarantors` table, required on
-  installment sales only) done 2026-07-06 — all five need the migration
-  ritual below (+ `db:seed:plans` for #16), not yet run as of this writing.
-  Next item when resuming: **documents checklist (#20)**.
+  Next item when resuming: **test drives (#17)**.
+
+## Session handover — 2026-07-06 (Sonnet session → back to Fable)
+
+This session picked up from a previous Fable 5 chat that hit its context limit
+mid-work on the roadmap. Continuity was verified against the actual repo/DB
+state (via Read tool), not assumed from the prior chat's summary. Everything
+below was built, migrated, seeded, tested on localhost, committed, and pushed
+to `main` — **confirmed done by Sir**, not just claimed. Production (Railway)
+auto-deploys from `main`, so all of it is live.
+
+**1. Edit flows (#3, #5, #6).** Made staff name (incl. Creator's own display
+name), customer records, and vehicle specs editable (vehicle locked once
+"sold"; branch reassignment intentionally stays Gate-Pass-only, not part of
+this edit form). Added a backdated **Sale Date** field to New Sale (defaults
+today, rejects future dates) — it now drives invoice numbering, ledger
+`entryDate`, installment due dates, and the P&L period, so a backdated sale
+lands in its correct historical month instead of the entry month. Branch edit
+(name/city/address/phone) and staff edit (branch/designation/CNIC/salary/
+allowances/joined date) added; Branch Manager badge text-wrap bug fixed.
+*How:* each module got an `update*` service function gated by its existing
+`permissions.ts`, a new `edit-*-form.tsx` modal, wired into that module's
+`page.tsx`. `saleDate` is a `date` column on `invoices` (`CURRENT_DATE`
+default); `sales/service.ts` switched invoice-year extraction, ledger
+`entryDate`, and installment due-date math from `createdAt` to `input.saleDate`.
+
+**2. Visitors & Leads (#4).** New lead-tracking module, deliberately a
+separate table from `customers` (keeps buyer counts/search clean, and gives
+the future WhatsApp follow-up feature (#9) a leads-only table to target).
+Fields: name, phone, optional CNIC, interest, budget, source, status,
+follow-up date, branch. Lives as a tab at `/customers/visitors`, not its own
+sidebar item (Sir's call). One-click convert-to-customer creates the real
+customer row and deep-links straight into New Sale with that customer
+pre-selected. *How:* `modules/visitors/*`, a shared `CustomerTabs` component,
+`sales/new/page.tsx` accepts a `customerId` search param to pre-select.
+
+**3. Bug fix (pre-existing, found mid-session while testing a cash sale).**
+`cleanMoney` in `lib/validation.ts` crashed with "expected string, received
+undefined" whenever a conditionally-unmounted money `<input>` (cash-plan
+downpayment, non-privileged commission field, employee-hidden purchase
+price) was simply absent from `FormData` — not caused by this session's
+edits, just surfaced by testing. *Fix:* `cleanMoney` now treats
+`null`/`undefined` the same as `""`.
+
+**4. Advance Bookings (#14).** Token/booking module against a customer or
+visitor; posts straight to the Cash Ledger as cash-in immediately at booking
+time. Cancel forfeits the token (no reversal); refund posts a proper
+reversing ledger entry against the exact original row. **Sir's explicit
+choice: full automatic reconciliation into New Sale**, not a manual banner —
+the sale transaction posts only the *delta* between the downpayment and the
+token already collected (never double-counts), the booking flips to
+`converted` and links to the invoice, and if the token exceeds what's due
+today the sale is rejected with a clear message rather than inventing a
+refund. *How:* `modules/bookings/*`, new ledger category `booking_token`,
+`sales/service.ts` locks the booking row (`FOR UPDATE`) inside the sale
+transaction and computes `newCashToCollect = downpayment − bookingCredit`.
+
+**5. Installment Plans (#16).** Company rate card (company/model/cash
+price/advance + monthly & total for 3/6/9/12-month terms), Creator/Owner-
+managed at `/installment-plans`, seeded with Sir's **real** current rates
+(he provided 4 screenshots mid-session): United, Yadea, Ramza, Honda — 20
+models, w.e.f. 2026-06-18. New Sale auto-matches the selected vehicle to its
+rate card by make+model; a Plan Duration dropdown then fills advance,
+months, and markup from the card — still fully editable per sale. *How:*
+`modules/installment-plans/*`, `scripts/seed-installment-plans.ts` (idempotent
+upsert by company+model), `sales/queries.ts` extended to return vehicle
+make/model + active plans, client-side matching in `sale-form.tsx`.
+
+**6. Guarantor Details (#21).** Sir's call: a one-to-many `guarantors` table
+(some high-value bikes need two guarantors, not just one), required at sale
+creation for installment sales only (at least one; blocked both client- and
+server-side), never required for cash. Fields: name, CNIC, phone, address.
+Not editable after creation — a guarantor change is a new agreement, not a
+typo fix. *How:* `guarantors` lives in `modules/sales/schema.ts` as a child
+table of `invoices` (same pattern as `invoiceItems`/`installmentSchedules`);
+dynamic add/remove rows in `sale-form.tsx` are sent as one hidden JSON field
+(dynamic rows don't map cleanly to plain `FormData`); `validators.ts`
+JSON-parses and validates the array; `service.ts` inserts the rows inside the
+sale transaction.
+
+**7. Document Checklist (#20).** Sir **reframed this from the original
+roadmap wording** ("documents handed over vs withheld, release-on-
+settlement") into a manageable list of installment-sale prerequisites: CNIC
+copy, utility bill, sale letter/agreement, form/token registration papers,
+spare key, tool kit, warranty card. Creator/Owner manage the list (add/
+rename/retire) at `/document-requirements`. **Not a hard gate** (Sir's
+explicit call): New Sale shows the checklist only for installment plans,
+defaults everything checked, and unchecking an item reveals an optional
+compensation amount + note instead of blocking the sale — a missing document
+can be waived with compensation on record rather than refusing the deal.
+Compensation is a **tracked note only** for now — does not touch the invoice
+total or ledger (kept deliberately simple; wire into the money math later
+only if Sir asks). *How:* `modules/document-requirements/*` mirrors the
+Installment Plans manageable-list pattern exactly (retire, never delete);
+`scripts/seed-document-requirements.ts`; `invoiceDocuments` child table in
+`sales/schema.ts` snapshots the requirement name at sale time so
+renaming/retiring a requirement later never rewrites history.
+
+**Process notes worth carrying forward:**
+- Real business data (rate cards, document requirement names) should come
+  from Sir, not be invented as placeholders — this is why both #16 and #20
+  waited for his actual lists instead of shipping guessed defaults.
+- Design forks with real trade-offs (booking reconciliation depth, guarantor
+  cardinality, document-list source, compensation semantics) got a quick
+  `AskUserQuestion` before building, not after — Sir answers these decisively
+  and it avoids rework.
+- See "Known gotchas" below for the stale-bash-sandbox rule and the
+  ROADMAP.md renumbering rule — both were hard-learned this session.
 
 ## Stack & infrastructure facts
 - Next.js 16 (App Router) + TypeScript, Drizzle ORM, PostgreSQL on **Neon**,

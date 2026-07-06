@@ -17,7 +17,7 @@ export default async function InvoiceDetailPage({ params }: { params: Promise<{ 
     ownBranchId: profile.branchId,
   });
   if (!data) notFound();
-  const { invoice, customer, branch, items, schedule, guarantors } = data;
+  const { invoice, customer, branch, items, schedule, guarantors, documents } = data;
 
   const fmt = (v: string | null) => (v == null ? "—" : `Rs. ${Number(v).toLocaleString("en-PK")}`);
   const d = (v: Date | string) => new Date(v).toLocaleDateString("en-PK");
@@ -160,6 +160,46 @@ export default async function InvoiceDetailPage({ params }: { params: Promise<{ 
                 </div>
               ))}
             </div>
+          </div>
+        )}
+
+        {documents.length > 0 && (
+          <div className="mt-8">
+            <h2 className="mb-2 text-sm font-semibold">Document Checklist</h2>
+            <table className="w-full text-sm">
+              <thead className="border-y border-slate-200 text-left text-xs uppercase tracking-wide text-slate-500">
+                <tr>
+                  <th className="py-2">Requirement</th>
+                  <th className="py-2">Status</th>
+                  <th className="py-2">Compensation</th>
+                </tr>
+              </thead>
+              <tbody>
+                {documents.map((doc) => (
+                  <tr key={doc.id} className="border-b border-slate-100">
+                    <td className="py-2">{doc.requirementName}</td>
+                    <td className="py-2">
+                      {doc.provided ? (
+                        <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-medium text-emerald-700">
+                          provided
+                        </span>
+                      ) : (
+                        <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-700">
+                          missing — waived
+                        </span>
+                      )}
+                    </td>
+                    <td className="py-2 text-slate-600">
+                      {doc.compensationAmount && <span>{fmt(doc.compensationAmount)}</span>}
+                      {doc.compensationNote && (
+                        <span className={doc.compensationAmount ? "ml-2" : ""}>{doc.compensationNote}</span>
+                      )}
+                      {!doc.compensationAmount && !doc.compensationNote && "—"}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         )}
 

@@ -5,6 +5,7 @@ import {
   branches,
   guarantors,
   installmentSchedules,
+  invoiceDocuments,
   invoiceItems,
   invoices,
   ledgerEntries,
@@ -294,6 +295,21 @@ export async function createSale(actor: Actor, raw: unknown) {
         );
       }
 
+      // 9. Document checklist (#20) — informational only, installment sales;
+      // `provided=false` rows are exceptions (may carry a compensation note).
+      if (input.documents.length > 0) {
+        await tx.insert(invoiceDocuments).values(
+          input.documents.map((d) => ({
+            invoiceId: inv.id,
+            requirementId: d.requirementId,
+            requirementName: d.requirementName,
+            provided: d.provided,
+            compensationAmount: d.provided ? null : d.compensationAmount ? s(Number(d.compensationAmount)) : null,
+            compensationNote: d.provided ? null : d.compensationNote || null,
+          })),
+        );
+      }
+
       return {
         invoiceId: inv.id,
         invoiceNo,
@@ -301,6 +317,7 @@ export async function createSale(actor: Actor, raw: unknown) {
         bookingId: lockedBookingId,
         bookingCredit,
         guarantorCount: input.guarantors.length,
+        missingDocuments: input.documents.filter((d) => !d.provided).length,
       };
     });
 
@@ -317,6 +334,7 @@ export async function createSale(actor: Actor, raw: unknown) {
         saleDate: input.saleDate,
         ...(result.bookingId ? { bookingId: result.bookingId, bookingCredit: s(result.bookingCredit) } : {}),
         ...(result.guarantorCount > 0 ? { guarantorCount: result.guarantorCount } : {}),
+        ...(result.missingDocuments > 0 ? { missingDocuments: result.missingDocuments } : {}),
       },
     });
 

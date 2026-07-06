@@ -7,6 +7,14 @@ import { createSaleAction, type SaleActionState } from "../actions";
 type Opt = { id: number; label: string; make?: string; model?: string; salePrice?: string | null };
 type OpenBooking = { id: number; customerId: number; modelWanted: string; tokenAmount: string };
 type Guarantor = { fullName: string; cnic: string; phone: string; address: string };
+type Requirement = { id: number; name: string };
+type DocRow = {
+  requirementId: number;
+  requirementName: string;
+  provided: boolean;
+  compensationAmount: string;
+  compensationNote: string;
+};
 type Plan = {
   id: number;
   company: string;
@@ -28,6 +36,7 @@ export function SaleForm({
   initialCustomerId,
   openBookings,
   plans,
+  requirements,
 }: {
   vehicles: Opt[];
   customers: Opt[];
@@ -35,6 +44,7 @@ export function SaleForm({
   initialCustomerId?: string;
   openBookings: OpenBooking[];
   plans: Plan[];
+  requirements: Requirement[];
 }) {
   const router = useRouter();
   const [state, formAction, pending] = useActionState<SaleActionState, FormData>(createSaleAction, null);
@@ -59,6 +69,28 @@ export function SaleForm({
   const removeGuarantor = (i: number) => setGuarantorList((g) => g.filter((_, idx) => idx !== i));
   const updateGuarantor = (i: number, field: keyof Guarantor, value: string) =>
     setGuarantorList((g) => g.map((row, idx) => (idx === i ? { ...row, [field]: value } : row)));
+
+  // #20: checklist is informational, not a hard gate — default everything "provided",
+  // staff unchecks what's actually missing and can note a compensation instead.
+  const [docChecklist, setDocChecklist] = useState<DocRow[]>(() =>
+    requirements.map((r) => ({
+      requirementId: r.id,
+      requirementName: r.name,
+      provided: true,
+      compensationAmount: "",
+      compensationNote: "",
+    })),
+  );
+  const toggleDoc = (i: number) =>
+    setDocChecklist((rows) =>
+      rows.map((row, idx) =>
+        idx === i
+          ? { ...row, provided: !row.provided, ...(row.provided ? {} : { compensationAmount: "", compensationNote: "" }) }
+          : row,
+      ),
+    );
+  const updateDocField = (i: number, field: "compensationAmount" | "compensationNote", value: string) =>
+    setDocChecklist((rows) => rows.map((row, idx) => (idx === i ? { ...row, [field]: value } : row)));
 
   // #16: does the selected vehicle match an active company rate card?
   const selectedVehicle = vehicles.find((v) => String(v.id) === vehicleId);
@@ -347,6 +379,51 @@ export function SaleForm({
 
             {/* Dynamic rows don't map to plain FormData — send the whole list as one JSON field. */}
             <input type="hidden" name="guarantors" value={JSON.stringify(guarantorList)} readOnly />
+          </div>
+        )}
+
+        {plan === "installment" && docChecklist.length > 0 && (
+          <div className="rounded-lg border border-slate-200 p-4">
+            <span className="mb-1 block text-sm font-medium">Document Checklist</span>
+            <span className="mb-3 block text-xs text-slate-500">
+              Uncheck anything the customer doesn&apos;t have yet — not required to finalize, but note a
+              compensation if you&apos;re granting the deal anyway.
+            </span>
+            <div className="space-y-2">
+              {docChecklist.map((d, i) => (
+                <div key={d.requirementId} className="rounded-lg bg-slate-50 p-3">
+                  <label className="flex items-center gap-2 text-sm">
+                    <input type="checkbox" checked={d.provided} onChange={() => toggleDoc(i)} className="h-4 w-4" />
+                    <span className="font-medium">{d.requirementName}</span>
+                    {!d.provided && <span className="text-xs text-amber-600">missing — waived</span>}
+                  </label>
+                  {!d.provided && (
+                    <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-2">
+                      <label className="text-sm">
+                        <span className="mb-1 block text-xs font-medium text-slate-500">Compensation (Rs., optional)</span>
+                        <input
+                          value={d.compensationAmount}
+                          onChange={(e) => updateDocField(i, "compensationAmount", e.target.value)}
+                          inputMode="decimal"
+                          placeholder="0"
+                          className="w-full rounded-lg border border-slate-300 px-3 py-2"
+                        />
+                      </label>
+                      <label className="text-sm">
+                        <span className="mb-1 block text-xs font-medium text-slate-500">Note</span>
+                        <input
+                          value={d.compensationNote}
+                          onChange={(e) => updateDocField(i, "compensationNote", e.target.value)}
+                          placeholder="e.g. will bring utility bill next week"
+                          className="w-full rounded-lg border border-slate-300 px-3 py-2"
+                        />
+                      </label>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+            <input type="hidden" name="documents" value={JSON.stringify(docChecklist)} readOnly />
           </div>
         )}
 

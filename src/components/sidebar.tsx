@@ -24,9 +24,11 @@ const NAV: Group[] = [
     title: "Retail",
     items: [
       { label: "Customers", href: "/customers" },
+      { label: "Test Drives", href: "/test-drives", roles: ["creator", "owner", "branch_manager", "salesperson"] },
       { label: "Bookings", href: "/bookings" },
       { label: "Sales & Invoices", href: "/sales" },
       { label: "Installment Plans", href: "/installment-plans" },
+      { label: "Document Checklist", href: "/document-requirements" },
     ],
   },
   {

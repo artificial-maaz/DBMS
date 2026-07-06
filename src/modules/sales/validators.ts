@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { moneyRequired, moneyZero, phoneNumber } from "@/lib/validation";
+import { moneyOptional, moneyRequired, moneyZero, phoneNumber } from "@/lib/validation";
 
 /** Same normalization as customers/staff CNIC: dashed or bare 13 digits, both accepted. */
 const cnic = z.preprocess(
@@ -27,6 +27,29 @@ const guarantorsField = z.preprocess((v) => {
   }
 }, z.array(guarantorSchema));
 
+/**
+ * #20 (2026-07-06): checklist result per installment sale. NOT a hard gate —
+ * a row can be `provided: false` with a compensation note instead of blocking
+ * the sale, so this is deliberately unvalidated beyond shape (no min-length,
+ * no "must all be true" rule).
+ */
+const invoiceDocumentSchema = z.object({
+  requirementId: z.coerce.number().int().positive(),
+  requirementName: z.string().trim().min(1).max(120),
+  provided: z.boolean(),
+  compensationAmount: moneyOptional,
+  compensationNote: z.string().trim().max(500).optional().or(z.literal("")),
+});
+
+const documentsField = z.preprocess((v) => {
+  if (typeof v !== "string" || v.trim() === "") return [];
+  try {
+    return JSON.parse(v);
+  } catch {
+    return v;
+  }
+}, z.array(invoiceDocumentSchema));
+
 export const createSaleSchema = z
   .object({
     customerId: z.coerce.number().int().positive("Customer is required"),
@@ -50,6 +73,8 @@ export const createSaleSchema = z
       .refine((v) => v <= new Date().toISOString().slice(0, 10), "Sale date cannot be in the future"),
     /** #21 (2026-07-06): required for installment sales, at least one; forbidden/ignored for cash. */
     guarantors: guarantorsField,
+    /** #20 (2026-07-06): optional checklist snapshot, installment sales only; never required. */
+    documents: documentsField,
   })
   .superRefine((v, ctx) => {
     if (v.settlementPlan === "installment") {

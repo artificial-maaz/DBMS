@@ -2,6 +2,7 @@ import { and, desc, eq, type SQL } from "drizzle-orm";
 import { db } from "@/db";
 import { branches, customers, invoices, vehicles } from "@/db/schema";
 import { listOpenBookingsForSale } from "@/modules/bookings/queries";
+import { listActiveRequirements } from "@/modules/document-requirements/queries";
 import { listActivePlansForSale } from "@/modules/installment-plans/queries";
 import { seesAllBranches } from "./permissions";
 
@@ -43,7 +44,7 @@ export async function getInvoiceDetail(opts: { id: number; role: string; ownBran
   if (!inv) return null;
   if (!seesAllBranches(opts.role) && inv.branchId !== opts.ownBranchId) return null;
 
-  const [customer, branch, items, schedule, invoiceGuarantors] = await Promise.all([
+  const [customer, branch, items, schedule, invoiceGuarantors, documents] = await Promise.all([
     db.query.customers.findFirst({ where: (c, { eq }) => eq(c.id, inv.customerId) }),
     db.query.branches.findFirst({ where: (b, { eq }) => eq(b.id, inv.branchId) }),
     db.query.invoiceItems.findMany({ where: (it, { eq }) => eq(it.invoiceId, inv.id) }),
@@ -52,9 +53,10 @@ export async function getInvoiceDetail(opts: { id: number; role: string; ownBran
       orderBy: (sc, { asc }) => asc(sc.installmentNo),
     }),
     db.query.guarantors.findMany({ where: (g, { eq }) => eq(g.invoiceId, inv.id) }),
+    db.query.invoiceDocuments.findMany({ where: (dc, { eq }) => eq(dc.invoiceId, inv.id) }),
   ]);
 
-  return { invoice: inv, customer, branch, items, schedule, guarantors: invoiceGuarantors };
+  return { invoice: inv, customer, branch, items, schedule, guarantors: invoiceGuarantors, documents };
 }
 
 /** Data the "New Sale" form needs: sellable stock + customers, branch-scoped. */
@@ -64,7 +66,7 @@ export async function getSaleFormData(opts: { role: string; ownBranchId: number 
     ? eq(vehicles.status, "in_stock")
     : and(eq(vehicles.status, "in_stock"), eq(vehicles.branchId, opts.ownBranchId ?? -1));
 
-  const [stock, customerList, openBookings, plans] = await Promise.all([
+  const [stock, customerList, openBookings, plans, requirements] = await Promise.all([
     db
       .select({
         id: vehicles.id,
@@ -83,6 +85,7 @@ export async function getSaleFormData(opts: { role: string; ownBranchId: number 
       .orderBy(desc(customers.createdAt)),
     listOpenBookingsForSale({ role: opts.role, ownBranchId: opts.ownBranchId }),
     listActivePlansForSale(),
+    listActiveRequirements(),
   ]);
 
   return {
@@ -101,5 +104,6 @@ export async function getSaleFormData(opts: { role: string; ownBranchId: number 
       tokenAmount: b.tokenAmount,
     })),
     plans,
+    requirements,
   };
 }
