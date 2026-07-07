@@ -1,0 +1,7 @@
+make,model,variant,color,chassis_no,engine_no,purchase_price,sale_price,branch,notes
+Yadea,G5 Pro,72V 38Ah,Black,YD5PRO2026A00101,ENG5PRO2026A00101,"161,000","174,000",Head Office,
+Yadea,T5L,60V 32Ah,White,YDT5L2026A00102,ENGT5L2026A00102,"148,000","162,000",Head Office,
+United,US 70,70cc,Red,UN70A2026B00201,ENGUN70B00201,"72,500","82,000",Head Office,
+United,Classy Pro,70cc,Blue,UNCP2026B00202,ENGUNCPB00202,"78,000","89,500",Head Office,alloy rims
+Ramza,Kuling,Lithium,Grey,RZKL2026C00301,ENGRZKLC00301,"2,15,000","2,38,000",Head Office,comma format test
+Honda,CD-70,2026,Red,HDCD702026D00401,ENGHDCDD00401,"1,25,000","1,39,000",Head Office,

@@ -1,0 +1,6 @@
+full_name,phone,cnic,email,city,address,branch
+Good Row,03001110001,42201-1111111-1,,Lahore,Model Town,Head Office
+Bad Phone Row,12345,,,Lahore,Gulberg,Head Office
+Bad CNIC Row,03001110002,99999,,Lahore,Cantt,Head Office
+Bad Branch Row,03001110003,,,Lahore,Anarkali,Nonexistent Branch
+X,03001110004,,,Lahore,Too short name is fine but X is not,Head Office

@@ -1,4 +1,4 @@
-# Dealership ERP
+# Hussain Motors ERP
 
 A multi-branch ERP for electric/motor vehicle dealerships in Pakistan — inventory,
 sales, accounting, HR, workshop, and reporting. Delivered as an installable PWA.
@@ -7,12 +7,16 @@ sales, accounting, HR, workshop, and reporting. Delivered as an installable PWA.
 
 ## Stack
 
-Next.js (App Router) + TypeScript · PostgreSQL · PWA delivery · cloud-hosted.
+Next.js (App Router) + TypeScript · PostgreSQL (Neon) via Drizzle ORM · Better Auth ·
+PWA delivery · hosted on Railway (auto-deploys from `main`).
 
 ## Status
 
-Stack approved. Next: scaffolding proposal (project structure, ORM/auth choices,
-Phase 1 schema draft).
+**In production since 2026-07-05.** All three module phases shipped: auth/RBAC/branches,
+serialized inventory, customers, sales with installment plans + commissions + PDF
+invoices, hybrid cash ledger, P&L, spare parts, gate passes, workshop job cards,
+HR & payroll, procurement, audit log, global search. Polish and review backlog
+tracked in `ROADMAP.md`.
 
 ## Module Phases
 
