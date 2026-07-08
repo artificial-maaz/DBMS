@@ -35,6 +35,7 @@ const NAV: Group[] = [
     title: "Service",
     items: [
       { label: "Workshop", href: "/workshop", roles: ["creator", "owner", "branch_manager", "mechanic"] },
+      { label: "Labor Rates", href: "/labor-rates", roles: ["creator", "owner", "branch_manager", "mechanic"] },
     ],
   },
   {
