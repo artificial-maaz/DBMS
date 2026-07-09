@@ -99,6 +99,13 @@
       "when": 1783361645513,
       "tag": "0013_goofy_the_leader",
       "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "7",
+      "when": 1783710097371,
+      "tag": "0014_lean_talon",
+      "breakpoints": true
     }
   ]
 }
