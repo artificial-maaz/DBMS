@@ -10,6 +10,7 @@ export * from "../modules/customers/schema";
 export * from "../modules/visitors/schema";
 export * from "../modules/testdrives/schema";
 export * from "../modules/labor-rates/schema";
+export * from "../modules/settings/schema";
 export * from "../modules/sales/schema";
 export * from "../modules/installment-plans/schema";
 export * from "../modules/document-requirements/schema";
