@@ -75,7 +75,8 @@ No migration needed — logic-only changes.
 - No migration needed (no new tables).
 
 ## 🔜 Next up (core features, pre-polish — per #8)
-4. **Standard labor rates (#26):** predefined service/repair price list module; job cards pick from it.
+4. ~~Standard labor rates (#26)~~ ✅ **Done 2026-07-10:** `labor_rates` table + `/labor-rates` page (Service group; Creator/Owner manage — pricing is policy; workshop roles view). Retire-never-delete pattern; completed jobs keep their charged price (snapshotted on the job card). Workshop integration: a "standard service…" dropdown beside the Complete button (queue + job detail) fills the labor charge from the rate card — still editable per job. **Needs migration** (new `labor_rates` table).
+   *Deferred by Sir (2026-07-10): WhatsApp integration (#9) moved to the very end — revisit only if needed after everything else.*
 5. **System Settings & Branding (#29, #3-partial):** creator-only settings page — company name, theme color, logo upload, commission rate default, default excise fee, warranty duration, browser tab title, timezone. Replaces `config.ts` constants with DB-backed settings.
 6. **Notifications (#27):** audit-event-driven alerts to Creator (new logins, stock added, deactivations, suspicious actions) via email first (needs provider), WhatsApp later (see #9).
 
