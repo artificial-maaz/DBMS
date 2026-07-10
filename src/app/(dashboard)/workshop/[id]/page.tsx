@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { canManageJobs, canUseWorkshop, getJobDetail, listBranchParts } from "@/modules/workshop/service";
+import { listRates } from "@/modules/labor-rates/service";
 import { requireStaff } from "@/lib/session";
 import { redirect } from "next/navigation";
 import { JobActions } from "../workshop-forms";
@@ -16,6 +17,7 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
   const { job, customer, branch, mechanic, lines } = data;
 
   const parts = await listBranchParts(job.branchId);
+  const rateOpts = (await listRates(true)).map((r) => ({ serviceName: r.serviceName, price: r.price }));
   const fmt = (v: string | number) => `Rs. ${Number(v).toLocaleString("en-PK")}`;
   const laborDue = job.warrantyStatus === "free_coupon" ? 0 : Number(job.laborCharge);
   const total = laborDue + Number(job.partsCharge);
@@ -25,7 +27,12 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
     <div className="mx-auto max-w-3xl space-y-6">
       <div className="flex items-center justify-between">
         <Link href="/workshop" className="text-sm text-slate-500 hover:text-slate-800">← Back to Workshop</Link>
-        <JobActions jobId={job.id} status={job.status} isManager={canManageJobs(profile.role)} />
+        <JobActions
+          jobId={job.id}
+          status={job.status}
+          isManager={canManageJobs(profile.role)}
+          rates={rateOpts}
+        />
       </div>
 
       <div className="rounded-xl border border-slate-200 bg-white p-6">

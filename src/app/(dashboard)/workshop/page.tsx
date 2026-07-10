@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { canManageJobs, canUseWorkshop, listJobs, listMechanics, seesAllBranches } from "@/modules/workshop/service";
+import { listRates } from "@/modules/labor-rates/service";
 import { listCustomers } from "@/modules/customers/queries";
 import { listActiveBranches } from "@/modules/inventory/queries";
 import { requireStaff } from "@/lib/session";
@@ -24,12 +25,14 @@ export default async function WorkshopPage({
   const all = seesAllBranches(profile.role);
   const manager = canManageJobs(profile.role);
 
-  const [jobs, customerRows, mechanics, branches] = await Promise.all([
+  const [jobs, customerRows, mechanics, branches, rates] = await Promise.all([
     listJobs({ role: profile.role, ownBranchId: profile.branchId, status: params.status }),
     listCustomers({ role: profile.role, ownBranchId: profile.branchId }),
     listMechanics({ role: profile.role, ownBranchId: profile.branchId }),
     listActiveBranches(),
+    listRates(true),
   ]);
+  const rateOpts = rates.map((r) => ({ serviceName: r.serviceName, price: r.price }));
 
   const fmt = (v: string) => `Rs. ${Number(v).toLocaleString("en-PK")}`;
   const active = jobs.filter((j) => j.status === "open" || j.status === "in_progress").length;
@@ -123,7 +126,7 @@ export default async function WorkshopPage({
                   </span>
                 </td>
                 <td className="px-4 py-2.5 text-right">
-                  <JobActions jobId={j.id} status={j.status} isManager={manager} />
+                  <JobActions jobId={j.id} status={j.status} isManager={manager} rates={rateOpts} />
                 </td>
               </tr>
             ))}

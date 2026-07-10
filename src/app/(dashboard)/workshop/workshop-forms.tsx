@@ -129,10 +129,13 @@ export function JobActions({
   jobId,
   status,
   isManager,
+  rates = [],
 }: {
   jobId: number;
   status: string;
   isManager: boolean;
+  /** #26: active standard labor rates — picking one fills the labor charge. */
+  rates?: { serviceName: string; price: string }[];
 }) {
   const [pending, start] = useTransition();
   const [error, setError] = useState<string | null>(null);
@@ -154,6 +157,21 @@ export function JobActions({
       )}
       {status === "in_progress" && (
         <span className="inline-flex items-center gap-1.5">
+          {rates.length > 0 && (
+            <select
+              defaultValue=""
+              onChange={(e) => e.target.value && setLabor(e.target.value)}
+              className="max-w-40 rounded-md border border-slate-300 bg-white px-1.5 py-1 text-xs"
+              title="Pick a standard service to fill the labor charge"
+            >
+              <option value="">standard service…</option>
+              {rates.map((r) => (
+                <option key={r.serviceName} value={r.price}>
+                  {r.serviceName} — Rs. {Number(r.price).toLocaleString("en-PK")}
+                </option>
+              ))}
+            </select>
+          )}
           <input
             value={labor}
             onChange={(e) => setLabor(e.target.value)}
