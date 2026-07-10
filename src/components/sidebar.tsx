@@ -59,16 +59,31 @@ const NAV: Group[] = [
       { label: "HR & Payroll", href: "/hr", roles: ["creator", "owner"] },
       { label: "Bulk Import", href: "/import", roles: ["creator", "owner"] },
       { label: "Audit Log", href: "/audit", roles: ["creator", "owner"] },
+      { label: "System Settings", href: "/system-settings", roles: ["creator"] },
       { label: "Settings", href: "/settings" },
     ],
   },
 ];
 
-export function Sidebar({ role }: { role: string }) {
+export function Sidebar({
+  role,
+  appName,
+  logoDataUrl,
+}: {
+  role: string;
+  appName?: string;
+  logoDataUrl?: string | null;
+}) {
   return (
     <aside className="flex w-56 shrink-0 flex-col bg-slate-900 text-slate-200 print:hidden">
       <div className="flex items-center gap-2 px-4 py-5 text-lg font-semibold text-white">
-        ⚡ {APP_NAME}
+        {logoDataUrl ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={logoDataUrl} alt="" className="h-7 w-7 rounded object-contain" />
+        ) : (
+          "⚡"
+        )}{" "}
+        {appName ?? APP_NAME}
       </div>
       <nav className="flex-1 space-y-5 overflow-y-auto px-2 pb-6">
         {NAV.map((group) => {

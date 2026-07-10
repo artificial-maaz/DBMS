@@ -36,6 +36,7 @@ export function SaleForm({
   initialCustomerId,
   openBookings,
   plans,
+  feeDefaults,
   requirements,
 }: {
   vehicles: Opt[];
@@ -44,6 +45,8 @@ export function SaleForm({
   initialCustomerId?: string;
   openBookings: OpenBooking[];
   plans: Plan[];
+  /** #29: system-settings defaults pre-filling the registration fee split. */
+  feeDefaults?: { excise: string; profit: string };
   requirements: Requirement[];
 }) {
   const router = useRouter();
@@ -57,8 +60,12 @@ export function SaleForm({
   const [plan, setPlan] = useState<"cash" | "installment">("cash");
   const [salePrice, setSalePrice] = useState("");
   const [discount, setDiscount] = useState("");
-  const [regGovt, setRegGovt] = useState("");
-  const [regProfit, setRegProfit] = useState("");
+  const [regGovt, setRegGovt] = useState(
+    feeDefaults && Number(feeDefaults.excise) > 0 ? feeDefaults.excise : "",
+  );
+  const [regProfit, setRegProfit] = useState(
+    feeDefaults && Number(feeDefaults.profit) > 0 ? feeDefaults.profit : "",
+  );
   const [downpayment, setDownpayment] = useState("");
   const [months, setMonths] = useState("12");
   const [totalMarkup, setTotalMarkup] = useState("");
