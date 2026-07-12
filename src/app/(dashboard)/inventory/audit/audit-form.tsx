@@ -3,91 +3,80 @@
 import { useActionState } from "react";
 import { stockAuditAction, type AuditResult } from "./actions";
 
-type Branch = { id: number; name: string };
+type StockRow = { id: number; chassisNo: string; label: string };
 
-export function StockAuditForm({ branches, fixedBranchId }: { branches: Branch[]; fixedBranchId: number | null }) {
+/**
+ * Manual walk-the-floor audit: the system's in-stock list becomes a checklist.
+ * Staff tick each bike they can physically see — no scanners, no typing.
+ */
+export function StockAuditForm({ branchId, branchName, stock }: { branchId: number; branchName: string; stock: StockRow[] }) {
   const [state, formAction, pending] = useActionState<AuditResult, FormData>(stockAuditAction, null);
 
   return (
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
       <form action={formAction} className="space-y-4 rounded-xl border border-slate-200 bg-white p-6">
-        <h2 className="font-medium">Scan Physical Showroom Stock</h2>
-
-        <label className="block text-sm">
-          <span className="mb-1 block font-medium">Branch *</span>
-          {fixedBranchId ? (
-            <>
-              <input type="hidden" name="branchId" value={fixedBranchId} />
-              <input
-                disabled
-                value={branches.find((b) => b.id === fixedBranchId)?.name ?? "Your branch"}
-                className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2"
-              />
-            </>
-          ) : (
-            <select name="branchId" required className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2">
-              <option value="">Select branch…</option>
-              {branches.map((b) => (
-                <option key={b.id} value={b.id}>{b.name}</option>
-              ))}
-            </select>
-          )}
-        </label>
-
-        <label className="block text-sm">
-          <span className="mb-1 block font-medium">Chassis / VIN numbers *</span>
-          <textarea
-            name="vins"
-            rows={10}
-            required
-            placeholder={"Scan barcodes or paste VINs here — one per line\nYD5PRO2026A00101\nUN70A2026B00201\n…"}
-            className="w-full rounded-lg border border-slate-300 px-3 py-2 font-mono text-xs"
-          />
-          <span className="mt-1 block text-xs text-slate-400">
-            Walk the floor, scan every bike's chassis barcode (scanners type into the box), then audit.
+        <div className="flex items-center justify-between">
+          <h2 className="font-medium">System Stock — {branchName}</h2>
+          <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-medium text-slate-600">
+            {stock.length} expected
           </span>
-        </label>
+        </div>
+        <input type="hidden" name="branchId" value={branchId} />
+
+        {stock.length === 0 ? (
+          <p className="py-8 text-center text-sm text-slate-400">No vehicles in stock at this branch.</p>
+        ) : (
+          <ul className="max-h-[28rem] divide-y divide-slate-100 overflow-y-auto rounded-lg border border-slate-100">
+            {stock.map((v) => (
+              <li key={v.id}>
+                <label className="flex cursor-pointer items-center gap-3 px-3 py-2.5 text-sm hover:bg-slate-50">
+                  <input type="checkbox" name="present" value={v.id} className="h-5 w-5 accent-emerald-600" />
+                  <span className="flex-1">
+                    <span className="font-medium">{v.label}</span>
+                    <span className="block font-mono text-xs text-slate-400">{v.chassisNo}</span>
+                  </span>
+                </label>
+              </li>
+            ))}
+          </ul>
+        )}
+
+        <p className="text-xs text-slate-400">
+          Walk the floor with this list. Tick every bike you can physically see, leave the rest unticked, then submit.
+        </p>
 
         {state && !state.ok && <p className="text-sm text-red-600">{state.error}</p>}
 
         <button
           type="submit"
-          disabled={pending}
+          disabled={pending || stock.length === 0}
           className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-500 disabled:opacity-50"
         >
-          {pending ? "Reconciling…" : "⟳ Audit Physical Stock"}
+          {pending ? "Reconciling…" : "Submit Audit"}
         </button>
       </form>
 
       <div className="space-y-4">
-        {state?.ok && (
+        {state?.ok ? (
           <>
             <ResultCard
               tone="emerald"
-              title={`Perfect Matches (${state.matched?.length ?? 0})`}
-              subtitle="Physically present and recorded in the system — all good."
-              items={state.matched ?? []}
-              empty="No verified matches in this audit."
+              title={`Verified Present (${state.verified?.length ?? 0})`}
+              subtitle="Seen on the floor and recorded in the system."
+              items={(state.verified ?? []).map((m) => `${m.chassisNo} — ${m.label}`)}
+              empty="Nothing was ticked as present."
             />
             <ResultCard
               tone="red"
-              title={`Missing Showroom Stock (${state.missing?.length ?? 0})`}
-              subtitle="System says in stock, but NOT scanned physically — investigate immediately."
+              title={`Missing (${state.missing?.length ?? 0})`}
+              subtitle="System says in stock, but not found on the floor — investigate."
               items={(state.missing ?? []).map((m) => `${m.chassisNo} — ${m.label}`)}
-              empty="Fantastic! No system vehicles are missing from the floor."
-            />
-            <ResultCard
-              tone="amber"
-              title={`Scanned but Unregistered (${state.unregistered?.length ?? 0})`}
-              subtitle="On the floor but not in this branch's in-stock records — unregistered, transferred, or already sold."
-              items={state.unregistered ?? []}
-              empty="No unregistered scans found."
+              empty="Perfect audit — every system vehicle is physically present."
             />
           </>
-        )}
-        {!state?.ok && (
+        ) : (
           <div className="rounded-xl border border-slate-200 bg-white p-6 text-sm text-slate-400">
-            Results appear here after the audit: matches, missing stock, and unregistered scans.
+            Results appear here after submitting: verified stock and anything missing from the floor.
           </div>
         )}
       </div>
@@ -98,7 +87,6 @@ export function StockAuditForm({ branches, fixedBranchId }: { branches: Branch[]
 const TONES: Record<string, { box: string; head: string }> = {
   emerald: { box: "border-emerald-200 bg-emerald-50", head: "text-emerald-800" },
   red: { box: "border-red-200 bg-red-50", head: "text-red-800" },
-  amber: { box: "border-amber-200 bg-amber-50", head: "text-amber-800" },
 };
 
 function ResultCard({
