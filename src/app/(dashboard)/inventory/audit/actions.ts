@@ -5,6 +5,7 @@ import { db } from "@/db";
 import { vehicles } from "@/db/schema";
 import { writeAudit } from "@/lib/audit";
 import { seesAllBranches } from "@/modules/inventory/permissions";
+import { gateOrEnqueue } from "@/modules/approvals/service";
 import { requireStaff } from "@/lib/session";
 
 export type AuditResult = {
@@ -56,6 +57,25 @@ export async function stockAuditAction(_prev: AuditResult, formData: FormData): 
   const label = (v: (typeof inStock)[number]) => `${v.make} ${v.model}${v.color ? ` (${v.color})` : ""}`;
   const verified = inStock.filter((v) => presentSet.has(v.id)).map((v) => ({ chassisNo: v.chassisNo, label: label(v) }));
   const missing = inStock.filter((v) => !presentSet.has(v.id)).map((v) => ({ chassisNo: v.chassisNo, label: label(v) }));
+
+  // Maker-checker (Abrar's camera-verification case): a BM's audit report goes
+  // to the Review Queue — the owner checks it against cameras and approves.
+  // The BM still sees their own results immediately.
+  const gate = await gateOrEnqueue(
+    { userId: user.id, role: profile.role, branchId: profile.branchId },
+    "stock.audit",
+    {
+      branchId,
+      expected: inStock.length,
+      verifiedCount: verified.length,
+      missingCount: missing.length,
+      missingList: missing.map((m) => `${m.chassisNo} — ${m.label}`).join("; ") || "none",
+    },
+    branchId,
+  );
+  if (gate.queued) {
+    return { ok: true, verified, missing };
+  }
 
   await writeAudit({
     userId: user.id,
