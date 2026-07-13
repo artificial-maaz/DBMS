@@ -40,6 +40,12 @@ export default async function InventoryPage({
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-semibold">Showroom Inventory</h1>
+        <div className="flex items-center gap-2">
+        {["creator", "owner", "branch_manager"].includes(profile.role) && (
+          <a href="/inventory/audit" className="rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium hover:bg-slate-50">
+            ⟳ Stock Audit
+          </a>
+        )}
         {canCreateVehicle(profile.role) && (
           <AddVehicleForm
             branches={branches.map((b) => ({ id: b.id, name: b.name }))}
@@ -47,6 +53,7 @@ export default async function InventoryPage({
             fixedBranchId={allBranches ? null : profile.branchId}
           />
         )}
+        </div>
       </div>
 
       {/* Filters — plain GET form, server does the filtering */}
