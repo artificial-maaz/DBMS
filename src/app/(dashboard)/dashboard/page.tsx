@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { and, count, eq, gte, sql } from "drizzle-orm";
+import { topBranches, topSalespeople } from "@/modules/reports/queries";
 import { db } from "@/db";
 import { customers, invoices, ledgerEntries, vehicles } from "@/db/schema";
 import { canSeeFinancials, requireStaff } from "@/lib/session";
@@ -29,7 +30,14 @@ export default async function DashboardPage() {
 
   let monthlyCashIn = "0";
   let receivables = "0";
+  let leaders: Awaited<ReturnType<typeof topSalespeople>> = [];
+  let branchBoard: Awaited<ReturnType<typeof topBranches>> = [];
   if (financial) {
+    const now = new Date();
+    [leaders, branchBoard] = await Promise.all([
+      topSalespeople(now.getFullYear(), now.getMonth() + 1),
+      topBranches(now.getFullYear(), now.getMonth() + 1),
+    ]);
     const [cashIn] = await db
       .select({ s: sql<string>`coalesce(sum(${ledgerEntries.amount}), 0)` })
       .from(ledgerEntries)
@@ -59,6 +67,52 @@ export default async function DashboardPage() {
           </>
         )}
       </div>
+
+      {/* #22a: leaderboards — server-rendered, financial roles only */}
+      {financial && (leaders.length > 0 || branchBoard.length > 0) && (
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+          <Board
+            title="Top Salespeople (this month)"
+            rows={leaders.map((l, i) => ({
+              rank: i + 1,
+              name: l.name,
+              detail: `${l.salesCount} sale${l.salesCount === 1 ? "" : "s"}`,
+              value: `Rs. ${Number(l.revenue).toLocaleString("en-PK")}`,
+            }))}
+          />
+          <Board
+            title="Top Branches (this month)"
+            rows={branchBoard.map((b, i) => ({
+              rank: i + 1,
+              name: b.name,
+              detail: `${b.salesCount} sale${b.salesCount === 1 ? "" : "s"}`,
+              value: `Rs. ${Number(b.revenue).toLocaleString("en-PK")}`,
+            }))}
+          />
+        </div>
+      )}
+    </div>
+  );
+}
+
+function Board({ title, rows }: { title: string; rows: { rank: number; name: string; detail: string; value: string }[] }) {
+  return (
+    <div className="rounded-xl border border-slate-200 bg-white">
+      <h2 className="border-b border-slate-100 px-4 py-3 text-sm font-semibold">{title}</h2>
+      <ul className="divide-y divide-slate-50">
+        {rows.map((r) => (
+          <li key={r.rank} className="flex items-center gap-3 px-4 py-2.5 text-sm">
+            <span className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-bold ${
+              r.rank === 1 ? "bg-amber-100 text-amber-700" : "bg-slate-100 text-slate-600"
+            }`}>
+              {r.rank}
+            </span>
+            <span className="flex-1 font-medium">{r.name}</span>
+            <span className="text-xs text-slate-400">{r.detail}</span>
+            <span className="font-semibold">{r.value}</span>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }
