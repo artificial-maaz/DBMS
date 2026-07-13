@@ -1,6 +1,6 @@
 import { and, eq, gte, lt, ne, sql, type SQL } from "drizzle-orm";
 import { db } from "@/db";
-import { installmentSchedules, invoiceItems, invoices, ledgerEntries, vehicles } from "@/db/schema";
+import { branches, installmentSchedules, invoiceItems, invoices, ledgerEntries, user, vehicles } from "@/db/schema";
 
 /**
  * Monthly P&L (accrual-flavored, from real records):
@@ -12,6 +12,43 @@ import { installmentSchedules, invoiceItems, invoices, ledgerEntries, vehicles }
  *   Net       = Gross − Expenses − commissions
  * Creator/Owner only (enforced at the page).
  */
+/** #22a: top salespeople by revenue for a month (financial roles only — page-gated). */
+export async function topSalespeople(year: number, month: number) {
+  const start = new Date(Date.UTC(year, month - 1, 1)).toISOString().slice(0, 10);
+  const end = new Date(Date.UTC(year, month, 1)).toISOString().slice(0, 10);
+  return db
+    .select({
+      name: user.name,
+      salesCount: sql<number>`count(*)::int`,
+      revenue: sql<string>`coalesce(sum(${invoices.total}), 0)`,
+      commissions: sql<string>`coalesce(sum(${invoices.commissionAmount}), 0)`,
+    })
+    .from(invoices)
+    .innerJoin(user, eq(invoices.salespersonId, user.id))
+    .where(and(gte(invoices.saleDate, start), lt(invoices.saleDate, end), ne(invoices.status, "cancelled")))
+    .groupBy(user.name)
+    .orderBy(sql`sum(${invoices.total}) desc`)
+    .limit(5);
+}
+
+/** #22a: branch revenue leaderboard for a month. */
+export async function topBranches(year: number, month: number) {
+  const start = new Date(Date.UTC(year, month - 1, 1)).toISOString().slice(0, 10);
+  const end = new Date(Date.UTC(year, month, 1)).toISOString().slice(0, 10);
+  return db
+    .select({
+      name: branches.name,
+      salesCount: sql<number>`count(*)::int`,
+      revenue: sql<string>`coalesce(sum(${invoices.total}), 0)`,
+    })
+    .from(invoices)
+    .innerJoin(branches, eq(invoices.branchId, branches.id))
+    .where(and(gte(invoices.saleDate, start), lt(invoices.saleDate, end), ne(invoices.status, "cancelled")))
+    .groupBy(branches.name)
+    .orderBy(sql`sum(${invoices.total}) desc`)
+    .limit(5);
+}
+
 export async function getMonthlyPnl(opts: { year: number; month: number; branchId?: number }) {
   const start = new Date(Date.UTC(opts.year, opts.month - 1, 1));
   const end = new Date(Date.UTC(opts.year, opts.month, 1));
