@@ -82,7 +82,7 @@ No migration needed — logic-only changes.
 
 ## 📋 Planned (bigger builds)
 - **WhatsApp integration (#9):** follow-up messages to visitors/leads via WhatsApp Business API (Meta approval + provider needed) — pairs with visitors module + notifications.
-- **Accounting expansion (#22):** the hybrid ledger is double-entry-ready by design. Candidates from ebikeerp review, in adoption order: physical stock audit reconciliation (scan VINs vs system), top-performer branches/salesmen widgets, orders & quotation pipeline (draft → confirmed → billed, finalize-immediately shortcut), balance sheet + trial balance + general journal entries (formal double-entry layer), branch fixed-assets register (furniture, devices).
+- **Accounting expansion (#22):** ✅ *Part 1 done 2026-07-11:* physical stock audit reconciliation (`/inventory/audit`, Creator/Owner/BM, branch-scoped — paste/scan VINs → Perfect Matches / Missing (investigate!) / Scanned-but-Unregistered; read-only, outcome audit-logged) + dashboard **Top Salespeople / Top Branches** monthly leaderboards (financial roles, server-rendered, keyed off saleDate). *Remaining:* orders & quotation pipeline (draft → confirmed → billed, finalize-immediately shortcut), balance sheet + trial balance + general journal entries (formal double-entry layer), branch fixed-assets register (furniture, devices).
 - **Empty-state illustrations (#25)** and **GUI liveliness pass (#31):** part of the frontend polish phase after core completeness (#8, #13).
 
 ## 💬 Answered (no build needed)
