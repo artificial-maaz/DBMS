@@ -2,9 +2,10 @@
 
 import { revalidatePath } from "next/cache";
 import { cancelGatePass, issueGatePass, receiveGatePass } from "@/modules/gatepass/service";
+import { gateOrEnqueue } from "@/modules/approvals/service";
 import { requireStaff } from "@/lib/session";
 
-export type ActionState = { ok: boolean; error?: string } | null;
+export type ActionState = { ok: boolean; error?: string; queued?: boolean } | null;
 
 const actor = async () => {
   const { user, profile } = await requireStaff();
@@ -12,7 +13,14 @@ const actor = async () => {
 };
 
 export async function issuePassAction(_prev: ActionState, formData: FormData): Promise<ActionState> {
-  const result = await issueGatePass(await actor(), Object.fromEntries(formData));
+  const a = await actor();
+  const payload = Object.fromEntries(formData);
+  const gate = await gateOrEnqueue(a, "gatepass.issue", payload);
+  if (gate.queued) {
+    revalidatePath("/approvals");
+    return { ok: true, queued: true };
+  }
+  const result = await issueGatePass(a, payload);
   if (!result.ok) return { ok: false, error: result.error };
   revalidatePath("/gatepass");
   revalidatePath("/inventory");
@@ -20,14 +28,26 @@ export async function issuePassAction(_prev: ActionState, formData: FormData): P
 }
 
 export async function receivePassAction(passId: number): Promise<ActionState> {
-  const result = await receiveGatePass(await actor(), passId);
+  const a = await actor();
+  const gate = await gateOrEnqueue(a, "gatepass.receive", { passId });
+  if (gate.queued) {
+    revalidatePath("/approvals");
+    return { ok: true, queued: true };
+  }
+  const result = await receiveGatePass(a, passId);
   revalidatePath("/gatepass");
   revalidatePath("/inventory");
   return result.ok ? { ok: true } : { ok: false, error: result.error };
 }
 
 export async function cancelPassAction(passId: number): Promise<ActionState> {
-  const result = await cancelGatePass(await actor(), passId);
+  const a = await actor();
+  const gate = await gateOrEnqueue(a, "gatepass.cancel", { passId });
+  if (gate.queued) {
+    revalidatePath("/approvals");
+    return { ok: true, queued: true };
+  }
+  const result = await cancelGatePass(a, passId);
   revalidatePath("/gatepass");
   revalidatePath("/inventory");
   return result.ok ? { ok: true } : { ok: false, error: result.error };
