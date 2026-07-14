@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { createSale, recordInstallmentPayment } from "@/modules/sales/service";
+import { createSale, recordInstallmentPayment, setDocumentCustody } from "@/modules/sales/service";
 import { requireStaff } from "@/lib/session";
 
 export type SaleActionState = { ok: boolean; error?: string; invoiceNo?: string } | null;
@@ -19,6 +19,20 @@ export async function createSaleAction(_prev: SaleActionState, formData: FormDat
   revalidatePath("/inventory");
   revalidatePath("/dashboard");
   return { ok: true, invoiceNo: result.invoiceNo };
+}
+
+export async function documentCustodyAction(
+  docId: number,
+  custody: "given_to_customer" | "held_by_dealer" | "pending",
+): Promise<SaleActionState> {
+  const { user, profile } = await requireStaff();
+  const result = await setDocumentCustody(
+    { userId: user.id, role: profile.role, branchId: profile.branchId },
+    docId,
+    custody,
+  );
+  revalidatePath("/sales");
+  return result.ok ? { ok: true } : { ok: false, error: result.error };
 }
 
 export async function collectPaymentAction(

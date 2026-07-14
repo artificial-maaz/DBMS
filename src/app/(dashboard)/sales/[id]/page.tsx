@@ -5,6 +5,7 @@ import { canCreateSale } from "@/modules/sales/permissions";
 import { getInvoiceDetail } from "@/modules/sales/queries";
 import { requireStaff } from "@/lib/session";
 import { CollectPayment } from "./collect-payment";
+import { DocumentCustody } from "./document-custody";
 import { PrintButton } from "./print-button";
 
 export default async function InvoiceDetailPage({ params }: { params: Promise<{ id: string }> }) {
@@ -179,13 +180,10 @@ export default async function InvoiceDetailPage({ params }: { params: Promise<{ 
                   <tr key={doc.id} className="border-b border-slate-100">
                     <td className="py-2">{doc.requirementName}</td>
                     <td className="py-2">
-                      {doc.provided ? (
-                        <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-medium text-emerald-700">
-                          provided
-                        </span>
-                      ) : (
-                        <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-700">
-                          missing — waived
+                      <DocumentCustody docId={doc.id} custody={doc.custody} canManage={collector} />
+                      {!doc.provided && (
+                        <span className="ml-1.5 rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-700">
+                          waived at sale
                         </span>
                       )}
                     </td>
