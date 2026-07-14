@@ -70,7 +70,9 @@ export default async function CustomersPage({
             )}
             {rows.map((c) => (
               <tr key={c.id} className="border-t border-slate-100 hover:bg-slate-50">
-                <td className="px-4 py-2.5 font-medium">{c.fullName}</td>
+                <td className="px-4 py-2.5 font-medium">
+                  <a href={`/customers/${c.id}`} className="text-indigo-700 hover:underline">{c.fullName}</a>
+                </td>
                 <td className="px-4 py-2.5">{c.phone}</td>
                 <td className="px-4 py-2.5 font-mono text-xs">{c.cnic ?? "—"}</td>
                 <td className="px-4 py-2.5">{c.city ?? "—"}</td>
