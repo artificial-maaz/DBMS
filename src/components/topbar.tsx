@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { signOut } from "@/lib/auth-client";
+import { ThemeToggle } from "./theme-toggle";
 
 export function Topbar({ name, role }: { name: string; role: string }) {
   const router = useRouter();
@@ -22,6 +23,7 @@ export function Topbar({ name, role }: { name: string; role: string }) {
         />
       </form>
       <div className="flex items-center gap-3">
+        <ThemeToggle />
         <span className="text-sm font-medium">{name}</span>
         <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs capitalize text-slate-600">
           {role.replace("_", " ")}
