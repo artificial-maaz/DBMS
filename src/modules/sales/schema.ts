@@ -98,12 +98,26 @@ export const guarantors = pgTable("guarantors", {
  * rows can carry a compensation note/amount instead of blocking the sale
  * (Sir's explicit call — informational tracking, not validation).
  */
+/**
+ * Abrar #2 (2026-07-14): document CUSTODY — where each paper physically is.
+ *   given_to_customer  — handed over
+ *   held_by_dealer     — we keep it (e.g. registration service in progress)
+ *   pending            — not yet received from customer/authority
+ * Changeable AFTER the sale (papers move); every change audit-logged.
+ */
+export const documentCustody = pgEnum("document_custody", [
+  "given_to_customer",
+  "held_by_dealer",
+  "pending",
+]);
+
 export const invoiceDocuments = pgTable("invoice_documents", {
   id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
   invoiceId: integer("invoice_id").notNull().references(() => invoices.id),
   requirementId: integer("requirement_id").notNull().references(() => documentRequirements.id),
   requirementName: varchar("requirement_name", { length: 120 }).notNull(),
   provided: boolean("provided").notNull().default(true),
+  custody: documentCustody("custody").notNull().default("pending"),
   compensationAmount: numeric("compensation_amount", { precision: 12, scale: 2 }),
   compensationNote: text("compensation_note"),
   createdAt: timestamp("created_at").notNull().defaultNow(),

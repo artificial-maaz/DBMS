@@ -1,12 +1,64 @@
 import { and, desc, eq, ilike, or, sql, type SQL } from "drizzle-orm";
 import { db } from "@/db";
-import { branches, customers } from "@/db/schema";
+import { bookings, branches, customers, invoiceItems, invoices, jobCards, testDrives } from "@/db/schema";
 import { seesAllBranches } from "./permissions";
 
 /**
  * Branch scoping mirrors inventory: employees only ever query their branch.
  * `q` searches name / phone / CNIC — the global-search building block.
  */
+/**
+ * Abrar #2 (2026-07-14): Customer 360 — one page with everything about one
+ * customer: profile, every purchase (with balance + plan), bookings, test
+ * drives, workshop visits. Branch-scoped like everything else.
+ */
+export async function getCustomer360(opts: { id: number; role: string; ownBranchId: number | null }) {
+  const customer = await db.query.customers.findFirst({ where: (c, { eq }) => eq(c.id, opts.id) });
+  if (!customer) return null;
+  if (!seesAllBranches(opts.role) && customer.branchId !== opts.ownBranchId) return null;
+
+  const [branch, purchases, customerBookings, rides, jobs] = await Promise.all([
+    db.query.branches.findFirst({ where: (b, { eq }) => eq(b.id, customer.branchId) }),
+    db
+      .select({
+        id: invoices.id,
+        invoiceNo: invoices.invoiceNo,
+        saleDate: invoices.saleDate,
+        settlementPlan: invoices.settlementPlan,
+        total: invoices.total,
+        downpayment: invoices.downpayment,
+        balanceDue: invoices.balanceDue,
+        status: invoices.status,
+        vehicleDesc: sql<string>`(
+          select string_agg(${invoiceItems.description}, ', ')
+          from ${invoiceItems} where ${invoiceItems.invoiceId} = ${invoices.id} and ${invoiceItems.vehicleId} is not null
+        )`,
+      })
+      .from(invoices)
+      .where(eq(invoices.customerId, opts.id))
+      .orderBy(desc(invoices.saleDate)),
+    db.select().from(bookings).where(eq(bookings.customerId, opts.id)).orderBy(desc(bookings.createdAt)),
+    db.select().from(testDrives).where(eq(testDrives.customerId, opts.id)).orderBy(desc(testDrives.scheduledAt)),
+    db
+      .select({
+        id: jobCards.id,
+        jobNo: jobCards.jobNo,
+        chassisNo: jobCards.chassisNo,
+        status: jobCards.status,
+        warrantyStatus: jobCards.warrantyStatus,
+        couponNo: jobCards.couponNo,
+        laborCharge: jobCards.laborCharge,
+        partsCharge: jobCards.partsCharge,
+        createdAt: jobCards.createdAt,
+      })
+      .from(jobCards)
+      .where(eq(jobCards.customerId, opts.id))
+      .orderBy(desc(jobCards.createdAt)),
+  ]);
+
+  return { customer, branch, purchases, bookings: customerBookings, rides, jobs };
+}
+
 export async function listCustomers(opts: {
   role: string;
   ownBranchId: number | null;

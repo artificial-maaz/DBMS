@@ -113,6 +113,13 @@
       "when": 1783711267217,
       "tag": "0015_wise_justin_hammer",
       "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "7",
+      "when": 1784038130059,
+      "tag": "0016_normal_yellow_claw",
+      "breakpoints": true
     }
   ]
 }

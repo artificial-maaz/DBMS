@@ -102,6 +102,43 @@ export async function recordInstallmentPayment(
   }
 }
 
+/**
+ * Abrar #2 (2026-07-14): documents move after the sale — customer collects
+ * papers later, or we take custody for registration services. Managers update
+ * custody per document; every change is audit-logged.
+ */
+export async function setDocumentCustody(
+  actor: Actor,
+  docId: number,
+  custody: "given_to_customer" | "held_by_dealer" | "pending",
+) {
+  if (!canManageCommission(actor.role)) {
+    return { ok: false as const, error: "Only managers can update document custody." };
+  }
+  if (!["given_to_customer", "held_by_dealer", "pending"].includes(custody)) {
+    return { ok: false as const, error: "Invalid custody state." };
+  }
+
+  const doc = await db.query.invoiceDocuments.findFirst({ where: (d, { eq }) => eq(d.id, docId) });
+  if (!doc) return { ok: false as const, error: "Document record not found." };
+  const inv = await db.query.invoices.findFirst({ where: (i, { eq }) => eq(i.id, doc.invoiceId) });
+  if (!inv) return { ok: false as const, error: "Invoice not found." };
+  if (!seesAllBranches(actor.role) && inv.branchId !== actor.branchId) {
+    return { ok: false as const, error: "Wrong branch." };
+  }
+
+  await db.update(invoiceDocuments).set({ custody }).where(eq(invoiceDocuments.id, docId));
+  await writeAudit({
+    userId: actor.userId,
+    action: "invoice.document_custody",
+    entity: "invoice",
+    entityId: inv.id,
+    branchId: inv.branchId,
+    details: { invoiceNo: inv.invoiceNo, document: doc.requirementName, custody },
+  });
+  return { ok: true as const };
+}
+
 export async function createSale(actor: Actor, raw: unknown) {
   if (!canCreateSale(actor.role)) return { ok: false as const, error: "Not allowed to create sales." };
 
@@ -314,6 +351,8 @@ export async function createSale(actor: Actor, raw: unknown) {
             requirementId: d.requirementId,
             requirementName: d.requirementName,
             provided: d.provided,
+            // Abrar #2: initial custody — provided at sale = handed to customer; else pending.
+            custody: (d.provided ? "given_to_customer" : "pending") as "given_to_customer" | "pending",
             compensationAmount: d.provided ? null : d.compensationAmount ? s(Number(d.compensationAmount)) : null,
             compensationNote: d.provided ? null : d.compensationNote || null,
           })),

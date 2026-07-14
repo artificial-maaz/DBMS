@@ -1,0 +1,2 @@
+CREATE TYPE "public"."document_custody" AS ENUM('given_to_customer', 'held_by_dealer', 'pending');--> statement-breakpoint
+ALTER TABLE "invoice_documents" ADD COLUMN "custody" "document_custody" DEFAULT 'pending' NOT NULL;
