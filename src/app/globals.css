@@ -1,1 +1,55 @@
 @import "tailwindcss";
+
+/*
+ * Dark mode (Abrar #1, 2026-07-14) — pragmatic interim approach:
+ * global overrides remapping the light neutral palette under html.dark.
+ * The proper per-component dark: variant adoption happens in the GUI polish
+ * pass (#31); this delivers a usable dark theme today without touching
+ * hundreds of classNames. Sidebar is already dark and needs no changes.
+ */
+.dark body { background-color: #0b1220; color: #e2e8f0; }
+
+.dark .bg-white { background-color: #16213a; }
+.dark .bg-slate-50 { background-color: #0f172a; }
+.dark .bg-slate-100 { background-color: #1e293b; }
+.dark .bg-slate-800 { background-color: #1e293b; }
+.dark .bg-slate-900 { background-color: #0f172a; }
+
+.dark .text-slate-900 { color: #e2e8f0; }
+.dark .text-slate-700 { color: #cbd5e1; }
+.dark .text-slate-600 { color: #b4c0d3; }
+.dark .text-slate-500 { color: #94a3b8; }
+.dark .text-slate-400 { color: #7c8ba1; }
+
+.dark .border-slate-100 { border-color: #1e293b; }
+.dark .border-slate-200 { border-color: #27354d; }
+.dark .border-slate-300 { border-color: #334155; }
+.dark .divide-slate-50 > * + *, .dark .divide-slate-100 > * + * { border-color: #1e293b; }
+
+.dark .hover\:bg-slate-50:hover { background-color: #1c2942; }
+.dark .hover\:bg-slate-100:hover { background-color: #243352; }
+.dark .hover\:bg-slate-700:hover { background-color: #334155; }
+
+.dark input, .dark select, .dark textarea {
+  background-color: #0f172a;
+  color: #e2e8f0;
+  border-color: #334155;
+}
+.dark input::placeholder, .dark textarea::placeholder { color: #64748b; }
+.dark input:disabled, .dark select:disabled { background-color: #1e293b; color: #94a3b8; }
+
+/* Soft badge palettes: darken backgrounds, lighten text for contrast */
+.dark .bg-emerald-100 { background-color: #064e3b; } .dark .text-emerald-700 { color: #6ee7b7; }
+.dark .bg-emerald-50 { background-color: #052e24; } .dark .text-emerald-800 { color: #6ee7b7; } .dark .text-emerald-600 { color: #34d399; }
+.dark .bg-red-100 { background-color: #7f1d1d; } .dark .text-red-700 { color: #fca5a5; }
+.dark .bg-red-50 { background-color: #450a0a; } .dark .text-red-800 { color: #fca5a5; } .dark .text-red-600 { color: #f87171; }
+.dark .bg-amber-100 { background-color: #78350f; } .dark .text-amber-700 { color: #fcd34d; }
+.dark .bg-amber-50 { background-color: #451a03; } .dark .text-amber-800 { color: #fcd34d; } .dark .text-amber-600 { color: #fbbf24; }
+.dark .bg-sky-100 { background-color: #0c4a6e; } .dark .text-sky-700 { color: #7dd3fc; }
+.dark .bg-sky-50 { background-color: #082f49; }
+.dark .bg-indigo-100 { background-color: #312e81; } .dark .text-indigo-700 { color: #a5b4fc; }
+.dark .bg-indigo-50 { background-color: #1e1b4b; }
+.dark .bg-slate-200 { background-color: #334155; }
+
+/* Buttons that are dark-on-light in light mode stay legible */
+.dark .bg-slate-900.text-white, .dark button.bg-slate-900 { background-color: #4f46e5; }
