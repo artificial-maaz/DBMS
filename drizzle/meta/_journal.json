@@ -120,6 +120,13 @@
       "when": 1784038130059,
       "tag": "0016_normal_yellow_claw",
       "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1784040385469,
+      "tag": "0017_flashy_preak",
+      "breakpoints": true
     }
   ]
 }

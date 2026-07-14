@@ -69,10 +69,12 @@ export function Sidebar({
   role,
   appName,
   logoDataUrl,
+  pendingApprovals = 0,
 }: {
   role: string;
   appName?: string;
   logoDataUrl?: string | null;
+  pendingApprovals?: number;
 }) {
   return (
     <aside className="flex w-56 shrink-0 flex-col bg-slate-900 text-slate-200 print:hidden">
@@ -86,6 +88,19 @@ export function Sidebar({
         {appName ?? APP_NAME}
       </div>
       <nav className="flex-1 space-y-5 overflow-y-auto px-2 pb-6">
+        {/* Maker-checker Review Queue — visible to everyone: staff track their
+            own submissions, owners see everything waiting on them. */}
+        <Link
+          href="/approvals"
+          className="flex items-center justify-between rounded-md px-2 py-1.5 text-sm font-medium hover:bg-slate-800 hover:text-white"
+        >
+          <span>⏳ Review Queue</span>
+          {pendingApprovals > 0 && (
+            <span className="rounded-full bg-amber-500 px-2 py-0.5 text-xs font-bold text-slate-900">
+              {pendingApprovals}
+            </span>
+          )}
+        </Link>
         {NAV.map((group) => {
           const items = group.items.filter((i) => !i.roles || i.roles.includes(role));
           if (items.length === 0) return null;
