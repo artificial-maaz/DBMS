@@ -22,9 +22,13 @@ export const viewport: Viewport = {
   themeColor: "#0f172a",
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  // Theme cookie read on the server → correct theme on first paint, no flash.
+  const { cookies } = await import("next/headers");
+  const theme = (await cookies()).get("theme")?.value;
+
   return (
-    <html lang="en">
+    <html lang="en" className={theme === "dark" ? "dark" : undefined}>
       <body className="min-h-screen bg-slate-50 text-slate-900 antialiased">
         {children}
       </body>
