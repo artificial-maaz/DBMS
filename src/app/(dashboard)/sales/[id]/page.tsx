@@ -6,6 +6,7 @@ import { getInvoiceDetail } from "@/modules/sales/queries";
 import { requireStaff } from "@/lib/session";
 import { CollectPayment } from "./collect-payment";
 import { DocumentCustody } from "./document-custody";
+import { WarrantyCard } from "./warranty-card";
 import { PrintButton } from "./print-button";
 
 export default async function InvoiceDetailPage({ params }: { params: Promise<{ id: string }> }) {
@@ -44,10 +45,11 @@ export default async function InvoiceDetailPage({ params }: { params: Promise<{ 
           <div className="text-right">
             <p className="font-mono text-lg font-semibold">{invoice.invoiceNo}</p>
             <p className="text-sm text-slate-500">Date: {d(invoice.saleDate)}</p>
-            <p className="mt-1">
+            <p className="mt-1 flex flex-wrap justify-end gap-1.5">
               <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-medium capitalize text-emerald-700">
                 {invoice.status} · {invoice.settlementPlan}
               </span>
+              <WarrantyCard invoiceId={invoice.id} sent={invoice.warrantyCardSent} canManage={collector} />
             </p>
           </div>
         </div>

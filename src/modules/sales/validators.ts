@@ -66,6 +66,8 @@ export const createSaleSchema = z
     notes: z.string().trim().max(2000).optional().or(z.literal("")),
     /** #14 (2026-07-06): apply an open booking's token as downpayment credit. */
     bookingId: optionalId,
+    /** Sir 2026-07-14: checkbox — warranty card photo sent to the company. */
+    warrantyCardSent: z.preprocess((v) => v === "on" || v === true || v === "true", z.boolean()).default(false),
     /** #5 (2026-07-06): defaults to today client-side; backdatable, never future-dated. */
     saleDate: z
       .string()

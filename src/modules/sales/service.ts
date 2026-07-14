@@ -139,6 +139,26 @@ export async function setDocumentCustody(
   return { ok: true as const };
 }
 
+/** Sir 2026-07-14: mark the warranty card photo as sent after the fact (BMs forget at sale time). */
+export async function setWarrantyCardSent(actor: Actor, invoiceId: number) {
+  if (!canManageCommission(actor.role)) return { ok: false as const, error: "Only managers can update this." };
+  const inv = await db.query.invoices.findFirst({ where: (i, { eq }) => eq(i.id, invoiceId) });
+  if (!inv) return { ok: false as const, error: "Invoice not found." };
+  if (!seesAllBranches(actor.role) && inv.branchId !== actor.branchId) {
+    return { ok: false as const, error: "Wrong branch." };
+  }
+  await db.update(invoices).set({ warrantyCardSent: true }).where(eq(invoices.id, invoiceId));
+  await writeAudit({
+    userId: actor.userId,
+    action: "invoice.warranty_card_sent",
+    entity: "invoice",
+    entityId: invoiceId,
+    branchId: inv.branchId,
+    details: { invoiceNo: inv.invoiceNo },
+  });
+  return { ok: true as const };
+}
+
 export async function createSale(actor: Actor, raw: unknown) {
   if (!canCreateSale(actor.role)) return { ok: false as const, error: "Not allowed to create sales." };
 
@@ -247,6 +267,7 @@ export async function createSale(actor: Actor, raw: unknown) {
           notes: input.notes || null,
           createdBy: actor.userId,
           saleDate: input.saleDate,
+          warrantyCardSent: input.warrantyCardSent,
         })
         .returning({ id: invoices.id });
 

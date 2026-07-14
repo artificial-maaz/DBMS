@@ -135,6 +135,23 @@ export function SaleForm({
   const creditExceedsDue = bookingCredit > amountDueTodayBase;
 
   if (state?.ok) {
+    if (state.queued) {
+      return (
+        <div className="max-w-lg space-y-4 rounded-xl border border-amber-200 bg-amber-50 p-8">
+          <p className="text-lg font-semibold text-amber-800">⏳ Sent for owner approval</p>
+          <p className="text-sm text-amber-700">
+            This sale is in the Review Queue. Once an owner approves it, the invoice is created, the
+            vehicle is marked sold, and the ledger updates automatically. Track it under Review Queue.
+          </p>
+          <button
+            onClick={() => router.push("/approvals")}
+            className="rounded-lg bg-amber-700 px-4 py-2 text-sm font-medium text-white hover:bg-amber-600"
+          >
+            View Review Queue
+          </button>
+        </div>
+      );
+    }
     return (
       <div className="max-w-lg space-y-4 rounded-xl border border-emerald-200 bg-emerald-50 p-8">
         <p className="text-lg font-semibold text-emerald-800">✔ Sale finalized</p>
@@ -433,6 +450,16 @@ export function SaleForm({
             <input type="hidden" name="documents" value={JSON.stringify(docChecklist)} readOnly />
           </div>
         )}
+
+        <label className="flex cursor-pointer items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm">
+          <input type="checkbox" name="warrantyCardSent" className="h-4 w-4 accent-emerald-600" />
+          <span>
+            <span className="font-medium">Warranty card photo sent to company</span>
+            <span className="block text-xs text-slate-400">
+              Required to start the warranty clock — the owner sees this during review.
+            </span>
+          </span>
+        </label>
 
         <label className="block text-sm">
           <span className="mb-1 block font-medium">Notes</span>

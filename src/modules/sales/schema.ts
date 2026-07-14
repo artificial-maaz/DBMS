@@ -50,6 +50,9 @@ export const invoices = pgTable("invoices", {
   downpayment: numeric("downpayment", { precision: 14, scale: 2 }).notNull().default("0"),
   balanceDue: numeric("balance_due", { precision: 14, scale: 2 }).notNull().default("0"),
   commissionAmount: numeric("commission_amount", { precision: 12, scale: 2 }).notNull().default("0"),
+  /** Sir 2026-07-14: warranty card photo must be sent to the company at sale
+   * time to start the warranty clock — BMs forget, so it's tracked + reviewed. */
+  warrantyCardSent: boolean("warranty_card_sent").notNull().default(false),
   status: invoiceStatus("status").notNull().default("active"),
   notes: text("notes"),
   createdBy: text("created_by").notNull(),
