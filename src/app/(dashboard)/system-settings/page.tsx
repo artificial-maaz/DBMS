@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { canManageSettings, getSettings } from "@/modules/settings/service";
 import { requireStaff } from "@/lib/session";
 import { SettingsForm } from "./settings-form";
+import { TestReports } from "./test-reports";
 
 export default async function SystemSettingsPage() {
   const { profile } = await requireStaff();
@@ -31,6 +32,7 @@ export default async function SystemSettingsPage() {
           timezone: s.timezone,
         }}
       />
+      <TestReports />
     </div>
   );
 }

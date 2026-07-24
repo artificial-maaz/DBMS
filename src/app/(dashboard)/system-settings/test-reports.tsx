@@ -1,0 +1,41 @@
+"use client";
+
+import { useState, useTransition } from "react";
+import { sendTestReportAction } from "./actions";
+
+export function TestReports() {
+  const [pending, start] = useTransition();
+  const [msg, setMsg] = useState<string | null>(null);
+
+  const run = (kind: "daily" | "monthly") =>
+    start(async () => {
+      const res = await sendTestReportAction(kind);
+      setMsg(res?.ok ? `✔ ${kind} report sent — check your inbox.` : (res?.error ?? "Failed"));
+    });
+
+  return (
+    <div className="rounded-xl border border-slate-200 bg-white p-6">
+      <h2 className="mb-1 font-medium">Email Reports</h2>
+      <p className="mb-3 text-sm text-slate-500">
+        Daily & monthly reports go out automatically via the cron endpoints. Test them here.
+      </p>
+      <div className="flex flex-wrap items-center gap-3">
+        <button
+          disabled={pending}
+          onClick={() => run("daily")}
+          className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-500 disabled:opacity-50"
+        >
+          {pending ? "Sending…" : "Send test daily report"}
+        </button>
+        <button
+          disabled={pending}
+          onClick={() => run("monthly")}
+          className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium hover:bg-slate-50 disabled:opacity-50"
+        >
+          {pending ? "Sending…" : "Send test monthly report"}
+        </button>
+        {msg && <span className="text-sm text-slate-600">{msg}</span>}
+      </div>
+    </div>
+  );
+}

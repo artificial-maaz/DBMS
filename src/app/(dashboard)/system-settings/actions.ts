@@ -8,6 +8,16 @@ export type ActionState = { ok: boolean; error?: string } | null;
 
 const MAX_LOGO_BYTES = 200 * 1024;
 
+export async function sendTestReportAction(kind: "daily" | "monthly"): Promise<ActionState> {
+  const { profile } = await requireStaff();
+  if (profile.role !== "creator") return { ok: false, error: "Creator only." };
+  const { sendDailyReport, sendMonthlyReport } = await import("@/modules/reports/email-reports");
+  const result = kind === "daily" ? await sendDailyReport() : await sendMonthlyReport();
+  return result.sent
+    ? { ok: true }
+    : { ok: false, error: "Not sent — is RESEND_API_KEY set in .env / Railway Variables?" };
+}
+
 export async function updateSettingsAction(_prev: ActionState, formData: FormData): Promise<ActionState> {
   const { user, profile } = await requireStaff();
 
