@@ -8,6 +8,7 @@ import { createBooking, setBookingStatus } from "@/modules/bookings/service";
 import { createVehicle } from "@/modules/inventory/service";
 import { adjustStock, createPart } from "@/modules/parts/service";
 import { cancelGatePass, issueGatePass, receiveGatePass } from "@/modules/gatepass/service";
+import { advanceJob } from "@/modules/workshop/service";
 
 type Actor = { userId: string; role: string; branchId: number | null };
 type Outcome = { ok: boolean; error?: string };
@@ -64,6 +65,7 @@ const DISPATCH: Record<string, (actor: Actor, p: Payload) => Promise<Outcome>> =
   "vehicle.create": (a, p) => createVehicle(a, p),
   "part.create": (a, p) => createPart(a, p),
   "part.adjust": (a, p) => adjustStock(a, p),
+  "job.deliver": (a, p) => advanceJob(a, { jobId: Number(p.jobId), to: "delivered" }),
   "gatepass.issue": (a, p) => issueGatePass(a, p),
   "gatepass.receive": (a, p) => receiveGatePass(a, Number(p.passId)),
   "gatepass.cancel": (a, p) => cancelGatePass(a, Number(p.passId)),

@@ -2,9 +2,10 @@
 
 import { revalidatePath } from "next/cache";
 import { addPartToJob, advanceJob, createJobCard, removePartFromJob } from "@/modules/workshop/service";
+import { gateOrEnqueue } from "@/modules/approvals/service";
 import { requireStaff } from "@/lib/session";
 
-export type ActionState = { ok: boolean; error?: string } | null;
+export type ActionState = { ok: boolean; error?: string; queued?: boolean } | null;
 
 const actor = async () => {
   const { user, profile } = await requireStaff();
@@ -19,7 +20,19 @@ export async function createJobAction(_prev: ActionState, formData: FormData): P
 }
 
 export async function advanceJobAction(jobId: number, to: string, laborCharge?: string): Promise<ActionState> {
-  const result = await advanceJob(await actor(), { jobId, to, laborCharge });
+  const a = await actor();
+
+  // "Deliver & Collect" posts cash to the ledger — that's a money action, so
+  // staff (incl. BMs) submit it for owner approval like every other money move.
+  if (to === "delivered") {
+    const gate = await gateOrEnqueue(a, "job.deliver", { jobId, to: "delivered" });
+    if (gate.queued) {
+      revalidatePath("/approvals");
+      return { ok: true, queued: true };
+    }
+  }
+
+  const result = await advanceJob(a, { jobId, to, laborCharge });
   revalidatePath("/workshop");
   revalidatePath("/ledger");
   return result.ok ? { ok: true } : { ok: false, error: result.error };
