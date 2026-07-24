@@ -11,6 +11,7 @@
     "db:migrate": "drizzle-kit migrate",
     "db:studio": "drizzle-kit studio",
     "db:seed": "tsx --env-file=.env scripts/seed.ts",
+    "db:seed:test": "tsx --env-file=.env scripts/seed-test-data.ts",
     "db:seed:plans": "tsx --env-file=.env scripts/seed-installment-plans.ts",
     "db:seed:docs": "tsx --env-file=.env scripts/seed-document-requirements.ts",
     "auth:generate": "npx @better-auth/cli@latest generate --config src/auth/auth.ts --output src/db/auth-schema.ts"
