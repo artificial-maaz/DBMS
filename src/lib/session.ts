@@ -25,7 +25,7 @@ export async function requireStaff() {
   return { user: s.session.user, profile: s.profile };
 }
 
-/** Financial visibility: Creator + Owners only (P&L / revenue / purchase prices). */
+/** Financial visibility: Creator, Owners, and Silent Partners (read-only investors). */
 export function canSeeFinancials(role: string) {
-  return role === "creator" || role === "owner";
+  return role === "creator" || role === "owner" || role === "silent_partner";
 }

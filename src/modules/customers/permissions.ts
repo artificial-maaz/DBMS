@@ -1,6 +1,6 @@
 /** Customer registry permissions (server-side enforcement only). */
 export function canViewCustomers(role: string) {
-  return ["creator", "owner", "branch_manager", "salesperson"].includes(role);
+  return ["creator", "owner", "silent_partner", "branch_manager", "salesperson"].includes(role);
 }
 
 export function canCreateCustomer(role: string) {
@@ -13,5 +13,5 @@ export function canEditCustomer(role: string) {
 }
 
 export function seesAllBranches(role: string) {
-  return ["creator", "owner"].includes(role);
+  return ["creator", "owner", "silent_partner"].includes(role);
 }

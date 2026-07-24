@@ -3,7 +3,7 @@
  * cash visibility is management-only (business rule: no revenue exposure).
  */
 export function canViewLedger(role: string) {
-  return ["creator", "owner", "branch_manager"].includes(role);
+  return ["creator", "owner", "silent_partner", "branch_manager"].includes(role);
 }
 
 export function canRecordEntry(role: string) {
@@ -11,5 +11,5 @@ export function canRecordEntry(role: string) {
 }
 
 export function seesAllBranches(role: string) {
-  return ["creator", "owner"].includes(role);
+  return ["creator", "owner", "silent_partner"].includes(role);
 }

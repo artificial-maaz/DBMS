@@ -1,6 +1,6 @@
 /** Sales permissions (server-side enforcement only). */
 export function canViewSales(role: string) {
-  return ["creator", "owner", "branch_manager", "salesperson"].includes(role);
+  return ["creator", "owner", "silent_partner", "branch_manager", "salesperson"].includes(role);
 }
 
 export function canCreateSale(role: string) {
@@ -13,5 +13,5 @@ export function canManageCommission(role: string) {
 }
 
 export function seesAllBranches(role: string) {
-  return ["creator", "owner"].includes(role);
+  return ["creator", "owner", "silent_partner"].includes(role);
 }

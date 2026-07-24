@@ -9,6 +9,7 @@ import { branches } from "../branches/schema";
 export const staffRole = pgEnum("staff_role", [
   "creator",
   "owner",
+  "silent_partner", // Sir #3 (2026-07-15): investor — read-only visibility, no management powers
   "branch_manager",
   "salesperson",
   "mechanic",

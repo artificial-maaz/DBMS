@@ -3,7 +3,7 @@
  * The sidebar/UI may mirror these, but is never the enforcement point.
  */
 export function canViewInventory(role: string) {
-  return ["creator", "owner", "branch_manager", "salesperson", "mechanic", "gate_staff"].includes(role);
+  return ["creator", "owner", "silent_partner", "branch_manager", "salesperson", "mechanic", "gate_staff"].includes(role);
 }
 
 export function canCreateVehicle(role: string) {
@@ -17,10 +17,10 @@ export function canEditVehicle(role: string) {
 
 /** Purchase price / margins: Creator + Owners ONLY. */
 export function canSeePurchasePrice(role: string) {
-  return ["creator", "owner"].includes(role);
+  return ["creator", "owner", "silent_partner"].includes(role);
 }
 
 /** Creator/Owners see all branches; everyone else is locked to their own. */
 export function seesAllBranches(role: string) {
-  return ["creator", "owner"].includes(role);
+  return ["creator", "owner", "silent_partner"].includes(role);
 }

@@ -9,8 +9,8 @@ type Actor = { userId: string; role: string; branchId: number | null };
 
 export const canManageParts = (role: string) =>
   ["creator", "owner", "branch_manager"].includes(role);
-export const canSeeCostPrice = (role: string) => ["creator", "owner"].includes(role);
-export const seesAllBranches = (role: string) => ["creator", "owner"].includes(role);
+export const canSeeCostPrice = (role: string) => ["creator", "owner", "silent_partner"].includes(role);
+export const seesAllBranches = (role: string) => ["creator", "owner", "silent_partner"].includes(role);
 
 const partSchema = z.object({
   name: z.string().trim().min(2, "Part name required").max(120),
