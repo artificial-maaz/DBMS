@@ -12,6 +12,8 @@ export * from "../modules/testdrives/schema";
 export * from "../modules/labor-rates/schema";
 export * from "../modules/settings/schema";
 export * from "../modules/approvals/schema";
+export * from "../modules/notifications/schema";
+export * from "../modules/assets/schema";
 export * from "../modules/sales/schema";
 export * from "../modules/installment-plans/schema";
 export * from "../modules/document-requirements/schema";
