@@ -8,12 +8,13 @@ import { ToggleStaff } from "./toggle-staff";
 
 /** #18: only the Creator can grant roles; Owners view the directory read-only. */
 const GRANTABLE: Record<string, string[]> = {
-  creator: ["owner", "branch_manager", "salesperson", "mechanic", "gate_staff"],
+  creator: ["owner", "silent_partner", "branch_manager", "salesperson", "mechanic", "gate_staff"],
 };
 
 const ROLE_BADGE: Record<string, string> = {
   creator: "bg-slate-900 text-white",
   owner: "bg-indigo-100 text-indigo-700",
+  silent_partner: "bg-purple-100 text-purple-700",
   branch_manager: "bg-sky-100 text-sky-700",
   salesperson: "bg-emerald-100 text-emerald-700",
   mechanic: "bg-amber-100 text-amber-700",

@@ -19,14 +19,14 @@ export function canViewStaff(role: string) {
 }
 
 const GRANTABLE: Record<string, string[]> = {
-  creator: ["owner", "branch_manager", "salesperson", "mechanic", "gate_staff"],
+  creator: ["owner", "silent_partner", "branch_manager", "salesperson", "mechanic", "gate_staff"],
 };
 
 const staffSchema = z.object({
   name: z.string().trim().min(2, "Name required").max(120),
   email: z.string().trim().email("Valid email required"),
   password: z.string().min(8, "Temp password must be 8+ characters"),
-  role: z.enum(["owner", "branch_manager", "salesperson", "mechanic", "gate_staff"]),
+  role: z.enum(["owner", "silent_partner", "branch_manager", "salesperson", "mechanic", "gate_staff"]),
   branchId: z.coerce.number().int().optional(),
   designation: z.string().trim().max(120).optional().or(z.literal("")),
   cnic: z
@@ -80,7 +80,7 @@ export async function createStaff(actor: Actor, raw: unknown) {
   if (!GRANTABLE[actor.role]?.includes(input.role)) {
     return { ok: false as const, error: `Your role cannot grant the '${input.role}' role.` };
   }
-  const needsBranch = input.role !== "owner";
+  const needsBranch = input.role !== "owner" && input.role !== "silent_partner";
   if (needsBranch && !input.branchId) {
     return { ok: false as const, error: "Employees must be assigned to a branch." };
   }

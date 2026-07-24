@@ -41,8 +41,10 @@ const NAV: Group[] = [
   {
     title: "Finance",
     items: [
-      { label: "Cash Ledger", href: "/ledger", roles: ["creator", "owner", "branch_manager"] },
-      { label: "Monthly P&L", href: "/reports/pnl", roles: ["creator", "owner"] },
+      { label: "Cash Ledger", href: "/ledger", roles: ["creator", "owner", "silent_partner", "branch_manager"] },
+      { label: "Monthly P&L", href: "/reports/pnl", roles: ["creator", "owner", "silent_partner"] },
+      { label: "Accounting", href: "/accounting", roles: ["creator", "owner", "silent_partner"] },
+      { label: "Fixed Assets", href: "/assets", roles: ["creator", "owner", "silent_partner"] },
     ],
   },
   {

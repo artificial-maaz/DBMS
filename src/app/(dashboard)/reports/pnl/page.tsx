@@ -16,7 +16,7 @@ export default async function PnlPage({
   searchParams: Promise<{ y?: string; m?: string; branch?: string }>;
 }) {
   const { profile } = await requireStaff();
-  if (!["creator", "owner"].includes(profile.role)) redirect("/dashboard");
+  if (!["creator", "owner", "silent_partner"].includes(profile.role)) redirect("/dashboard");
 
   const params = await searchParams;
   const now = new Date();
