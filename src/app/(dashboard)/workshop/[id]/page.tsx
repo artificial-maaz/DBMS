@@ -2,8 +2,11 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { canManageJobs, canUseWorkshop, getJobDetail, listBranchParts } from "@/modules/workshop/service";
 import { listRates } from "@/modules/labor-rates/service";
+import { getSettings } from "@/modules/settings/service";
+import { PrintHeader } from "@/components/print-header";
 import { requireStaff } from "@/lib/session";
 import { redirect } from "next/navigation";
+import { PrintButton } from "../../sales/[id]/print-button";
 import { JobActions } from "../workshop-forms";
 import { AddJobPart, RemoveJobPart } from "./job-parts";
 
@@ -18,6 +21,7 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
 
   const parts = await listBranchParts(job.branchId);
   const rateOpts = (await listRates(true)).map((r) => ({ serviceName: r.serviceName, price: r.price }));
+  const settings = await getSettings();
   const fmt = (v: string | number) => `Rs. ${Number(v).toLocaleString("en-PK")}`;
   const laborDue = job.warrantyStatus === "free_coupon" ? 0 : Number(job.laborCharge);
   const total = laborDue + Number(job.partsCharge);
@@ -26,18 +30,42 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
 
   return (
     <div className="mx-auto max-w-3xl space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between print:hidden">
         <Link href="/workshop" className="text-sm text-ink-faint hover:text-ink">← Back to Workshop</Link>
-        <JobActions
-          jobId={job.id}
-          status={job.status}
-          isManager={canManageJobs(profile.role)}
-          rates={rateOpts}
-        />
+        <span className="flex items-center gap-2">
+          <PrintButton />
+          <JobActions
+            jobId={job.id}
+            status={job.status}
+            isManager={canManageJobs(profile.role)}
+            rates={rateOpts}
+          />
+        </span>
       </div>
 
-      <div className="card p-6">
-        <div className="flex items-start justify-between border-b border-line pb-4">
+      <div className="card p-6 print:border-0 print:p-0">
+        {/* Branding (2026-08-16): the last print view without a letterhead. A job
+            card is handed to the customer with the bike, so it identifies the
+            company — same header the invoice, P&L and statements now share. */}
+        <div className="hidden print:block">
+          <PrintHeader
+            companyName={settings.companyName}
+            logoDataUrl={settings.logoDataUrl}
+            documentTitle="Workshop Job Card"
+            subtitle={[branch?.name, branch?.city].filter(Boolean).join(" · ")}
+            meta={
+              <>
+                <p className="font-mono font-semibold">{job.jobNo}</p>
+                <p className="text-ink-faint">
+                  {new Date(job.createdAt).toLocaleDateString("en-PK", { timeZone: "Asia/Karachi" })}
+                </p>
+              </>
+            }
+          />
+          <div className="mb-4" />
+        </div>
+
+        <div className="flex items-start justify-between border-b border-line pb-4 print:hidden">
           <div>
             <h1 className="font-mono text-lg font-semibold text-brand-700">{job.jobNo}</h1>
             <p className="text-sm text-ink-faint">{branch?.name} · {new Date(job.createdAt).toLocaleString("en-PK", { timeZone: "Asia/Karachi" })}</p>
@@ -47,7 +75,7 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
               {job.status.replace("_", " ")}
             </span>
             {job.warrantyStatus === "free_coupon" && (
-              <p className="mt-1 text-xs font-medium text-amber-600">Free coupon #{job.couponNo} — labor waived</p>
+              <p className="mt-1 text-xs font-medium text-warn">Free coupon #{job.couponNo} — labor waived</p>
             )}
           </div>
         </div>
