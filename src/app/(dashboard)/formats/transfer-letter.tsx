@@ -33,8 +33,30 @@ export function TransferLetter() {
   });
   const set = (k: keyof typeof f) => (v: string) => setF((p) => ({ ...p, [k]: v }));
 
+  /**
+   * Print THIS block only. `window.print()` prints the whole document, so the
+   * letter used to come out behind four other tools. Tag the body and this
+   * block, print, then clean up — `afterprint` covers the case where the user
+   * cancels the dialog, which a plain timeout would not.
+   */
+  const printLetterOnly = () => {
+    const block = document.getElementById("fmt-transfer-letter");
+    if (!block) return window.print();
+
+    document.body.classList.add("printing-one");
+    block.classList.add("is-printing");
+
+    const cleanup = () => {
+      document.body.classList.remove("printing-one");
+      block.classList.remove("is-printing");
+      window.removeEventListener("afterprint", cleanup);
+    };
+    window.addEventListener("afterprint", cleanup);
+    window.print();
+  };
+
   return (
-    <div className="card p-5">
+    <div id="fmt-transfer-letter" data-print-block className="card p-5">
       <div className="flex flex-wrap items-start justify-between gap-3 print:hidden">
         <div>
           <h2 className="text-lg font-bold">Inter-Dealership Transfer Request</h2>
@@ -42,10 +64,7 @@ export function TransferLetter() {
             Fill what you know and print, or leave blank and print a stack to fill by hand.
           </p>
         </div>
-        <button
-          onClick={() => window.print()}
-          className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-brand-500 active:scale-95"
-        >
+        <button onClick={printLetterOnly} className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-brand-500 active:scale-95">
           Print
         </button>
       </div>
