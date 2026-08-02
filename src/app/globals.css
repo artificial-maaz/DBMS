@@ -561,6 +561,23 @@ input[type="file"]::-webkit-file-upload-button:hover {
    * step must never be split across a page break: half a procedure at the
    * bottom of page one is how a step gets missed.
    */
+  /*
+   * PRINT ONE BLOCK FROM A PAGE OF MANY (Sir, 2026-08-16).
+   *
+   * Formats & Messages stacks five tools on one page. Printing the transfer
+   * letter printed all five, because window.print() prints the DOCUMENT, not
+   * the thing you clicked.
+   *
+   * So the letter's Print button tags <body> and CSS hides every sibling block
+   * for the duration. Chosen over rendering into a new window (the gate-pass
+   * approach) because the letter is a page of real JSX with the brand tokens
+   * baked in — duplicating it as an HTML string would create a second copy to
+   * keep in sync, and letterheads are exactly the thing that must not drift.
+   */
+  body.printing-one [data-print-block] { display: none !important; }
+  body.printing-one [data-print-block].is-printing { display: block !important; }
+  body.printing-one [data-print-block].is-printing .card { box-shadow: none; }
+
   .card {
     border-radius: 0;
     border: 0;
