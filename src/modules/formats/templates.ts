@@ -31,46 +31,39 @@ export function stockReport(input: {
   todaysSale?: string;
   cashInHand?: string;
 }): string {
+  // Sir's exact layout (2026-08-16). Model - Colour - Quantity, one company
+  // heading per make, bold on the headings and the closing figures only.
+  const row = (l: StockLine) =>
+    [l.model, l.color, String(l.qty).padStart(2, "0")].filter(Boolean).join(" - ");
+
   const out: string[] = [];
-  out.push(`Stock Report-${input.branchName}`);
+  out.push(b(`Stock Report - ${input.branchName}`));
   out.push("");
   out.push(b(`Date ${input.date}`));
   out.push("");
 
   const makes = [...new Set(input.lines.map((l) => l.make))].sort();
   for (const make of makes) {
-    out.push(b(make.toUpperCase()));
-    out.push("");
+    out.push(b(make));
     const rows = input.lines
       .filter((l) => l.make === make)
       .sort((x, y) => x.model.localeCompare(y.model) || (x.color ?? "").localeCompare(y.color ?? ""));
-    for (const r of rows) {
-      const colour = r.color ? ` ${r.color}` : "";
-      out.push(`${r.model}${colour} ${String(r.qty).padStart(2, "0")}`);
-    }
+    for (const r of rows) out.push(row(r));
     out.push("");
   }
 
-  const total = input.lines.reduce((a, l) => a + l.qty, 0);
-  out.push(`Total bikes:${total}`);
+  out.push(`Total bikes: ${input.lines.reduce((a, l) => a + l.qty, 0)}`);
   out.push("");
 
   const repair = input.repairLines ?? [];
   out.push(b("Repair Bikes"));
+  if (repair.length === 0) out.push("Nil");
+  else for (const r of repair) out.push(row(r));
   out.push("");
-  if (repair.length === 0) {
-    out.push("Nil");
-  } else {
-    for (const r of repair) {
-      const colour = r.color ? ` ${r.color}` : "";
-      out.push(`${r.model}${colour} ${String(r.qty).padStart(2, "0")}`);
-    }
-  }
+  out.push(`Total Repair Bikes: ${repair.reduce((a, l) => a + l.qty, 0)}`);
   out.push("");
-  out.push(b(`Total Repair Bikes`) + ` ${repair.reduce((a, l) => a + l.qty, 0)}`);
-  out.push("");
-  out.push(b("Sale") + `-- ${input.todaysSale?.trim() || "nil"}`);
-  out.push(`Cash in hand ${input.cashInHand?.trim() || "zero"}`);
+  out.push(b("Today's Sale:") + ` ${input.todaysSale?.trim() || "nil"}`);
+  out.push(b("Cash in hand:") + ` ${input.cashInHand?.trim() || "zero"}`);
 
   return out.join("\n");
 }
