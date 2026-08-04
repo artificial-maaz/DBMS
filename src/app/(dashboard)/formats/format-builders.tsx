@@ -167,7 +167,7 @@ export function StockReportBuilder({
   });
 
   return (
-    <div className="card p-5">
+    <div data-print-block className="card p-5">
       <h2 className="text-lg font-bold">Stock Report</h2>
       <p className="text-sm text-ink-faint">
         Built from live inventory, so the message and the system cannot disagree. Cash in hand is today&apos;s
@@ -221,7 +221,7 @@ export function BookingBuilder() {
   const set = (k: keyof typeof f) => (v: string) => setF((p) => ({ ...p, [k]: v }));
 
   return (
-    <div className="card p-5">
+    <div data-print-block className="card p-5">
       <h2 className="text-lg font-bold">Advance Booking / Token</h2>
       <p className="text-sm text-ink-faint">Post in the group as soon as the token is taken.</p>
       <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -244,7 +244,7 @@ export function PartsOrderBuilder() {
   const set = (k: keyof typeof f) => (v: string) => setF((p) => ({ ...p, [k]: v }));
 
   return (
-    <div className="card p-5">
+    <div data-print-block className="card p-5">
       <h2 className="text-lg font-bold">Parts Purchase Demand</h2>
       <p className="text-sm text-ink-faint">
         Payment first, always — then post this. Tag the responsible person at the company.
@@ -283,7 +283,7 @@ export function TransferBuilder({ branches }: { branches: Branch[] }) {
   });
 
   return (
-    <div className="card p-5">
+    <div data-print-block className="card p-5">
       <h2 className="text-lg font-bold">Bike Transfer</h2>
       <p className="text-sm text-ink-faint">
         Announce the transfer in the group. The physical movement still needs a Gate Pass in the system —
