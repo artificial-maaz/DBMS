@@ -20,9 +20,21 @@ export default function manifest(): MetadataRoute.Manifest {
     display: "standalone",
     background_color: "#f5f6fa",
     theme_color: "#1b3168",
+    /**
+     * The real company logo (Sir supplied it 2026-08-16), replacing first the
+     * placeholder lightning bolt and then my stopgap "HM" monogram.
+     *
+     * Transparent PNG, trimmed to the mark and padded into the central 78% of
+     * the canvas — Android's maskable icons are cropped to a circle by some
+     * launchers, and anything outside that safe zone gets cut off.
+     *
+     * `src/app/icon.png` (the same image) is what Next.js turns into the
+     * browser favicon; this manifest entry is what a phone uses on the home
+     * screen and splash. Two files on purpose, not a duplicate by accident.
+     */
     icons: [
-      { src: "/icon.svg", sizes: "any", type: "image/svg+xml", purpose: "any" },
-      { src: "/icon.svg", sizes: "any", type: "image/svg+xml", purpose: "maskable" },
+      { src: "/icon.png", sizes: "512x512", type: "image/png", purpose: "any" },
+      { src: "/icon.png", sizes: "512x512", type: "image/png", purpose: "maskable" },
     ],
   };
 }
