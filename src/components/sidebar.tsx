@@ -110,15 +110,24 @@ export function Sidebar({
       {/* Brand bar — a soft brand-tinted wash separates it from the nav */}
       <div className="flex items-center gap-2.5 border-b border-white/5 bg-gradient-to-br from-white/[0.06] to-transparent px-4 py-5 text-lg font-semibold text-white">
         {logoDataUrl ? (
+          /*
+           * Sir (2026-08-16): 32px read as a white sticker pasted on navy — too
+           * small to identify, and the baked-in white background cut a hard
+           * rectangle out of the brand bar. A tile with a ring was tried and was
+           * worse: any frame around a logo reads as a badge.
+           *
+           * So: 44px, no tile, no ring, sitting directly on the navy. That is
+           * correct for a TRANSPARENT logo, which is what Sir is supplying.
+           */
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={logoDataUrl} alt="" className="h-8 w-8 rounded-lg object-contain" />
+          <img src={logoDataUrl} alt="" className="h-11 w-11 shrink-0 object-contain" />
         ) : (
           /* Branding (2026-08-09): the fallback was a ⚡ emoji, which read as
              "unfinished software" to anyone who saw the screen over a manager's
              shoulder. A monogram of the company's own initial is neutral, looks
              deliberate, and disappears the moment a logo is uploaded. */
           <span
-            className="flex h-8 w-8 items-center justify-center rounded-lg text-base font-bold"
+            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-lg font-bold ring-1 ring-white/15"
             style={{ backgroundColor: "var(--b600)" }}
           >
             {(appName ?? APP_NAME).trim().charAt(0).toUpperCase() || "H"}
