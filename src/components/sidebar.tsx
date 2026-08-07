@@ -34,6 +34,10 @@ const NAV: Group[] = [
       { label: "Installment Plans", href: "/installment-plans", roles: ["creator", "owner", "branch_manager", "salesperson"] },
       { label: "Document Checklist", href: "/document-requirements", roles: ["creator", "owner", "branch_manager", "salesperson"] },
       { label: "Handover Checklist", href: "/handover-requirements", roles: ["creator", "owner", "branch_manager", "salesperson"] },
+      // The two screens a branch manager lives in during their first weeks:
+      // the counter procedure, and the messages they send to the group daily.
+      { label: "Delivery Process", href: "/delivery-process", roles: ["creator", "owner", "branch_manager", "salesperson", "assistant"] },
+      { label: "Formats & Messages", href: "/formats", roles: ["creator", "owner", "branch_manager", "salesperson", "assistant"] },
     ],
   },
   {
@@ -153,7 +157,7 @@ export function Sidebar({
                  * group. That reads as a section label at a glance.
                  */
                 className={`mb-1 border-t border-white/5 px-3 pb-1 pt-4 text-[10px] font-bold uppercase tracking-[0.14em] transition ${
-                  groupActive ? "text-[var(--chip-ink)]" : "text-slate-500/80"
+                  groupActive ? "text-[var(--chip-ink)]" : "text-ink-faint/80"
                 }`}
               >
                 {group.title}
