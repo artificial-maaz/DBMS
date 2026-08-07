@@ -512,6 +512,17 @@ input[type="file"]::-webkit-file-upload-button:hover {
 .text-indigo-700 { color: var(--b700) !important; }
 .text-indigo-600 { color: var(--b600) !important; }
 
+/*
+ * A4 with a real margin. Without this the browser uses its own default, which
+ * differs per machine — the same invoice printed at two branches came out at
+ * two sizes. Fixing the page here means a printed invoice is identical
+ * everywhere, which matters when it is a customer-facing document.
+ */
+@page {
+  size: A4;
+  margin: 14mm;
+}
+
 /* Print: always light, no shadows, no motion */
 @media print {
   body { background: #fff; color: #000; }
@@ -540,4 +551,22 @@ input[type="file"]::-webkit-file-upload-button:hover {
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
   }
+
+  /*
+   * COUNTER PRINTOUTS (2026-08-15) — the Delivery Process runbook and the
+   * inter-dealership letter are meant to live on paper at the counter.
+   *
+   * Two things had to change for that. Cards carry a shadow and a radius that
+   * read as clutter in ink, so on paper a step becomes a plain ruled row. And a
+   * step must never be split across a page break: half a procedure at the
+   * bottom of page one is how a step gets missed.
+   */
+  .card {
+    border-radius: 0;
+    border: 0;
+    border-bottom: 1px solid #e2e4ea;
+    padding: 0.35rem 0 !important;
+  }
+  li, ol, .card { break-inside: avoid; page-break-inside: avoid; }
+  ol { padding-left: 0; }
 }
