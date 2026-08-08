@@ -45,16 +45,38 @@ export type EmailResult = { sent: boolean; error?: string };
 /** Cached between invocations; creating a transport per email is wasteful. */
 let transport: nodemailer.Transporter | null = null;
 
+/**
+ * PORT MATTERS MORE THAN IT SHOULD (Sir, 2026-08-16).
+ *
+ * Mail sent fine from Sir's laptop and timed out from Railway. Cloud hosts
+ * commonly block or throttle outbound SMTP to stop spam, and port 465 (implicit
+ * TLS) is the usual casualty; 587 (STARTTLS) is far more often left open.
+ *
+ * So: default to 587, not 465. `secure` is derived from the port because
+ * setting it wrong hangs until timeout rather than failing clearly - 465 speaks
+ * TLS immediately, 587 starts in plaintext and upgrades. `requireTLS` makes the
+ * upgrade mandatory, so a downgrade cannot silently send credentials in clear.
+ *
+ * The timeouts are deliberately short. Default is two minutes, during which the
+ * request just hangs; ten seconds fails fast with a message worth reading.
+ */
 function smtpTransport() {
   const user = process.env.SMTP_USER?.trim();
   const pass = process.env.SMTP_PASS?.replace(/\s/g, ""); // Google prints it in groups of four
   if (!user || !pass) return null;
+
   if (!transport) {
+    const port = Number(process.env.SMTP_PORT) || 587;
+    const secure = port === 465;
     transport = nodemailer.createTransport({
       host: process.env.SMTP_HOST?.trim() || "smtp.gmail.com",
-      port: Number(process.env.SMTP_PORT) || 465,
-      secure: (Number(process.env.SMTP_PORT) || 465) === 465,
+      port,
+      secure,
+      requireTLS: !secure,
       auth: { user, pass },
+      connectionTimeout: 10_000,
+      greetingTimeout: 10_000,
+      socketTimeout: 20_000,
     });
   }
   return transport;
@@ -92,8 +114,25 @@ export async function sendEmail(opts: { to: string[]; subject: string; html: str
       return { sent: true };
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
-      // Gmail's own wording is genuinely useful here, so pass it through with
-      // the one hint that covers 90% of failures.
+
+      /**
+       * A timeout here almost always means the HOST blocks the port, not that
+       * anything is wrong with the credentials — the identical config works
+       * from a laptop. Falling through to Resend keeps the Creator informed
+       * even when the company mailbox is unreachable, which is strictly better
+       * than the whole notification system going quiet.
+       */
+      if (/timed? ?out|ETIMEDOUT|ECONNREFUSED|ESOCKET|EDNS/i.test(msg)) {
+        console.error(
+          `[email] SMTP unreachable on port ${process.env.SMTP_PORT || 587} (${msg}). ` +
+            `If this is a cloud host, try SMTP_PORT=587. Falling back to Resend.`,
+        );
+        const fallback = await sendViaResend({ ...opts, to: recipients });
+        return fallback.sent
+          ? fallback
+          : { sent: false, error: `SMTP unreachable (${msg}); Resend fallback also failed: ${fallback.error}` };
+      }
+
       const hint = /invalid login|username and password not accepted|BadCredentials/i.test(msg)
         ? " — FIX: SMTP_PASS must be a Google APP PASSWORD (2-Step Verification on, then Security → App passwords), not the account password."
         : "";
