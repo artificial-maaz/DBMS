@@ -5,6 +5,7 @@ import { canCreateSale } from "@/modules/sales/permissions";
 import { getInvoiceDetail } from "@/modules/sales/queries";
 import { needsWarrantyCard } from "@/modules/sales/warranty";
 import { getSettings } from "@/modules/settings/service";
+import { PrintHeader } from "@/components/print-header";
 import { requireStaff } from "@/lib/session";
 import { CollectPayment } from "./collect-payment";
 import { DocumentCustody } from "./document-custody";
@@ -30,7 +31,7 @@ export default async function InvoiceDetailPage({ params }: { params: Promise<{ 
   return (
     <div className="mx-auto max-w-4xl space-y-6">
       <div className="flex items-center justify-between print:hidden">
-        <Link href="/sales" className="text-sm text-ink-faint hover:text-slate-800">← Back to Sales</Link>
+        <Link href="/sales" className="text-sm text-ink-faint hover:text-ink">← Back to Sales</Link>
         <PrintButton />
       </div>
 
@@ -43,27 +44,24 @@ export default async function InvoiceDetailPage({ params }: { params: Promise<{ 
 
             Name and logo come from System Settings, exactly like the sidebar and
             the login screen, so a rebrand reaches the invoice with no code change. */}
-        <div className="flex items-start justify-between border-b border-line pb-6">
-          <div className="flex items-start gap-3">
-            {settings.logoDataUrl && (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={settings.logoDataUrl} alt="" className="h-12 w-12 shrink-0 rounded-lg object-contain" />
-            )}
-            <div>
-              <h1 className="text-2xl font-bold">{settings.companyName || APP_NAME}</h1>
-              <p className="text-sm font-medium text-ink-soft">
-                {branch?.name ?? "Dealership"}
-                {branch?.city ? ` · ${branch.city}` : ""}
-              </p>
-              {branch?.address && <p className="text-sm text-ink-faint">{branch.address}</p>}
-              {branch?.phone && <p className="text-sm text-ink-faint">{branch.phone}</p>}
-              <p className="mt-1 text-sm text-ink-faint">Official Sale Invoice</p>
-            </div>
-          </div>
+        <PrintHeader
+          companyName={settings.companyName}
+          logoDataUrl={settings.logoDataUrl}
+          documentTitle="Official Sale Invoice"
+          subtitle={
+            [branch?.name, branch?.city].filter(Boolean).join(" · ") +
+            (branch?.phone ? ` · ${branch.phone}` : "")
+          }
+          meta={
+            <>
+              <p className="font-mono text-lg font-semibold">{invoice.invoiceNo}</p>
+              <p className="text-ink-faint">Date: {d(invoice.saleDate)}</p>
+            </>
+          }
+        />
+        <div className="flex items-start justify-end pt-2">
           <div className="text-right">
-            <p className="font-mono text-lg font-semibold">{invoice.invoiceNo}</p>
-            <p className="text-sm text-ink-faint">Date: {d(invoice.saleDate)}</p>
-            <p className="mt-1 flex flex-wrap justify-end gap-1.5">
+            <p className="flex flex-wrap justify-end gap-1.5">
               {/* This was hardcoded green for every status, so a CANCELLED
                   invoice printed with a reassuring green badge on it. */}
               <span
