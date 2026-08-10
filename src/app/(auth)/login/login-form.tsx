@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 import { signIn } from "@/lib/auth-client";
 
@@ -73,12 +74,13 @@ export function LoginForm() {
         {loading ? "Signing in…" : "Sign in"}
       </button>
 
-      {/* Self-service reset is deliberately parked (Sir, 2026-08-06): until a
-          domain is verified on Resend, RESEND_ONLY_TO redirects ALL mail to the
-          Creator, so a reset link would never reach the staff member it was for.
-          A live-looking link that silently fails would be worse than none. */}
-      <p className="pt-1 text-center text-xs text-ink-faint">
-        Forgot password? Contact the admin for a reset.
+      {/* Live since 2026-08-16. It was parked while mail could only reach the
+          Creator — a reset link that silently went nowhere would have been worse
+          than none. SMTP through the company mailbox removed that blocker. */}
+      <p className="pt-1 text-center text-xs">
+        <Link href="/forgot-password" className="text-ink-faint underline-offset-2 hover:text-ink hover:underline">
+          Forgot your password?
+        </Link>
       </p>
     </form>
   );
