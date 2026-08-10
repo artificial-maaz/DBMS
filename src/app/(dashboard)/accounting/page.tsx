@@ -1,10 +1,18 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { balanceSheet, generalJournal, trialBalance } from "@/modules/accounting/queries";
+import { getSettings } from "@/modules/settings/service";
+import { PrintHeader } from "@/components/print-header";
 import { requireStaff } from "@/lib/session";
 import { PrintButton } from "../sales/[id]/print-button";
 
-const rs = (n: number) => `Rs. ${n.toLocaleString("en-PK", { timeZone: "Asia/Karachi", maximumFractionDigits: 0 })}`;
+const rs = (n: number) => `Rs. ${n.toLocaleString("en-PK", { maximumFractionDigits: 0 })}`;
+
+const TITLES: Record<string, string> = {
+  journal: "General Journal",
+  trial: "Trial Balance",
+  balance: "Balance Sheet",
+};
 
 /** #22 deep accounting: journal, trial balance, balance sheet — projected from the ledger. */
 export default async function AccountingPage({
@@ -16,6 +24,7 @@ export default async function AccountingPage({
   if (!["creator", "owner", "silent_partner"].includes(profile.role)) redirect("/dashboard");
   const params = await searchParams;
   const view = params.view ?? "journal";
+  const settings = await getSettings();
 
   return (
     <div className="mx-auto max-w-4xl space-y-6">
@@ -50,6 +59,31 @@ export default async function AccountingPage({
           <button className="rounded-lg bg-brand-600 px-4 py-1.5 text-sm text-white hover:bg-brand-500">Recompile</button>
         </form>
       )}
+
+      {/* Branding (2026-08-15): these statements printed as bare tables. They go
+          to an accountant, so the paper has to say who issued it and for what
+          period. Screen-hidden — on screen the page header already says it. */}
+      <div className="hidden print:block">
+        <PrintHeader
+          companyName={settings.companyName}
+          logoDataUrl={settings.logoDataUrl}
+          documentTitle={TITLES[view] ?? "Accounting Statement"}
+          meta={
+            <>
+              {view !== "balance" && (params.from || params.to) && (
+                <p className="font-semibold">
+                  {params.from || "start"} to {params.to || "today"}
+                </p>
+              )}
+              {view === "balance" && <p className="font-semibold">As at today</p>}
+              <p className="text-ink-faint">
+                {new Date().toLocaleDateString("en-PK", { timeZone: "Asia/Karachi" })}
+              </p>
+            </>
+          }
+        />
+        <div className="mb-4" />
+      </div>
 
       {view === "journal" && <Journal from={params.from} to={params.to} />}
       {view === "trial" && <Trial from={params.from} to={params.to} />}
@@ -112,7 +146,7 @@ async function Trial({ from, to }: { from?: string; to?: string }) {
                 <td className="px-4 py-2 text-right">{a.credit > 0 ? rs(a.credit) : "—"}</td>
               </tr>
             ))}
-            <tr className="border-t-2 border-line bg-slate-50 font-semibold">
+            <tr className="border-t-2 border-line bg-raised font-semibold">
               <td className="px-4 py-2">TOTALS</td>
               <td className="px-4 py-2 text-right">{rs(tb.totalDebit)}</td>
               <td className="px-4 py-2 text-right">{rs(tb.totalCredit)}</td>
