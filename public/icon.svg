@@ -1,4 +1,23 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-  <rect width="512" height="512" rx="96" fill="#0f172a"/>
-  <path d="M296 64 152 288h96l-32 160 144-224h-96l32-160z" fill="#facc15" stroke="#facc15" stroke-width="12" stroke-linejoin="round"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Hussain Motors">
+  <!--
+    App icon: tab, taskbar, phone home screen, PWA splash.
+
+    Replaces the yellow lightning bolt that shipped as a placeholder and then
+    quietly became the company's icon on every installed device. A monogram is
+    neutral, reads at 16px where a detailed mark turns to mud, and looks
+    deliberate rather than unfinished.
+
+    Swapping in a real logo: drop a transparent PNG at src/app/icon.png and
+    Next.js will prefer it over this file automatically - no code change.
+
+    The mark sits inside the central 80% so Android's maskable crop (which cuts
+    to a circle on some launchers) cannot clip it.
+  -->
+  <rect width="512" height="512" rx="112" fill="#1b3168"/>
+  <rect x="44" y="44" width="424" height="424" rx="88" fill="none" stroke="#ffffff" stroke-opacity="0.10" stroke-width="6"/>
+  <text x="256" y="258"
+        font-family="Segoe UI, Helvetica Neue, Arial, sans-serif"
+        font-size="188" font-weight="700" letter-spacing="-6"
+        fill="#ffffff" text-anchor="middle" dominant-baseline="central">HM</text>
+  <rect x="176" y="352" width="160" height="10" rx="5" fill="#ffffff" fill-opacity="0.55"/>
 </svg>
