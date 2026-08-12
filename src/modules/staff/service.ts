@@ -6,6 +6,8 @@ import { z } from "zod";
 import { db } from "@/db";
 import { branches, session, staffProfiles, user } from "@/db/schema";
 import { writeAudit } from "@/lib/audit";
+import { sendEmail } from "@/lib/email";
+import { APP_NAME } from "@/lib/config";
 import { moneyZero } from "@/lib/validation";
 
 type Actor = { userId: string; role: string };
@@ -175,7 +177,43 @@ export async function createStaff(actor: Actor, raw: unknown) {
       details: { email: input.email, role: input.role },
     });
 
-    return { ok: true as const };
+    /**
+     * Emailed invite (Sir, 2026-08-16). Onboarding used to end here, and the
+     * password had to be handed over face to face — workable for one branch,
+     * a drive across town for the next three.
+     *
+     * The temporary password IS included, because the account already exists
+     * with it and there is no separate "accept invite" flow to replace it. That
+     * is a deliberate trade: it goes to the address the Creator just typed, over
+     * TLS, and the message tells them to change it immediately. The alternative
+     * — a token-based set-password flow — is the better design and is worth
+     * building later; it was not worth building at midnight before go-live.
+     *
+     * Fire-and-forget: a mail failure must never undo a created account. The
+     * Creator can always fall back to Staff -> Reset password.
+     */
+    const inviteResult = await sendEmail({
+      to: [input.email],
+      subject: `${APP_NAME} — your account is ready`,
+      html: `<div style="font-family:Arial,sans-serif;font-size:14px;line-height:1.6;color:#0f172a">
+        <h2 style="margin:0 0 10px">Welcome to ${APP_NAME}</h2>
+        <p>Hello ${input.name}, an account has been created for you.</p>
+        <table style="margin:14px 0;font-size:14px">
+          <tr><td style="padding:3px 14px 3px 0;color:#4b5568">Sign in at</td>
+              <td><a href="${process.env.BETTER_AUTH_URL ?? ""}/login">${process.env.BETTER_AUTH_URL ?? ""}/login</a></td></tr>
+          <tr><td style="padding:3px 14px 3px 0;color:#4b5568">Email</td><td><b>${input.email}</b></td></tr>
+          <tr><td style="padding:3px 14px 3px 0;color:#4b5568">Temporary password</td><td><b>${input.password}</b></td></tr>
+        </table>
+        <p style="background:#fbf1df;border-radius:8px;padding:10px 12px;font-size:13px">
+          <b>Change this password after your first sign-in</b> — use "Forgot your password?" on the sign-in page.
+        </p>
+        <p style="color:#4b5568;font-size:12px">
+          On your phone, open the link in Chrome and choose <b>Add to Home screen</b> to install it like an app.
+        </p>
+      </div>`,
+    });
+
+    return { ok: true as const, invited: inviteResult.sent, inviteError: inviteResult.error };
   } catch (e) {
     const msg = e instanceof Error && /exist/i.test(e.message)
       ? "An account with this email already exists."
