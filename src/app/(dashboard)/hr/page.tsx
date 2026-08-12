@@ -1,13 +1,16 @@
 import { redirect } from "next/navigation";
 import { canRunPayroll, listPayableStaff, listPayroll } from "@/modules/hr/service";
+import { getSettings } from "@/modules/settings/service";
+import { APP_NAME } from "@/lib/config";
 import { requireStaff } from "@/lib/session";
 import { PayrollForm } from "./payroll-form";
+import { PrintPayslipButton } from "./payslip";
 
 export default async function HrPage() {
   const { profile } = await requireStaff();
   if (!canRunPayroll(profile.role)) redirect("/dashboard");
 
-  const [staff, records] = await Promise.all([listPayableStaff(), listPayroll()]);
+  const [staff, records, settings] = await Promise.all([listPayableStaff(), listPayroll(), getSettings()]);
   const fmt = (v: string) => `Rs. ${Number(v).toLocaleString("en-PK")}`;
   const d = (v: string | Date) => new Date(v).toLocaleDateString("en-PK", { timeZone: "Asia/Karachi" });
 
@@ -32,12 +35,13 @@ export default async function HrPage() {
               <th className="px-4 py-3 text-right">Deductions</th>
               <th className="px-4 py-3 text-right">Net Payout</th>
               <th className="px-4 py-3">Released</th>
+              <th className="px-4 py-3 text-right">Slip</th>
             </tr>
           </thead>
           <tbody>
             {records.length === 0 && (
               <tr>
-                <td colSpan={10} className="px-4 py-10 text-center text-ink-faint">
+                <td colSpan={11} className="px-4 py-10 text-center text-ink-faint">
                   No payroll released yet. Set salaries on staff profiles, then Run Payroll.
                 </td>
               </tr>
@@ -50,12 +54,32 @@ export default async function HrPage() {
                   {d(r.periodStart)} → {d(r.periodEnd)}
                 </td>
                 <td className="px-4 py-2.5 text-right">{fmt(r.basicSalary)}</td>
-                <td className="px-4 py-2.5 text-right text-emerald-600">+{fmt(r.allowances)}</td>
-                <td className="px-4 py-2.5 text-right text-emerald-600">+{fmt(r.commissions)}</td>
-                <td className="px-4 py-2.5 text-right text-emerald-600">+{fmt(r.bonus)}</td>
-                <td className="px-4 py-2.5 text-right text-red-600">−{fmt(r.deductions)}</td>
+                <td className="px-4 py-2.5 text-right text-ok">+{fmt(r.allowances)}</td>
+                <td className="px-4 py-2.5 text-right text-ok">+{fmt(r.commissions)}</td>
+                <td className="px-4 py-2.5 text-right text-ok">+{fmt(r.bonus)}</td>
+                <td className="px-4 py-2.5 text-right text-danger">−{fmt(r.deductions)}</td>
                 <td className="px-4 py-2.5 text-right font-semibold">{fmt(r.netPayout)}</td>
                 <td className="px-4 py-2.5 text-ink-faint">{d(r.createdAt)}</td>
+                <td className="px-4 py-2.5 text-right">
+                  {/* An employee needs a document, not a figure read aloud. */}
+                  <PrintPayslipButton
+                    slip={{
+                      payNo: r.payNo,
+                      employeeName: r.employeeName,
+                      periodStart: r.periodStart,
+                      periodEnd: r.periodEnd,
+                      basicSalary: r.basicSalary,
+                      allowances: r.allowances,
+                      commissions: r.commissions,
+                      bonus: r.bonus,
+                      deductions: r.deductions,
+                      netPayout: r.netPayout,
+                      createdAt: r.createdAt,
+                    }}
+                    companyName={settings.companyName || APP_NAME}
+                    logoDataUrl={settings.logoDataUrl}
+                  />
+                </td>
               </tr>
             ))}
           </tbody>
