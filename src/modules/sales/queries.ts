@@ -1,6 +1,6 @@
-import { and, desc, eq, sql, type SQL } from "drizzle-orm";
+import { and, desc, eq, gt, sql, type SQL } from "drizzle-orm";
 import { db } from "@/db";
-import { branches, customers, invoices, vehicles } from "@/db/schema";
+import { branches, customers, invoices, spareParts, vehicles } from "@/db/schema";
 import { listOpenBookingsForSale } from "@/modules/bookings/queries";
 import { listActiveRequirements } from "@/modules/document-requirements/queries";
 import { listActiveHandoverItems } from "@/modules/handover-requirements/queries";
@@ -92,7 +92,7 @@ export async function getSaleFormData(opts: { role: string; ownBranchId: number 
   // (labels carry the branch name; purchase prices are never in this query).
   const stockWhere = eq(vehicles.status, "in_stock");
 
-  const [stock, customerList, openBookings, plans, requirements, handoverItems] = await Promise.all([
+  const [stock, customerList, openBookings, plans, requirements, handoverItems, partsList] = await Promise.all([
     db
       .select({
         id: vehicles.id,
@@ -115,6 +115,20 @@ export async function getSaleFormData(opts: { role: string; ownBranchId: number 
     listActivePlansForSale(),
     listActiveRequirements(),
     listActiveHandoverItems(),
+    // Parts sellable on an invoice. Branch is returned so the form can show
+    // only what the SELECTED vehicle's branch actually holds - the server
+    // enforces the same rule, this just avoids offering the impossible.
+    db
+      .select({
+        id: spareParts.id,
+        name: spareParts.name,
+        branchId: spareParts.branchId,
+        currentQty: spareParts.currentQty,
+        retailPrice: spareParts.retailPrice,
+      })
+      .from(spareParts)
+      .where(and(eq(spareParts.isActive, true), gt(spareParts.currentQty, 0)))
+      .orderBy(spareParts.name),
   ]);
 
   return {
@@ -134,6 +148,7 @@ export async function getSaleFormData(opts: { role: string; ownBranchId: number 
         label: `${v.make} ${v.model} — ${v.chassisNo}`,
         group: `${v.make} ${v.model}`,
         branchName: v.branchName,
+        branchId: v.branchId, // the form filters sellable parts by this
         ownBranch: v.branchId === opts.ownBranchId,
         make: v.make,
         model: v.model,
@@ -149,5 +164,12 @@ export async function getSaleFormData(opts: { role: string; ownBranchId: number 
     plans,
     requirements,
     handoverItems,
+    parts: partsList.map((p) => ({
+      id: p.id,
+      name: p.name,
+      branchId: p.branchId,
+      qty: p.currentQty,
+      price: p.retailPrice ?? "0",
+    })),
   };
 }
