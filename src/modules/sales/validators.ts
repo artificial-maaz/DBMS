@@ -71,6 +71,27 @@ const handoversField = z.preprocess((v) => {
   }
 }, z.array(invoiceHandoverSchema));
 
+/**
+ * Parts sold on the invoice (#, 2026-08-16). Only the part and the quantity are
+ * accepted — the PRICE is deliberately not taken from the client. The server
+ * reads the current retail price from the parts table, so a crafted request
+ * cannot sell a battery for one rupee. Negotiation still works: that is what
+ * the invoice-level discount field is for.
+ */
+const salePartSchema = z.object({
+  partId: z.coerce.number().int().positive(),
+  qty: z.coerce.number().int().min(1, "Quantity must be at least 1"),
+});
+
+const partsField = z.preprocess((v) => {
+  if (typeof v !== "string" || v.trim() === "") return [];
+  try {
+    return JSON.parse(v);
+  } catch {
+    return v;
+  }
+}, z.array(salePartSchema));
+
 export const createSaleSchema = z
   .object({
     customerId: z.coerce.number().int().positive("Customer is required"),
@@ -100,6 +121,8 @@ export const createSaleSchema = z
     documents: documentsField,
     /** #13 (2026-08-09): physical handover snapshot, every sale; never required. */
     handovers: handoversField,
+    /** Spare parts / accessories sold alongside the vehicle. Priced server-side. */
+    parts: partsField,
   })
   .superRefine((v, ctx) => {
     if (v.settlementPlan === "installment") {
