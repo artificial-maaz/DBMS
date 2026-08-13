@@ -594,6 +594,9 @@ export async function createSale(actor: Actor, raw: unknown) {
         missingDocuments: saleDocuments.filter((d) => !d.provided).length,
         pendingHandovers: input.handovers.filter((h) => !h.handedOver).length,
         settlement,
+        total,
+        partsTotal,
+        partCount: partLines.length,
       };
     });
 
@@ -606,12 +609,13 @@ export async function createSale(actor: Actor, raw: unknown) {
       details: {
         invoiceNo: result.invoiceNo,
         plan: input.settlementPlan,
-        total: s(total),
+        total: s(result.total),
         saleDate: input.saleDate,
         ...(result.bookingId ? { bookingId: result.bookingId, bookingCredit: s(result.bookingCredit) } : {}),
         ...(result.guarantorCount > 0 ? { guarantorCount: result.guarantorCount } : {}),
         ...(result.missingDocuments > 0 ? { missingDocuments: result.missingDocuments } : {}),
         ...(result.pendingHandovers > 0 ? { itemsNotHandedOver: result.pendingHandovers } : {}),
+        ...(result.partCount > 0 ? { parts: result.partCount, partsTotal: s(result.partsTotal) } : {}),
         ...(result.settlement ? { caseStatus: result.settlement } : {}),
       },
     });
