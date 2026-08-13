@@ -10,6 +10,8 @@ import {
   invoiceItems,
   invoices,
   ledgerEntries,
+  partMovements,
+  spareParts,
   vehicles,
 } from "@/db/schema";
 import { writeAudit } from "@/lib/audit";
@@ -273,11 +275,10 @@ export async function createSale(actor: Actor, raw: unknown) {
   const discount = Number(input.discount);
   const regGovt = Number(input.registrationFeeGovt);
   const regProfit = Number(input.registrationFeeProfit);
-  const total = r2(subtotal - discount + regGovt + regProfit);
-  const downpayment = input.settlementPlan === "installment" ? Number(input.downpayment) : total;
+  // Vehicle side only. Parts are priced inside the transaction (they need row
+  // locks), so the final total is derived there - see `partsTotal` below.
+  const baseTotal = r2(subtotal - discount + regGovt + regProfit);
   const totalMarkup = input.settlementPlan === "installment" ? Number(input.totalMarkup) : 0;
-  const principal = r2(total - downpayment);
-  const balanceDue = input.settlementPlan === "installment" ? r2(principal + totalMarkup) : 0;
 
   try {
     const result = await db.transaction(async (tx) => {
@@ -302,6 +303,46 @@ export async function createSale(actor: Actor, raw: unknown) {
       // Cross-branch ops (Sir 2026-07-31): staff may sell ANY branch's stock — the
       // invoice, ledger cash-in, and P&L all land at the VEHICLE's branch, so each
       // branch's books stay truthful regardless of who made the sale.
+
+      /**
+       * 1c. Parts sold with the bike (2026-08-16).
+       *
+       * Priced from the DATABASE, never from the request — otherwise a crafted
+       * form could sell a battery for one rupee. Rows are locked FOR UPDATE so
+       * two counters cannot sell the last helmet simultaneously, and stock is
+       * checked here, before anything is written.
+       *
+       * Parts must belong to the VEHICLE's branch. That is the same rule the
+       * booking token follows and for the same reason: stock and the money it
+       * earns have to leave the same branch, or the per-branch books drift.
+       */
+      const partLines: { partId: number; name: string; qty: number; lineTotal: number }[] = [];
+      for (const p of input.parts) {
+        const [row] = await tx.select().from(spareParts).where(eq(spareParts.id, p.partId)).for("update");
+        if (!row) throw new Error("A selected part no longer exists — refresh and try again.");
+        if (!row.isActive) throw new Error(`"${row.name}" has been retired and cannot be sold.`);
+        if (row.branchId !== vehicle.branchId) {
+          throw new Error(`"${row.name}" is stocked at another branch — transfer it first or remove it from this sale.`);
+        }
+        if (row.currentQty < p.qty) {
+          throw new Error(`Only ${row.currentQty} of "${row.name}" in stock at this branch.`);
+        }
+        const unit = Number(row.retailPrice ?? 0);
+        if (unit <= 0) throw new Error(`"${row.name}" has no retail price set — set one in Spare Parts first.`);
+        partLines.push({ partId: row.id, name: row.name, qty: p.qty, lineTotal: r2(unit * p.qty) });
+      }
+      const partsTotal = r2(partLines.reduce((a, l) => a + l.lineTotal, 0));
+
+      /**
+       * Parts ADD to the invoice, so every downstream figure has to be derived
+       * here rather than from the pre-transaction estimate. A cash sale's
+       * downpayment IS the whole invoice; an installment sale's advance is what
+       * the customer typed, so parts land in the financed balance.
+       */
+      const total = r2(baseTotal + partsTotal);
+      const downpayment = input.settlementPlan === "installment" ? Number(input.downpayment) : total;
+      const principal = r2(total - downpayment);
+      const balanceDue = input.settlementPlan === "installment" ? r2(principal + totalMarkup) : 0;
 
       // 1b. Booking token reconciliation (#14): lock it, verify it's really
       // this customer's open booking, and cap the credit at the downpayment
@@ -331,6 +372,7 @@ export async function createSale(actor: Actor, raw: unknown) {
           );
         }
       }
+
       // Cash already sitting in the ledger from the booking — only the difference is new money today.
       const newCashToCollect = r2(downpayment - bookingCredit);
 
@@ -392,6 +434,33 @@ export async function createSale(actor: Actor, raw: unknown) {
         description: `${vehicle.make} ${vehicle.model} — ${vehicle.chassisNo}`,
         amount: s(subtotal),
       });
+
+      // 4b. Spare parts / accessories on the same invoice (2026-08-16).
+      // Rows were locked and priced BEFORE the invoice was written (see above),
+      // so by here the stock is reserved and the money is already in `total`.
+      for (const line of partLines) {
+        await tx.insert(invoiceItems).values({
+          invoiceId: inv.id,
+          partId: line.partId,
+          qty: line.qty,
+          description: `${line.name} × ${line.qty}`,
+          amount: s(line.lineTotal),
+        });
+        await tx
+          .update(spareParts)
+          .set({ currentQty: sql`${spareParts.currentQty} - ${line.qty}` })
+          .where(eq(spareParts.id, line.partId));
+        // Append-only movement, exactly like the workshop path — the quantity on
+        // the part row must always be reconstructible from these.
+        await tx.insert(partMovements).values({
+          partId: line.partId,
+          delta: -line.qty,
+          reason: "sale",
+          invoiceId: inv.id,
+          note: `Sold on ${invoiceNo}`,
+          createdBy: actor.userId,
+        });
+      }
       if (regGovt + regProfit > 0) {
         await tx.insert(invoiceItems).values({
           invoiceId: inv.id,
