@@ -15,6 +15,7 @@ import { customers } from "../customers/schema";
 import { documentRequirements } from "../document-requirements/schema";
 import { handoverRequirements } from "../handover-requirements/schema";
 import { vehicles } from "../inventory/schema";
+import { spareParts } from "../parts/schema";
 
 export const settlementPlan = pgEnum("settlement_plan", ["cash", "installment"]);
 
@@ -75,6 +76,20 @@ export const invoiceItems = pgTable("invoice_items", {
   id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
   invoiceId: integer("invoice_id").notNull().references(() => invoices.id),
   vehicleId: integer("vehicle_id").references(() => vehicles.id),
+  /**
+   * Spare parts and accessories sold ON the invoice (Sir, 2026-08-16).
+   *
+   * Until now a customer buying a bike and a helmet needed two transactions:
+   * the sale, and a separate parts movement. The `part_movements` table already
+   * carried an `invoiceId` column marked "Phase 2.1" — this is that phase.
+   *
+   * Both `vehicleId` and `partId` are nullable and mutually exclusive in
+   * practice: a line is a vehicle, a part, or free text (the registration fee).
+   * `qty` is only meaningful for parts, which is why it is nullable rather than
+   * defaulting to 1 and implying a quantity a vehicle line does not have.
+   */
+  partId: integer("part_id").references(() => spareParts.id),
+  qty: integer("qty"),
   description: varchar("description", { length: 255 }).notNull(),
   amount: numeric("amount", { precision: 14, scale: 2 }).notNull(),
 });
