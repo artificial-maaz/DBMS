@@ -4,14 +4,18 @@ import { db } from "@/db";
 import { vehicles } from "@/db/schema";
 import { canUseGatePass, listGatePasses, seesAllBranches } from "@/modules/gatepass/service";
 import { listActiveBranches } from "@/modules/inventory/queries";
+import { getSettings } from "@/modules/settings/service";
+import { APP_NAME } from "@/lib/config";
 import { StatCard } from "@/components/ui";
 import { requireStaff } from "@/lib/session";
 import { IssuePassForm, PassActions } from "./gatepass-forms";
+import { PrintPassButton } from "./print-pass";
 
+/** On the status ramp, so both themes are handled by construction. */
 const STATUS_BADGE: Record<string, string> = {
-  in_transit: "bg-amber-100 text-amber-700",
-  received: "bg-emerald-100 text-emerald-700",
-  cancelled: "bg-red-100 text-red-700",
+  in_transit: "bg-warn-soft text-warn",
+  received: "bg-ok-soft text-ok",
+  cancelled: "bg-danger-soft text-danger",
 };
 
 export default async function GatePassPage() {
@@ -19,7 +23,7 @@ export default async function GatePassPage() {
   if (!canUseGatePass(profile.role)) redirect("/dashboard");
   const all = seesAllBranches(profile.role);
 
-  const [passes, branchList, stock] = await Promise.all([
+  const [passes, branchList, stock, settings] = await Promise.all([
     listGatePasses({ role: profile.role, ownBranchId: profile.branchId }),
     listActiveBranches(),
     db
@@ -32,6 +36,7 @@ export default async function GatePassPage() {
       })
       .from(vehicles)
       .where(eq(vehicles.status, "in_stock")),
+    getSettings(),
   ]);
 
   const transferable = all ? stock : stock.filter((v) => v.branchId === profile.branchId);
@@ -112,7 +117,25 @@ export default async function GatePassPage() {
                     </span>
                   </td>
                   <td className="px-4 py-2.5 text-right">
-                    <PassActions passId={p.id} canReceive={canReceive} canCancel={canCancel} />
+                    <span className="inline-flex items-center gap-1">
+                      {/* A gate pass is paper that travels with the bike. */}
+                      <PrintPassButton
+                        pass={{
+                          passNo: p.passNo,
+                          vehicleLabel: p.vehicleLabel,
+                          chassisNo: p.chassisNo,
+                          sourceName: p.sourceName,
+                          destName: p.destName,
+                          driverName: p.driverName,
+                          transportPlate: p.transportPlate,
+                          issuedAt: p.issuedAt,
+                          status: p.status,
+                        }}
+                        companyName={settings.companyName || APP_NAME}
+                        logoDataUrl={settings.logoDataUrl}
+                      />
+                      <PassActions passId={p.id} canReceive={canReceive} canCancel={canCancel} />
+                    </span>
                   </td>
                 </tr>
               );
