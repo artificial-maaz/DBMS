@@ -12,12 +12,15 @@ type Opt = {
   make?: string;
   model?: string;
   salePrice?: string | null;
+  branchId?: number;
   /** make + model — used to bucket the dropdown into optgroups */
   group?: string;
   branchName?: string;
   ownBranch?: boolean;
 };
 type OpenBooking = { id: number; customerId: number; modelWanted: string; tokenAmount: string };
+type PartOpt = { id: number; name: string; branchId: number; qty: number; price: string };
+type PartLine = { partId: string; qty: string };
 type Guarantor = { fullName: string; cnic: string; phone: string; address: string };
 type Requirement = { id: number; name: string };
 type DocRow = {
@@ -57,6 +60,7 @@ export function SaleForm({
   feeDefaults,
   requirements,
   handoverItems,
+  parts,
   branches,
   defaultBranchId,
 }: {
@@ -74,6 +78,8 @@ export function SaleForm({
   requirements: Requirement[];
   /** #13: physical handover checklist master list — every sale, not just installment. */
   handoverItems: Requirement[];
+  /** Spare parts in stock, any branch — filtered to the vehicle's branch below. */
+  parts: PartOpt[];
 }) {
   const router = useRouter();
   const [state, formAction, pending] = useActionState<SaleActionState, FormData>(createSaleAction, null);
@@ -146,6 +152,18 @@ export function SaleForm({
     setHandoverList((rows) => rows.map((row, idx) => (idx === i ? { ...row, note: value } : row)));
   const pendingHandovers = handoverList.filter((h) => !h.handedOver).length;
 
+  /**
+   * Parts sold with the bike (2026-08-16). Only the SELECTED vehicle's branch is
+   * offered: stock and the money it earns must leave the same branch or the
+   * per-branch books drift, and the server rejects any other combination
+   * anyway. Offering the impossible just wastes the counter's time.
+   */
+  const [partLines, setPartLines] = useState<PartLine[]>([]);
+  const addPartLine = () => setPartLines((l) => [...l, { partId: "", qty: "1" }]);
+  const removePartLine = (i: number) => setPartLines((l) => l.filter((_, idx) => idx !== i));
+  const setPartLine = (i: number, patch: Partial<PartLine>) =>
+    setPartLines((l) => l.map((row, idx) => (idx === i ? { ...row, ...patch } : row)));
+
   // #16: does the selected vehicle match an active company rate card?
   const selectedVehicle = vehicles.find((v) => String(v.id) === vehicleId);
   const matchedPlan = selectedVehicle?.make && selectedVehicle?.model
@@ -165,9 +183,31 @@ export function SaleForm({
     const x = Number(String(v).replace(/[,\s]/g, ""));
     return isNaN(x) ? 0 : x;
   };
+  const branchParts = useMemo(
+    () => (selectedVehicle?.branchId ? parts.filter((p) => p.branchId === selectedVehicle.branchId) : []),
+    [parts, selectedVehicle],
+  );
+  const partsTotal = useMemo(
+    () =>
+      partLines.reduce((acc, l) => {
+        const p = branchParts.find((bp) => String(bp.id) === l.partId);
+        return acc + (p ? Number(p.price) * n(l.qty) : 0);
+      }, 0),
+    [partLines, branchParts],
+  );
+  const partsJson = useMemo(
+    () =>
+      JSON.stringify(
+        partLines.filter((l) => l.partId && n(l.qty) > 0).map((l) => ({ partId: Number(l.partId), qty: n(l.qty) })),
+      ),
+    [partLines],
+  );
+
+  // Parts ADD to the invoice - the server derives the same figure from the
+  // database, so this is a preview, never the source of truth.
   const total = useMemo(
-    () => n(salePrice) - n(discount) + n(regGovt) + n(regProfit),
-    [salePrice, discount, regGovt, regProfit],
+    () => n(salePrice) - n(discount) + n(regGovt) + n(regProfit) + partsTotal,
+    [salePrice, discount, regGovt, regProfit, partsTotal],
   );
   const principal = Math.max(total - n(downpayment), 0);
   const monthly = plan === "installment" && n(months) > 0 ? (principal + n(totalMarkup)) / n(months) : 0;
@@ -500,6 +540,86 @@ export function SaleForm({
               ))}
             </div>
             <input type="hidden" name="documents" value={JSON.stringify(docChecklist)} readOnly />
+          </div>
+        )}
+
+        {/* Parts & accessories on the invoice (2026-08-16). Hidden until a
+            vehicle is chosen, because the branch decides what is sellable. */}
+        {selectedVehicle && (
+          <div className="rounded-lg border border-line p-4">
+            <span className="mb-1 block text-sm font-medium">
+              Parts &amp; Accessories
+              {partsTotal > 0 && (
+                <span className="ml-2 rounded-full bg-info-soft px-2 py-0.5 text-xs font-medium text-info">
+                  +{fmt(partsTotal)}
+                </span>
+              )}
+            </span>
+            <span className="mb-3 block text-xs text-ink-faint">
+              {branchParts.length === 0
+                ? `No parts in stock at ${selectedVehicle.branchName ?? "this branch"}.`
+                : "Helmets, covers, spares — added to this invoice and deducted from branch stock."}
+            </span>
+
+            {branchParts.length > 0 && (
+              <div className="space-y-2">
+                {partLines.map((l, i) => {
+                  const p = branchParts.find((bp) => String(bp.id) === l.partId);
+                  return (
+                    <div key={i} className="grid grid-cols-1 gap-2 sm:grid-cols-12">
+                      <div className="sm:col-span-7">
+                        <select
+                          value={l.partId}
+                          onChange={(e) => setPartLine(i, { partId: e.target.value })}
+                          className="w-full rounded-lg border border-line bg-surface px-3 py-2"
+                        >
+                          <option value="">Select a part…</option>
+                          {branchParts.map((bp) => (
+                            <option key={bp.id} value={bp.id}>
+                              {bp.name} — Rs. {Number(bp.price).toLocaleString("en-PK")} ({bp.qty} in stock)
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                      <div className="sm:col-span-2">
+                        <input
+                          value={l.qty}
+                          onChange={(e) => setPartLine(i, { qty: e.target.value })}
+                          inputMode="numeric"
+                          placeholder="Qty"
+                          className="w-full rounded-lg border border-line px-3 py-2"
+                        />
+                      </div>
+                      <div className="flex items-center justify-between sm:col-span-3">
+                        <span className="text-sm text-ink-soft">
+                          {p ? fmt(Number(p.price) * n(l.qty)) : "—"}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => removePartLine(i)}
+                          className="rounded-md px-2 py-1 text-xs font-medium text-danger transition hover:bg-danger-soft"
+                        >
+                          Remove
+                        </button>
+                      </div>
+                      {p && n(l.qty) > p.qty && (
+                        <p className="text-xs text-danger sm:col-span-12">
+                          Only {p.qty} in stock — reduce the quantity.
+                        </p>
+                      )}
+                    </div>
+                  );
+                })}
+                <button
+                  type="button"
+                  onClick={addPartLine}
+                  className="rounded-md px-2.5 py-1 text-xs font-medium text-brand-700 transition hover:bg-raised"
+                >
+                  + Add part
+                </button>
+              </div>
+            )}
+            <input type="hidden" name="parts" value={partsJson} readOnly />
           </div>
         )}
 
