@@ -15,7 +15,7 @@ export default async function NewSalePage({
   if (!canCreateSale(profile.role)) redirect("/sales");
   const params = await searchParams;
 
-  const [{ vehicles, customers, openBookings, plans, requirements, handoverItems }, settings, branches] = await Promise.all([
+  const [{ vehicles, customers, openBookings, plans, requirements, handoverItems, parts }, settings, branches] = await Promise.all([
     getSaleFormData({ role: profile.role, ownBranchId: profile.branchId }),
     getSettings(),
     listActiveBranches(), // for registering a walk-in customer inline
@@ -33,6 +33,7 @@ export default async function NewSalePage({
         plans={plans}
         requirements={requirements}
         handoverItems={handoverItems}
+        parts={parts}
         feeDefaults={{ excise: settings.defaultExciseFee, profit: settings.defaultShowroomProfit }}
         branches={branches.map((b) => ({ id: b.id, name: b.name }))}
         defaultBranchId={profile.branchId}
