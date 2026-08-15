@@ -229,6 +229,14 @@ chunk consisting mostly of NEW files reports "nothing to commit, working tree cl
 is silently left behind. `scripts/push.ps1` uses explicit `git add <path>` per commit for exactly
 this reason — use it rather than committing by hand.
 
+## Commits are dated the real day, from 2026-08-16
+
+Earlier batches were backdated with `GIT_AUTHOR_DATE` to fill gaps in the contribution grid. **That
+has stopped.** `scripts/push.ps1` should now generate plain commits with no date override — the
+project is live and worked on daily, so the history should say when things actually happened. The
+granularity rule is unchanged: many small commits, one per file/concern, every one containing real
+work.
+
 ## Delivery day (2026-08-15)
 
 Handed to the owners 2026-08-16 with one branch manager trained. Two counter screens were added for
