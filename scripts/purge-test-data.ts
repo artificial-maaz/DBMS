@@ -53,15 +53,30 @@ import {
   purchaseOrderItems,
   purchaseOrders,
   spareParts,
+  payrollRecords,
   staffProfiles,
   stockDeliveries,
   testDrives,
   vehicles,
   visitors,
+  auditLog,
+  user,
 } from "../src/db/schema";
 import { guardDatabase } from "./guard";
 
-const APPLY = process.argv.includes("--yes");
+/**
+ * `npm run db:purge-test --yes` does NOT reach here: npm treats `--yes` as its
+ * own flag and never forwards it, so the script quietly ran as a dry run and
+ * looked like it had done nothing wrong (Sir hit this 2026-08-16). npm sets
+ * `npm_config_yes` in that case, so honour it too - and the unambiguous form is
+ * to skip npm entirely:
+ *
+ *     npx tsx --env-file=.env scripts/purge-test-data.ts --yes
+ */
+const APPLY =
+  process.argv.includes("--yes") ||
+  process.env.npm_config_yes === "true" ||
+  process.env.PURGE_CONFIRM === "yes";
 
 async function main() {
   await guardDatabase({ label: APPLY ? "PURGE seeded test data (WRITES)" : "Purge test data — DRY RUN" });
@@ -88,7 +103,30 @@ async function main() {
   console.log(`  Test branches : ${testBranches.map((b) => b.name).join(", ") || "none"}`);
   console.log(`  Test vehicles : ${testVehicles.length}\n`);
 
-  // Invoices belonging to a test branch OR selling a test vehicle.
+  /**
+   * IDENTIFY, in dependency order (rewritten 2026-08-16 after two failed runs).
+   *
+   * Branch membership alone is not enough. The seeder deliberately exercises
+   * cross-branch behaviour, so a booking, invoice, job card or converted
+   * visitor can sit at a REAL branch while pointing at a TEST customer. Sweep
+   * only by branch and those rows survive — then Postgres refuses to delete the
+   * customer they hold, and the whole transaction rolls back.
+   *
+   * The rule that actually works: if a row POINTS AT test data, it IS test
+   * data, wherever it lives. So customers and visitors are resolved FIRST, and
+   * everything downstream is matched against them as well as against the branch.
+   */
+  const customerRows = branchIds.length
+    ? await db.select({ id: customers.id }).from(customers).where(inArray(customers.branchId, branchIds))
+    : [];
+  const customerIds = customerRows.map((r) => r.id);
+
+  const visitorRows = branchIds.length
+    ? await db.select({ id: visitors.id }).from(visitors).where(inArray(visitors.branchId, branchIds))
+    : [];
+  const visitorIds = visitorRows.map((r) => r.id);
+
+  // Invoices: at a test branch, OR selling a test vehicle, OR sold to a test customer.
   const invRows = await db
     .selectDistinct({ id: invoices.id })
     .from(invoices)
@@ -97,19 +135,27 @@ async function main() {
       or(
         branchIds.length ? inArray(invoices.branchId, branchIds) : sql`false`,
         vehicleIds.length ? inArray(invoiceItems.vehicleId, vehicleIds) : sql`false`,
+        customerIds.length ? inArray(invoices.customerId, customerIds) : sql`false`,
       ),
     );
   const invoiceIds = invRows.map((r) => r.id);
+
+  const jobRows = await db
+    .select({ id: jobCards.id })
+    .from(jobCards)
+    .where(
+      or(
+        branchIds.length ? inArray(jobCards.branchId, branchIds) : sql`false`,
+        customerIds.length ? inArray(jobCards.customerId, customerIds) : sql`false`,
+        vehicleIds.length ? inArray(jobCards.vehicleId, vehicleIds) : sql`false`,
+      ),
+    );
+  const jobIds = jobRows.map((r) => r.id);
 
   const partRows = branchIds.length
     ? await db.select({ id: spareParts.id }).from(spareParts).where(inArray(spareParts.branchId, branchIds))
     : [];
   const partIds = partRows.map((r) => r.id);
-
-  const jobRows = branchIds.length
-    ? await db.select({ id: jobCards.id }).from(jobCards).where(inArray(jobCards.branchId, branchIds))
-    : [];
-  const jobIds = jobRows.map((r) => r.id);
 
   const poRows = branchIds.length
     ? await db.select({ id: purchaseOrders.id }).from(purchaseOrders).where(inArray(purchaseOrders.branchId, branchIds))
@@ -165,9 +211,25 @@ async function main() {
     )!,
   );
 
-  add("bookings", bookings, byBranch(bookings));
+  add(
+    "bookings",
+    bookings,
+    or(
+      byBranch(bookings),
+      customerIds.length ? inArray(bookings.customerId, customerIds) : sql`false`,
+      visitorIds.length ? inArray(bookings.visitorId, visitorIds) : sql`false`,
+    )!,
+  );
   if (invoiceIds.length) add("invoices", invoices, inArray(invoices.id, invoiceIds));
-  add("test drives", testDrives, byBranch(testDrives));
+  add(
+    "test drives",
+    testDrives,
+    or(
+      byBranch(testDrives),
+      customerIds.length ? inArray(testDrives.customerId, customerIds) : sql`false`,
+      visitorIds.length ? inArray(testDrives.visitorId, visitorIds) : sql`false`,
+    )!,
+  );
   if (vehicleIds.length) add("vehicles", vehicles, inArray(vehicles.id, vehicleIds));
   add("stock deliveries", stockDeliveries, byBranch(stockDeliveries));
   add("spare parts", spareParts, byBranch(spareParts));
@@ -175,8 +237,16 @@ async function main() {
   add("gate passes (to)", gatePasses, byBranch({ branchId: gatePasses.destBranchId }));
   if (poIds.length) add("purchase orders", purchaseOrders, inArray(purchaseOrders.id, poIds));
   add("branch assets", branchAssets, byBranch(branchAssets));
-  add("visitors", visitors, byBranch(visitors));
-  add("customers", customers, byBranch(customers));
+  add(
+    "visitors",
+    visitors,
+    or(
+      byBranch(visitors),
+      // A visitor converted INTO a test customer holds a reference to it.
+      customerIds.length ? inArray(visitors.convertedCustomerId, customerIds) : sql`false`,
+    )!,
+  );
+  add("customers", customers, customerIds.length ? inArray(customers.id, customerIds) : sql`false`);
   add("pending approvals", pendingActions, byBranch(pendingActions));
   add("branches", branches, branchIds.length ? inArray(branches.id, branchIds) : sql`false`);
 
@@ -190,21 +260,67 @@ async function main() {
   }
   console.log(`\n    ${String(total).padStart(5)}  TOTAL\n`);
 
-  // Anyone still assigned to a test branch blocks the branch delete, and is
-  // almost certainly a real person who needs moving first.
-  const strandedStaff = branchIds.length
-    ? await db.select({ id: staffProfiles.id }).from(staffProfiles).where(inArray(staffProfiles.branchId, branchIds))
+  /**
+   * Staff attached to a test branch (Sir, 2026-08-16: "delete the staff as well
+   * and just keep me as creator").
+   *
+   * THE CREATOR IS EXCLUDED TWICE - by role and by email. A purge script that
+   * can delete the only account able to run it is a script that will eventually
+   * do exactly that.
+   *
+   * Deleting the `user` row cascades to session, account and member (all
+   * declared onDelete: "cascade"), so a removed employee cannot survive on a
+   * live cookie. `payroll_records` and `audit_log` reference the user by plain
+   * text with no FK, so they are removed explicitly - these people only ever
+   * acted on test data, and leaving their audit rows behind would mean entries
+   * the Audit Log silently hides (it inner-joins on user) while they sit in the
+   * table forever.
+   */
+  const creatorEmail = (process.env.SEED_CREATOR_EMAIL ?? "").trim().toLowerCase();
+  const staffAtTestBranches = branchIds.length
+    ? await db
+        .select({ id: staffProfiles.id, userId: staffProfiles.userId, role: staffProfiles.role, email: user.email })
+        .from(staffProfiles)
+        .innerJoin(user, eq(staffProfiles.userId, user.id))
+        .where(inArray(staffProfiles.branchId, branchIds))
     : [];
-  if (strandedStaff.length > 0) {
-    console.log(`  STOP: ${strandedStaff.length} staff account(s) are assigned to a test branch.`);
-    console.log("  Move them to a real branch in Admin -> Staff first, then re-run.\n");
-    process.exit(1);
+
+  const doomed = staffAtTestBranches.filter(
+    (p) => p.role !== "creator" && p.email.trim().toLowerCase() !== creatorEmail,
+  );
+  const spared = staffAtTestBranches.length - doomed.length;
+
+  if (staffAtTestBranches.length > 0) {
+    console.log(`  Staff accounts at test branches: ${staffAtTestBranches.length}`);
+    for (const p of doomed) console.log(`      DELETE  ${p.email} (${p.role})`);
+    if (spared > 0) console.log(`      KEEP    ${spared} creator account(s) - never deleted`);
+    console.log("");
+  }
+
+  const doomedIds = doomed.map((d) => d.userId);
+  if (doomedIds.length > 0) {
+    steps.unshift({
+      label: "staff accounts (+ sessions, payroll, audit rows)",
+      run: async (tx) => {
+        await tx.delete(payrollRecords).where(inArray(payrollRecords.userId, doomedIds));
+        await tx.delete(auditLog).where(inArray(auditLog.userId, doomedIds));
+        await tx.delete(staffProfiles).where(inArray(staffProfiles.userId, doomedIds));
+        await tx.delete(user).where(inArray(user.id, doomedIds)); // cascades to session/account/member
+      },
+      count: async () => doomedIds.length,
+    });
+    console.log(`  (+ ${doomedIds.length} staff account(s) listed above)\n`);
   }
 
   if (!APPLY) {
-    console.log("  DRY RUN — nothing was deleted.");
+    console.log("  ============================================================");
+    console.log("  DRY RUN — NOTHING WAS DELETED. The database is unchanged.");
+    console.log("  ============================================================");
     console.log("  Read the list above. If it contains anything real, STOP and tell Claude.");
-    console.log("  To apply:  npm run db:purge-test -- --yes\n");
+    console.log("  To APPLY (note the DOUBLE dash, npm eats a single one):");
+    console.log("      npm run db:purge-test -- --yes");
+    console.log("  or, unambiguously:");
+    console.log("      npx tsx --env-file=.env scripts/purge-test-data.ts --yes\n");
     process.exit(0);
   }
 
