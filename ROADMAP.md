@@ -438,6 +438,47 @@ He was right that it had been left half-done, and that he should not have been t
   invoice printed at two sizes at two branches.
 - **Slate/gray sweep: 44 files → 9**, and those nine are the deliberately near-black nav shell.
 
+## ✅ Done — Finishing pass (2026-08-16, chunk 46)
+
+**Counter fixes Sir raised on the live site.** The transfer letter printed all five tools on the
+Formats page, because `window.print()` prints the DOCUMENT, not the thing you clicked — the letter
+now tags `<body>` and CSS hides its siblings. Stock report rebuilt to Sir's exact layout
+(`Model - Colour - Qty`, company headings, closing totals) and still editable in the box. Sidebar
+logo enlarged and **unframed** — a tile with a ring was tried first and was worse; any frame around
+a logo reads as a sticker.
+
+**The real company logo.** Sir supplied a transparent PNG. Trimmed (the mark filled only 446×321 of
+a 610×409 canvas, which is why it rendered small), padded into the central 78% so Android's circular
+maskable crop cannot clip it, and split three ways: `src/app/icon.png` (favicon), `public/icon.png`
+(home screen), `public/apple-icon.png` — **opaque navy, because iOS composites transparent icons
+onto black** and a dark shield would vanish. The Settings copy is 224px/55KB, not the 448px/182KB I
+first produced: it is stored as a base64 data URL shipped with **every page load**, base64 inflates
+by a third, and it renders at 44px. That was ~243KB per page for a 44px image.
+
+**SMTP repaired.** Mail worked from Sir's laptop and timed out from Railway — cloud hosts commonly
+block outbound port 465 (implicit TLS). Default moved to **587** (STARTTLS, `requireTLS` so it
+cannot silently downgrade), timeouts cut from two minutes to ten seconds, and a connection failure
+now falls back to Resend rather than the whole notification system going quiet.
+
+**Self-service password reset + emailed invites** — both parked since chunk 39 *solely* because no
+transport could reach a staff inbox. SMTP unblocked them. Reset links expire in an hour; the
+confirmation page says the same thing whether or not the email exists, so it cannot be used to
+discover which addresses reach the company's books. **A bug of mine caught here:** the first version
+showed "Check your email" for every outcome including hard server errors — the same class of
+silent-failure that had already cost an evening on the git lock. Real errors are now surfaced.
+
+**Payslip print view** — payroll calculated correctly but an employee received a number, not a
+document. Two copies per sheet, earnings and deductions in separate columns, signature lines.
+
+**Spare parts on invoices** — `part_movements.invoiceId` had carried a "Phase 2.1" note since July;
+this is that phase. Parts are **priced from the database, never the request**, rows are locked
+`FOR UPDATE` so two counters cannot sell the last helmet, stock must belong to the *vehicle's*
+branch (money and stock leave together, or per-branch books drift), and the invoice total is
+recomputed inside the transaction. **Needs migration.**
+
+**`npm run db:purge-test`** — dry-run by default, one transaction when applied, refuses if a staff
+account is still attached to a test branch.
+
 ## 🔜 OPEN QUEUE — reconciled against code 2026-08-09
 
 Re-verified against the source 2026-08-09. Sections A and B are now empty — every business rule

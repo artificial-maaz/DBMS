@@ -186,6 +186,26 @@ renaming/retiring a requirement later never rewrites history.
 - See "Known gotchas" below for the stale-bash-sandbox rule and the
   ROADMAP.md renumbering rule — both were hard-learned this session.
 
+## ⚠⚠ RAILWAY DOES **NOT** AUTO-DEPLOY FROM GITHUB (corrected 2026-08-16)
+
+Every document in this repo claimed "auto-deploys from `main`". **It never has.** Railway's
+Deployments tab shows every release as `railway up` **via CLI** — the service is not connected to the
+GitHub repo at all. Pushing to `main` therefore changes nothing on the live site.
+
+This cost an entire evening on handover night: commits were pushed, GitHub was correct, and the live
+app sat on an eleven-day-old build while we hunted for a phantom deploy failure.
+
+**To release:**
+```
+cd "C:\Claude Projects\DBMS"
+npm run build      # never skip - see below
+railway up
+```
+
+**Worth doing properly:** Railway → service → Settings → connect the GitHub repo and set the branch
+to `main`. Then the claim becomes true and a push is enough. Until someone does that, `git push` is
+version control only — it is NOT a deployment.
+
 ## ⚠ PRODUCTION BUILD FAILED AGAIN — root-caused 2026-08-15
 
 **Symptom:** the live site served a login screen from before 6 August. Railway had been failing every

@@ -86,7 +86,9 @@ session; the person's historical actions remain intact.
 
 ## 5. Live status at handover
 
-- **Production:** deployed on Railway, auto-deploys from `main`, roughly three minutes per release.
+- **Production:** deployed on Railway. Releases are a **manual `railway up`** from the Creator's
+  machine, roughly three minutes — the service is not wired to GitHub, so a push alone does not ship.
+  Connecting the repo for automatic deploys is a ten-minute task worth doing early.
 - **Database:** PostgreSQL on Neon with continuous point-in-time restore.
 - **Installed:** as a PWA on the Creator's devices; installable by any user from their browser.
 - **Data:** placeholder and test records, plus the **real installment rate cards** (20 models across
@@ -98,13 +100,15 @@ session; the person's historical actions remain intact.
 
 Stated plainly so nobody discovers them by surprise.
 
-1. **Email reaches only the Creator.** Until a domain is verified with the email provider, every
-   notification, digest and daily report is redirected to one address. Owners are on the lists but
-   receive nothing. *Fix: verify a domain — half a day, mostly waiting on DNS.*
+1. ~~Email reaches only the Creator.~~ **RESOLVED 2026-08-16.** Mail now sends over SMTP from the
+   company mailbox (`yadeahussainautos@gmail.com`), which every owner is already signed into. Staff
+   invites, password resets, digests and the daily/monthly reports all deliver. A verified domain
+   remains the better long-term answer for deliverability at volume, but nothing is blocked on it.
 2. **Development and production share one database.** Fine while data is placeholder; it must be
    split before real records accumulate. *Fix: Neon branching, about thirty minutes, no cost.*
-3. **No self-service password reset.** By design until (1) is done. The Creator issues temporary
-   passwords in person.
+3. ~~No self-service password reset.~~ **RESOLVED 2026-08-16.** "Forgot your password?" on the sign-in
+   page emails a one-hour link. The Creator-set temporary password remains as the fallback for
+   someone who has also lost access to their email.
 4. **WhatsApp integration is not built.** Deferred deliberately; it needs Meta Business approval,
    which takes weeks and should be applied for well before the build.
 5. **The app icon is a monogram, not the company logo.** Functional and deliberate, but a real logo
