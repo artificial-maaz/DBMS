@@ -2,36 +2,32 @@
 # Run from the repo root:  powershell -ExecutionPolicy Bypass -File .\scripts\push.ps1
 # NOTE: this file must stay ASCII-only (PowerShell 5.1 reads ps1 as ANSI).
 #
-# WINDOW (Sir, 2026-08-15): 20 commits across 2-15 August.
-# Sir asked to top up days already above 2 commits to 5 first - checked, and
-# every day from 2 to 15 August had ZERO. Nothing to top up, so all 20 are
-# distributed unevenly across the 14 days: 1,2,1,3,1,2,1,1,2,1,2,1,1,1.
+# WINDOW: filled into 2-16 August, never more than 5 on a day. Days already
+# carrying commits are topped up rather than new squares being lit.
 #
-# THIS BATCH: chunk 45 - delivery day. Counter SOP runbook, WhatsApp format
-# generators, document branding across every printed page, the app icon, the
-# slate/gray sweep, and the full handover documentation set.
+# THIS BATCH: the finishing pass - counter fixes Sir raised, the real company
+# logo, SMTP repair, self-service password reset, emailed invites, the payslip
+# print view, spare parts on invoices, and the test-data purge tool.
+#
+# MIGRATION REQUIRED for the parts-on-invoice columns:
+#     npm run db:generate
+#     npm run db:migrate
 #
 # Each file appears EXACTLY ONCE - git stages per path, so a repeated path
-# commits on its first appearance and silently skips afterwards. The final
-# catch-all carries the 40-file token sweep and the remaining docs.
+# commits on its first appearance and silently skips afterwards.
 #
-# No migration - the new screens read existing tables.
+# IF GIT REFUSES: a stale lock blocks every add.
+#     Remove-Item ".git\index.lock" -Force
 
-# A stale .git/index.lock makes EVERY `git add` fail. Catch it once, up front,
-# with a message that says what to do - rather than letting 26 commits each
-# report "no changes" and the script cheerfully announce success (2026-08-15).
 if (Test-Path ".git\index.lock") {
   Write-Host ""
   Write-Host "  STOP: .git\index.lock exists - git cannot stage anything." -ForegroundColor Red
-  Write-Host "  No git process is running? Then it is stale. Remove it and re-run:" -ForegroundColor Yellow
   Write-Host '    Remove-Item ".git\index.lock" -Force' -ForegroundColor Yellow
   Write-Host ""
   exit 1
 }
 
 function Commit($msg, $paths, $date = $null) {
-  # NEVER silence this. It used to be `git add $paths 2>$null`, which hid the
-  # index.lock failure above and turned a hard error into 26 silent skips.
   git add $paths
   if ($LASTEXITCODE -ne 0) {
     Write-Host ("  !! git add FAILED for: " + $msg) -ForegroundColor Red
@@ -49,68 +45,59 @@ function Commit($msg, $paths, $date = $null) {
   }
 }
 
-Write-Host "Hussain Motors ERP - counter tools, document branding, handover docs" -ForegroundColor Cyan
+Write-Host "Hussain Motors ERP - finishing pass" -ForegroundColor Cyan
 
-# ---------------- Sun 2 Aug - 1 ----------------
-Commit "Delivery process: the counter SOP as data" @("src/modules/delivery-process/steps.ts") "2026-08-02T11:24:00+05:00"
+# ---------------- Sun 2 Aug - 3 ----------------
+Commit "Workshop: job card prints on the shared letterhead" @("src/app/(dashboard)/workshop/[id]/page.tsx") "2026-08-02T10:15:00+05:00"
+Commit "Print: isolate one block so a letter does not print the whole page" @("src/app/globals.css") "2026-08-02T15:40:00+05:00"
+Commit "Transfer letter: print alone, YADEA HUSSAIN MOTORS throughout" @("src/app/(dashboard)/formats/transfer-letter.tsx") "2026-08-02T20:05:00+05:00"
 
-# ---------------- Mon 3 Aug - 2 ----------------
-Commit "Delivery process: runbook with the registration fork" @("src/app/(dashboard)/delivery-process/runbook.tsx") "2026-08-03T10:47:00+05:00"
-Commit "Delivery process: page for counter-facing roles" @("src/app/(dashboard)/delivery-process/page.tsx") "2026-08-03T19:12:00+05:00"
+# ---------------- Tue 4 Aug - 3 ----------------
+Commit "Stock report: Sir's layout, model - colour - quantity" @("src/modules/formats/templates.ts") "2026-08-04T09:50:00+05:00"
+Commit "Formats: editable output boxes, print blocks tagged" @("src/app/(dashboard)/formats/format-builders.tsx") "2026-08-04T14:20:00+05:00"
+Commit "Formats: page wiring for the fixed letterhead" @("src/app/(dashboard)/formats/page.tsx") "2026-08-04T19:35:00+05:00"
 
-# ---------------- Tue 4 Aug - 1 ----------------
-Commit "Formats: WhatsApp message templates" @("src/modules/formats/templates.ts") "2026-08-04T14:38:00+05:00"
+# ---------------- Thu 6 Aug - 3 ----------------
+Commit "Sidebar: company logo, larger and unframed" @("src/components/sidebar.tsx") "2026-08-06T10:25:00+05:00"
+Commit "PWA: real company logo as the app icon" @("src/app/manifest.ts") "2026-08-06T15:10:00+05:00"
+Commit "Brand: logo assets for app icon and settings upload" @("public/icon.png", "public/apple-icon.png", "src/app/icon.png", "brand/logo.png") "2026-08-06T20:45:00+05:00"
 
-# ---------------- Wed 5 Aug - 3 ----------------
-Commit "Formats: live stock and today's cash position" @("src/modules/formats/queries.ts") "2026-08-05T09:53:00+05:00"
-Commit "Formats: stock report, booking, parts and transfer builders" @("src/app/(dashboard)/formats/format-builders.tsx") "2026-08-05T15:26:00+05:00"
-Commit "Formats: printable inter-dealership transfer letter" @("src/app/(dashboard)/formats/transfer-letter.tsx") "2026-08-05T21:41:00+05:00"
+# ---------------- Sat 8 Aug - 3 ----------------
+Commit "Email: SMTP on 587, short timeouts, Resend fallback" @("src/lib/email.ts") "2026-08-08T09:30:00+05:00"
+Commit "Auth: self-service password reset over email" @("src/auth/auth.ts") "2026-08-08T14:55:00+05:00"
+Commit "Auth client: expose the renamed reset request" @("src/lib/auth-client.ts") "2026-08-08T19:20:00+05:00"
 
-# ---------------- Thu 6 Aug - 1 ----------------
-Commit "Formats: page, branch-scoped for managers" @("src/app/(dashboard)/formats/page.tsx") "2026-08-06T18:09:00+05:00"
+# ---------------- Mon 10 Aug - 3 ----------------
+Commit "Forgot password page, with real errors instead of false success" @("src/app/(auth)/forgot-password/page.tsx") "2026-08-10T10:40:00+05:00"
+Commit "Reset password page" @("src/app/(auth)/reset-password/page.tsx") "2026-08-10T15:15:00+05:00"
+Commit "Login: forgot-password link is live" @("src/app/(auth)/login/login-form.tsx") "2026-08-10T20:00:00+05:00"
 
-# ---------------- Fri 7 Aug - 2 ----------------
-Commit "Sidebar: Delivery Process and Formats under Retail" @("src/components/sidebar.tsx") "2026-08-07T12:31:00+05:00"
-Commit "Print: A4 page setup, counter printouts readable in ink" @("src/app/globals.css") "2026-08-07T20:04:00+05:00"
+# ---------------- Wed 12 Aug - 3 ----------------
+Commit "Staff: onboarding sends an emailed invite" @("src/modules/staff/service.ts") "2026-08-12T09:45:00+05:00"
+Commit "HR: printable two-copy payslip" @("src/app/(dashboard)/hr/payslip.tsx") "2026-08-12T14:30:00+05:00"
+Commit "HR: payslip action and status ramp figures" @("src/app/(dashboard)/hr/page.tsx") "2026-08-12T19:55:00+05:00"
 
-# ---------------- Sat 8 Aug - 1 ----------------
-Commit "Branding: one letterhead for every printed document" @("src/components/print-header.tsx") "2026-08-08T16:47:00+05:00"
+# ---------------- Thu 13 Aug - 4 ----------------
+Commit "Sales schema: parts and quantity on invoice lines" @("src/modules/sales/schema.ts") "2026-08-13T09:20:00+05:00"
+Commit "Sales validators: accept parts, price them server-side" @("src/modules/sales/validators.ts") "2026-08-13T13:05:00+05:00"
+Commit "Sales: sell parts on an invoice, stock deducted atomically" @("src/modules/sales/service.ts") "2026-08-13T17:40:00+05:00"
+Commit "Sales queries: sellable parts for the sale form" @("src/modules/sales/queries.ts") "2026-08-13T21:10:00+05:00"
 
-# ---------------- Sun 9 Aug - 1 ----------------
-Commit "Invoice: adopt the shared letterhead" @("src/app/(dashboard)/sales/[id]/page.tsx") "2026-08-09T13:22:00+05:00"
+# ---------------- Fri 14 Aug - 2 ----------------
+Commit "New Sale: parts and accessories picker" @("src/app/(dashboard)/sales/new/sale-form.tsx") "2026-08-14T16:30:00+05:00"
+Commit "New Sale page: supply sellable parts" @("src/app/(dashboard)/sales/new/page.tsx") "2026-08-14T19:50:00+05:00"
 
-# ---------------- Mon 10 Aug - 2 ----------------
-Commit "Monthly P&L: letterhead on the printed statement" @("src/app/(dashboard)/reports/pnl/page.tsx") "2026-08-10T11:08:00+05:00"
-Commit "Accounting: letterhead on journal, trial balance and balance sheet" @("src/app/(dashboard)/accounting/page.tsx") "2026-08-10T19:35:00+05:00"
-
-# ---------------- Tue 11 Aug - 1 ----------------
-Commit "Branding: monogram app icon replaces the placeholder bolt" @("public/icon.svg") "2026-08-11T15:19:00+05:00"
-
-# ---------------- Wed 12 Aug - 2 ----------------
-Commit "PWA: navy theme colour so the status bar matches the app" @("src/app/manifest.ts") "2026-08-12T10:56:00+05:00"
-Commit "Docs: user manual for branch managers" @("USER-MANUAL.md") "2026-08-12T20:27:00+05:00"
-
-# ---------------- Thu 13 Aug - 1 ----------------
-Commit "Docs: project handover for the owners" @("PROJECT-HANDOVER.md") "2026-08-13T17:43:00+05:00"
-
-# ---------------- Fri 14 Aug - 3 ----------------
-Commit "Gate pass: printable two-copy slip on the letterhead" @("src/app/(dashboard)/gatepass/print-pass.tsx") "2026-08-14T09:35:00+05:00"
-Commit "Gate pass: print action and status ramp badges" @("src/app/(dashboard)/gatepass/page.tsx") "2026-08-14T11:20:00+05:00"
-Commit "Docs: crash training agenda for the first manager" @("docs/TRAINING-DAY.md") "2026-08-14T14:15:00+05:00"
-
-# ---------------- Sat 15 Aug - 5 (Sir's per-day cap) ----------------
-Commit "Email: SMTP transport so owners actually receive mail" @("src/lib/email.ts") "2026-08-15T09:12:00+05:00"
-Commit "Deps: nodemailer for SMTP delivery" @("package.json") "2026-08-15T11:40:00+05:00"
-Commit "Env: SMTP and standing-recipient settings documented" @(".env.example") "2026-08-15T14:28:00+05:00"
-# A pricing change gets its own commit rather than being swept into the chore -
-# this is the number staff quote to customers, and it must be findable in the
-# history on its own. That makes 21 commits, not the 20 planned; the extra one
-# is deliberate.
-Commit "Rate card: T5L repriced, advance 199,000 and 12-month at 14,500" @("scripts/seed-installment-plans.ts") "2026-08-15T18:05:00+05:00"
-Commit "Chore: token sweep across the modal forms, docs and push script" @(".") "2026-08-15T21:50:00+05:00"
+# ---------------- Sun 16 Aug - 5 ----------------
+Commit "Scripts: dry-run-first purge of seeded test data" @("scripts/purge-test-data.ts") "2026-08-16T01:20:00+05:00"
+Commit "Scripts: db:purge-test entry point" @("package.json") "2026-08-16T02:05:00+05:00"
+Commit "Env: SMTP port 587 documented with the reason" @(".env.example") "2026-08-16T02:40:00+05:00"
+Commit "Docs: finishing pass recorded" @("ROADMAP.md", "HANDOVER.md", "PROJECT-HANDOVER.md") "2026-08-16T03:15:00+05:00"
+Commit "Chore: push script and remaining pending files" @(".") "2026-08-16T03:50:00+05:00"
 
 Remove-Item Env:GIT_AUTHOR_DATE -ErrorAction SilentlyContinue
 Remove-Item Env:GIT_COMMITTER_DATE -ErrorAction SilentlyContinue
 
 git push origin main
-Write-Host "Done - pushed to main. Railway auto-deploys from main (~3 min)." -ForegroundColor Cyan
+Write-Host ""
+Write-Host "Pushed. NOW RUN:  npm run db:generate  then  npm run db:migrate" -ForegroundColor Yellow
+Write-Host "Then: npm run build  and  railway up" -ForegroundColor Yellow

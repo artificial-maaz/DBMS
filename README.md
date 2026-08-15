@@ -19,7 +19,15 @@ sales, accounting, HR, workshop, and reporting. Delivered as an installable PWA.
 ## Stack
 
 Next.js (App Router) + TypeScript · PostgreSQL (Neon) via Drizzle ORM · Better Auth ·
-PWA delivery · hosted on Railway (auto-deploys from `main`).
+PWA delivery · hosted on Railway.
+
+> **Deploying is a manual step.** Railway is NOT connected to GitHub — every release is
+> `railway up` from the CLI. `git push` stores your work; it does not ship it.
+> ```
+> npm run build      # the type check Railway runs; dev mode does NOT do this
+> railway up
+> ```
+> See `HANDOVER.md` for why this bit twice.
 
 ## Status
 
