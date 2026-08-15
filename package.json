@@ -2,7 +2,9 @@
   "name": "dealership-erp",
   "version": "0.1.0",
   "private": true,
-  "engines": { "node": ">=20" },
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -18,7 +20,9 @@
     "db:settle": "tsx --env-file=.env scripts/backfill-settlements.ts",
     "db:find-test-data": "tsx --env-file=.env scripts/find-test-data.ts",
     "db:purge-test": "tsx --env-file=.env scripts/purge-test-data.ts",
-    "auth:generate": "npx @better-auth/cli@latest generate --config src/auth/auth.ts --output src/db/auth-schema.ts"
+    "auth:generate": "npx @better-auth/cli@latest generate --config src/auth/auth.ts --output src/db/auth-schema.ts",
+    "db:reset-fresh": "tsx --env-file=.env scripts/reset-to-fresh.ts",
+    "db:migrate:prod": "tsx --env-file=.env scripts/migrate-prod.ts"
   },
   "dependencies": {
     "better-auth": "^1.6.23",
