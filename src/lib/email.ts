@@ -1,38 +1,125 @@
+import nodemailer from "nodemailer";
+
 /**
- * Email via Resend's REST API (no SDK dependency).
+ * Email delivery, with two transports.
  *
- * Setup: free account at resend.com -> API key -> RESEND_API_KEY in .env +
- * Railway Variables. UNTIL a domain is verified there, Resend only delivers
- * to the account owner's own address (Sir) — owner/partner addresses start
- * working the moment a domain is verified. Missing key = silent no-op, so
- * the app never breaks because email isn't configured.
+ * ---------------------------------------------------------------------------
+ * WHY TWO (Sir, 2026-08-15)
+ * ---------------------------------------------------------------------------
+ * Resend (the original transport) refuses to deliver to ANY address except the
+ * account owner's until a domain is verified with DNS records. Hussain Motors
+ * has no domain yet, so owners were on every notification list and receiving
+ * nothing — the `RESEND_ONLY_TO` redirect existed purely to stop the whole send
+ * being rejected.
  *
- * 2026-08-01: this used to swallow every failure into a bare `sent: false`,
- * which made "Not sent" impossible to diagnose. It now returns the real
- * reason, including Resend's own error text. It still NEVER throws — email
- * must not break a business transaction.
+ * SMTP has no such restriction, because we are not asking a third party to send
+ * "as" us — we are logging into a mailbox we already own
+ * (yadeahussainautos@gmail.com) and sending from it, exactly as a person would.
+ * Gmail allows ~500 recipients/day; this system is projected at ~100 a MONTH.
+ *
+ * SMTP is preferred when configured. Resend stays wired and becomes the better
+ * choice later, once a domain exists — better deliverability at volume, proper
+ * logs and retries. Nothing needs rewriting to switch: unset the SMTP vars.
+ *
+ * ---------------------------------------------------------------------------
+ * SETUP (Gmail)
+ * ---------------------------------------------------------------------------
+ *   1. Turn on 2-Step Verification on the Google account.
+ *   2. Google Account → Security → App passwords → generate one, name it
+ *      "Hussain Motors ERP". It is 16 characters; spaces are ignored.
+ *   3. Put these in .env AND Railway Variables:
+ *        SMTP_USER=yadeahussainautos@gmail.com
+ *        SMTP_PASS=<the 16-character app password>
+ *        SMTP_FROM=Yadea Hussain Motors <yadeahussainautos@gmail.com>
+ *        MAIL_ALWAYS_CC=yadeahussainautos@gmail.com
+ *   4. Restart. Env vars are read at startup only.
+ *
+ * An app password is NOT the account password. It only permits sending, it can
+ * be revoked from the same screen at any time, and revoking it does not touch
+ * the mailbox or anyone's access to it.
+ *
+ * This function NEVER throws — a failed email must not roll back a sale.
  */
 export type EmailResult = { sent: boolean; error?: string };
 
+/** Cached between invocations; creating a transport per email is wasteful. */
+let transport: nodemailer.Transporter | null = null;
+
+function smtpTransport() {
+  const user = process.env.SMTP_USER?.trim();
+  const pass = process.env.SMTP_PASS?.replace(/\s/g, ""); // Google prints it in groups of four
+  if (!user || !pass) return null;
+  if (!transport) {
+    transport = nodemailer.createTransport({
+      host: process.env.SMTP_HOST?.trim() || "smtp.gmail.com",
+      port: Number(process.env.SMTP_PORT) || 465,
+      secure: (Number(process.env.SMTP_PORT) || 465) === 465,
+      auth: { user, pass },
+    });
+  }
+  return transport;
+}
+
 /**
- * Until a domain is verified, Resend's shared sender may only deliver to the
- * account owner's own address — and it rejects the ENTIRE send if even one
- * recipient is someone else. So while unverified, set RESEND_ONLY_TO to your
- * own address: every email is redirected there, with a banner naming who it
- * was really meant for. Delete that variable the day a domain is verified and
- * real recipients start receiving automatically, no code change.
+ * The official company mailbox, added to every send.
+ *
+ * Sir's reasoning (2026-08-15): every owner is already signed into that account
+ * on their own device, so one address reaches all of them without maintaining a
+ * list of personal emails — and without a personal address leaking into a
+ * system an owner might one day leave.
  */
+function withStandingRecipient(to: string[]): string[] {
+  const always = process.env.MAIL_ALWAYS_CC?.trim();
+  const all = always ? [...to, always] : to;
+  return [...new Set(all.map((a) => a.trim().toLowerCase()).filter(Boolean))];
+}
+
 export async function sendEmail(opts: { to: string[]; subject: string; html: string }): Promise<EmailResult> {
+  const recipients = withStandingRecipient(opts.to);
+  if (recipients.length === 0) {
+    return { sent: false, error: "No recipients — no active creator/owner account has an email address on it." };
+  }
+
+  const smtp = smtpTransport();
+  if (smtp) {
+    try {
+      await smtp.sendMail({
+        from: process.env.SMTP_FROM || process.env.SMTP_USER,
+        to: recipients.join(", "),
+        subject: opts.subject,
+        html: opts.html,
+      });
+      return { sent: true };
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      // Gmail's own wording is genuinely useful here, so pass it through with
+      // the one hint that covers 90% of failures.
+      const hint = /invalid login|username and password not accepted|BadCredentials/i.test(msg)
+        ? " — FIX: SMTP_PASS must be a Google APP PASSWORD (2-Step Verification on, then Security → App passwords), not the account password."
+        : "";
+      return { sent: false, error: `SMTP refused it: ${msg}${hint}` };
+    }
+  }
+
+  return sendViaResend({ ...opts, to: recipients });
+}
+
+/**
+ * Resend fallback. Kept intact for the day a domain is verified.
+ *
+ * While unverified, Resend rejects the ENTIRE send if any recipient is not the
+ * account owner — hence RESEND_ONLY_TO, which redirects everything to one
+ * address with a banner naming who it was really for. Delete that variable the
+ * day a domain is verified and real recipients start working with no code change.
+ */
+async function sendViaResend(opts: { to: string[]; subject: string; html: string }): Promise<EmailResult> {
   const key = process.env.RESEND_API_KEY;
   if (!key) {
     return {
       sent: false,
       error:
-        "RESEND_API_KEY is not visible to the server. Add it to .env and FULLY restart the dev server — env vars are only read at startup.",
+        "No mail transport configured. Set SMTP_USER + SMTP_PASS (recommended), or RESEND_API_KEY, in .env and FULLY restart — env vars are read at startup.",
     };
-  }
-  if (opts.to.length === 0) {
-    return { sent: false, error: "No recipients — no active creator/owner account has an email address on it." };
   }
 
   const override = process.env.RESEND_ONLY_TO?.trim();
@@ -59,9 +146,6 @@ export async function sendEmail(opts: { to: string[]; subject: string; html: str
 
     if (res.ok) return { sent: true };
 
-    // Resend replies with JSON like { statusCode, name, message }. Surface it
-    // verbatim — its messages are genuinely useful (unverified domain, bad key,
-    // recipient not allowed while still on the shared sender, etc).
     const body = await res.text();
     let detail = body;
     try {
@@ -72,7 +156,7 @@ export async function sendEmail(opts: { to: string[]; subject: string; html: str
     }
     const hint =
       res.status === 403 && !override
-        ? " — FIX: add RESEND_ONLY_TO=your@email.com to .env (and Railway Variables) and restart, so every email is redirected to you until a domain is verified."
+        ? " — FIX: configure SMTP instead (SMTP_USER + SMTP_PASS), or add RESEND_ONLY_TO=your@email.com until a domain is verified."
         : "";
     return { sent: false, error: `Resend refused it (HTTP ${res.status}): ${detail}${hint}` };
   } catch (e) {
