@@ -21,7 +21,7 @@ export function ReviewControls({ pendingId }: { pendingId: number }) {
         value={note}
         onChange={(e) => setNote(e.target.value)}
         placeholder="note (optional; recommended when rejecting)"
-        className="w-64 rounded-md border border-slate-300 px-2 py-1 text-xs"
+        className="w-64 rounded-md border border-line px-2 py-1 text-xs"
       />
       <button
         disabled={pending}

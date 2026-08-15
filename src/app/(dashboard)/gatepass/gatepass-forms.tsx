@@ -59,7 +59,7 @@ export function IssuePassForm({ vehicles, branches }: { vehicles: VehicleOpt[]; 
             <input
               disabled
               value={sourceName ?? "— select a vehicle first —"}
-              className="w-full rounded-lg border border-line bg-slate-50 px-3 py-2"
+              className="w-full rounded-lg border border-line bg-raised px-3 py-2"
             />
             <span className="mt-1 block text-xs text-ink-faint">Where the vehicle currently sits — it ships FROM here.</span>
           </label>
@@ -143,7 +143,7 @@ function Field({ name, label, placeholder }: { name: string; label: string; plac
         name={name}
         required={label.includes("*")}
         placeholder={placeholder}
-        className="w-full rounded-lg border border-line px-3 py-2 outline-none focus:border-slate-500"
+        className="w-full rounded-lg border border-line px-3 py-2 outline-none focus:border-brand-500"
       />
     </label>
   );

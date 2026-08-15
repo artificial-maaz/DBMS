@@ -37,7 +37,7 @@ export default function SettingsPage() {
           placeholder="Current password"
           value={current}
           onChange={(e) => setCurrent(e.target.value)}
-          className="w-full rounded-lg border border-line px-3 py-2 text-sm outline-none focus:border-slate-500"
+          className="w-full rounded-lg border border-line px-3 py-2 text-sm outline-none focus:border-brand-500"
         />
         <input
           type="password"
@@ -46,7 +46,7 @@ export default function SettingsPage() {
           placeholder="New password (min 8 chars)"
           value={next}
           onChange={(e) => setNext(e.target.value)}
-          className="w-full rounded-lg border border-line px-3 py-2 text-sm outline-none focus:border-slate-500"
+          className="w-full rounded-lg border border-line px-3 py-2 text-sm outline-none focus:border-brand-500"
         />
         {msg && <p className={`text-sm ${msg.ok ? "text-emerald-600" : "text-red-600"}`}>{msg.text}</p>}
         <button

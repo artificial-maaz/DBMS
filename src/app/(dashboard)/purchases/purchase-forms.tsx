@@ -115,7 +115,7 @@ export function RecordPurchaseForm({ suppliers, branches }: { suppliers: Opt[]; 
                     className="w-32 rounded-lg border border-line px-3 py-1.5 text-sm"
                   />
                   <span className="w-28 text-right text-xs text-ink-faint">
-                    = Rs. {(n(l.qtyOrdered) * n(l.unitCost)).toLocaleString("en-PK", { timeZone: "Asia/Karachi" })}
+                    = Rs. {(n(l.qtyOrdered) * n(l.unitCost)).toLocaleString("en-PK")}
                   </span>
                   {lines.length > 1 && (
                     <button
@@ -132,7 +132,7 @@ export function RecordPurchaseForm({ suppliers, branches }: { suppliers: Opt[]; 
             <button
               type="button"
               onClick={() => setLines((ls) => [...ls, { ...EMPTY_LINE }])}
-              className="mt-2 rounded-md bg-slate-100 px-2.5 py-1 text-xs font-medium text-ink-soft hover:bg-slate-200"
+              className="mt-2 rounded-md bg-raised px-2.5 py-1 text-xs font-medium text-ink-soft hover:brightness-95"
             >
               + Add line
             </button>
@@ -150,9 +150,9 @@ export function RecordPurchaseForm({ suppliers, branches }: { suppliers: Opt[]; 
             </label>
           </div>
 
-          <div className="flex items-center justify-between rounded-lg bg-slate-50 px-4 py-3">
+          <div className="flex items-center justify-between rounded-lg bg-raised px-4 py-3">
             <span className="text-sm font-medium">Computed Total</span>
-            <span className="text-lg font-semibold">Rs. {total.toLocaleString("en-PK", { timeZone: "Asia/Karachi" })}</span>
+            <span className="text-lg font-semibold">Rs. {total.toLocaleString("en-PK")}</span>
           </div>
 
           {state && !state.ok && <p className="text-sm text-red-600">{state.error}</p>}

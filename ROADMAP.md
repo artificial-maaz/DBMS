@@ -392,6 +392,52 @@ which browsers strip the logo and every badge to save ink.
 
 **No migration** — logic and presentation only.
 
+## ✅ Done — Delivery day: counter tools + handover docs (2026-08-15, chunk 45)
+
+Sir's deadline: deliver to the owners the next morning and train one branch manager the same day.
+Everything in this chunk was chosen against that, not against the backlog.
+
+**Delivery Process runbook (`/delivery-process`)** — the counter SOP exactly as Sir dictated it:
+cash sale, installment sale, spare-part order, booking, and receiving an instalment. The steps live
+in `modules/delivery-process/steps.ts` as DATA, so the on-screen runbook and the printed wall copy
+cannot drift apart. The registration yes/no fork is asked once, up front, because it decides who
+keeps the original document. Hard rules (never hand over a sales tax invoice; keep the original
+document, CNIC copies, utility bill and one key on installment cases) render in the danger tone.
+**Deliberately not persisted** — a migration and a new table on the morning of the first real sale
+buys a record nobody has asked for. What physically left with the bike is already recorded by the
+Handover Checklist (#13) on the invoice. A saved run is a clean follow-up.
+
+**Formats & Messages (`/formats`)** — every WhatsApp message a branch types daily, generated:
+- **Stock Report from LIVE inventory.** Typed by hand at the end of a long day it drifts from the
+  system, and then nobody knows which number is real. Cash-in-hand is today's ledger net.
+- Advance Booking / Token, Parts Purchase Demand (with the person tag), Bike Transfer.
+- **Inter-dealership transfer request** as a printable letter reproducing the letterhead, with the
+  branch manager's name deliberately omitted (Sir's call — the form must work whoever signs) and
+  proper space for stamp and signature.
+- WhatsApp bold is a *single* asterisk pair, not markdown's double. Centralised in one helper
+  because getting it wrong renders literal asterisks in the group.
+
+**Handover documentation** — `USER-MANUAL.md` for branch managers (role-shaped, leads with the
+approval rule because it is the thing that surprises everyone), and `PROJECT-HANDOVER.md` for the
+owners: what was built, how, in what time, the principles behind its behaviour, and an honest list
+of the seven known limitations at handover.
+
+**Branding, finished properly (Sir: "what about the invoices, the leftover polishes, the logo?").**
+He was right that it had been left half-done, and that he should not have been the one tracking it.
+- **One letterhead, `components/print-header.tsx`**, used by the sale invoice, the Monthly P&L and
+  all three accounting statements. The P&L and the trial balance were printing as bare tables with
+  nothing saying who produced them — and those are the pages an owner hands to an accountant. A
+  financial statement with no letterhead is a screenshot, not a document.
+- **The ⚡ is gone.** It was a hardcoded yellow lightning SVG in `public/icon.svg` that shipped as a
+  placeholder and quietly became the company's icon on every installed device. Replaced with a navy
+  "HM" monogram sized to survive Android's maskable circle crop. **This never needed Sir's PNG** —
+  it was blocked on nothing. Dropping a transparent PNG at `src/app/icon.png` still overrides it.
+- **PWA theme colour** corrected to the navy brand default; it was still the pre-GUI near-black, so
+  Android painted a black status bar above a navy app.
+- **`@page { size: A4; margin: 14mm }`** — without it each machine used its own default and the same
+  invoice printed at two sizes at two branches.
+- **Slate/gray sweep: 44 files → 9**, and those nine are the deliberately near-black nav shell.
+
 ## 🔜 OPEN QUEUE — reconciled against code 2026-08-09
 
 Re-verified against the source 2026-08-09. Sections A and B are now empty — every business rule

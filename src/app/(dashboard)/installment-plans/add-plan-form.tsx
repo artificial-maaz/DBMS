@@ -39,7 +39,7 @@ export function AddPlanForm({ companies }: { companies: string[] }) {
 
           <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {(["3", "6", "9", "12"] as const).map((m) => (
-              <div key={m} className="rounded-lg bg-slate-50 p-3">
+              <div key={m} className="rounded-lg bg-raised p-3">
                 <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-ink-faint">{m} Months</p>
                 <Field name={`monthly${m}`} label="Monthly (Rs.) *" placeholder="0" />
                 <div className="mt-2">
@@ -86,7 +86,7 @@ function Field({ name, label, placeholder, list }: { name: string; label: string
         required={label.includes("*")}
         placeholder={placeholder}
         list={list}
-        className="w-full rounded-lg border border-line px-3 py-2 outline-none focus:border-slate-500"
+        className="w-full rounded-lg border border-line px-3 py-2 outline-none focus:border-brand-500"
       />
     </label>
   );

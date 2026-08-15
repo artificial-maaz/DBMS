@@ -143,7 +143,7 @@ export function AddDeliveryForm({
               <button
                 type="button"
                 onClick={() => setLines((r) => [...r, blank()])}
-                className="rounded-md bg-slate-100 px-3 py-1 text-xs font-medium hover:bg-slate-200"
+                className="rounded-md bg-raised px-3 py-1 text-xs font-medium hover:brightness-95"
               >
                 + Add another unit
               </button>
@@ -151,7 +151,7 @@ export function AddDeliveryForm({
 
             <div className="space-y-3">
               {lines.map((l, i) => (
-                <div key={i} className="rounded-lg border border-line bg-slate-50 p-3">
+                <div key={i} className="rounded-lg border border-line bg-raised p-3">
                   <div className="mb-2 flex items-center justify-between">
                     <span className="text-xs font-semibold uppercase text-ink-faint">Unit {i + 1}</span>
                     {lines.length > 1 && (
@@ -231,7 +231,7 @@ function Cell({
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
         required={label.includes("*")}
-        className={`w-full rounded-lg border border-line px-2.5 py-1.5 text-sm outline-none focus:border-slate-500 ${mono ? "font-mono" : ""}`}
+        className={`w-full rounded-lg border border-line px-2.5 py-1.5 text-sm outline-none focus:border-brand-500 ${mono ? "font-mono" : ""}`}
       />
     </label>
   );

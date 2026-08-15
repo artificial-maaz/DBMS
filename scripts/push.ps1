@@ -2,24 +2,42 @@
 # Run from the repo root:  powershell -ExecutionPolicy Bypass -File .\scripts\push.ps1
 # NOTE: this file must stay ASCII-only (PowerShell 5.1 reads ps1 as ANSI).
 #
-# WINDOW: stacked onto days that ALREADY have commits, 2 per day, never more
-# than 5 on any day - following the pattern Sir set. The eight days used here
-# each carried exactly 1 commit before, so each ends on 3.
-#   Feb 4, 13, 20, 27 | Mar 5, 11, 24, 31
+# WINDOW (Sir, 2026-08-15): 20 commits across 2-15 August.
+# Sir asked to top up days already above 2 commits to 5 first - checked, and
+# every day from 2 to 15 August had ZERO. Nothing to top up, so all 20 are
+# distributed unevenly across the 14 days: 1,2,1,3,1,2,1,1,2,1,2,1,1,1.
 #
-# THIS BATCH: chunk 44 - production hardening (seed-script safety gate, test
-# data reporter, go-live checklist) and the invoice branding pass.
+# THIS BATCH: chunk 45 - delivery day. Counter SOP runbook, WhatsApp format
+# generators, document branding across every printed page, the app icon, the
+# slate/gray sweep, and the full handover documentation set.
 #
 # Each file appears EXACTLY ONCE - git stages per path, so a repeated path
-# commits on its first appearance and silently skips afterwards.
+# commits on its first appearance and silently skips afterwards. The final
+# catch-all carries the 40-file token sweep and the remaining docs.
 #
-# No migration - logic and presentation only.
-#
-# IF GIT REFUSES TO RUN: delete the stale lock first, then re-run this script.
-#   Remove-Item "C:\Claude Projects\DBMS\.git\index.lock" -Force
+# No migration - the new screens read existing tables.
+
+# A stale .git/index.lock makes EVERY `git add` fail. Catch it once, up front,
+# with a message that says what to do - rather than letting 26 commits each
+# report "no changes" and the script cheerfully announce success (2026-08-15).
+if (Test-Path ".git\index.lock") {
+  Write-Host ""
+  Write-Host "  STOP: .git\index.lock exists - git cannot stage anything." -ForegroundColor Red
+  Write-Host "  No git process is running? Then it is stale. Remove it and re-run:" -ForegroundColor Yellow
+  Write-Host '    Remove-Item ".git\index.lock" -Force' -ForegroundColor Yellow
+  Write-Host ""
+  exit 1
+}
 
 function Commit($msg, $paths, $date = $null) {
-  git add $paths 2>$null
+  # NEVER silence this. It used to be `git add $paths 2>$null`, which hid the
+  # index.lock failure above and turned a hard error into 26 silent skips.
+  git add $paths
+  if ($LASTEXITCODE -ne 0) {
+    Write-Host ("  !! git add FAILED for: " + $msg) -ForegroundColor Red
+    Write-Host "  Nothing further will be committed. Fix the error above and re-run." -ForegroundColor Red
+    exit 1
+  }
   git diff --cached --quiet
   if ($LASTEXITCODE -ne 0) {
     if ($date) { $env:GIT_AUTHOR_DATE = $date; $env:GIT_COMMITTER_DATE = $date }
@@ -31,39 +49,65 @@ function Commit($msg, $paths, $date = $null) {
   }
 }
 
-Write-Host "Hussain Motors ERP - production hardening and invoice branding" -ForegroundColor Cyan
+Write-Host "Hussain Motors ERP - counter tools, document branding, handover docs" -ForegroundColor Cyan
 
-# ---------------- Wed 4 Feb - 2 ----------------
-Commit "Scripts: safety gate naming the database before any write" @("scripts/guard.ts") "2026-02-04T13:27:00+05:00"
-Commit "Seed: prompt before resetting the Creator on production" @("scripts/seed.ts") "2026-02-04T20:52:00+05:00"
+# ---------------- Sun 2 Aug - 1 ----------------
+Commit "Delivery process: the counter SOP as data" @("src/modules/delivery-process/steps.ts") "2026-08-02T11:24:00+05:00"
 
-# ---------------- Fri 13 Feb - 2 ----------------
-Commit "Test seeder: refuse to run against production" @("scripts/seed-test-data.ts") "2026-02-13T11:09:00+05:00"
-Commit "Settlement backfill: announce its target" @("scripts/backfill-settlements.ts") "2026-02-13T18:34:00+05:00"
+# ---------------- Mon 3 Aug - 2 ----------------
+Commit "Delivery process: runbook with the registration fork" @("src/app/(dashboard)/delivery-process/runbook.tsx") "2026-08-03T10:47:00+05:00"
+Commit "Delivery process: page for counter-facing roles" @("src/app/(dashboard)/delivery-process/page.tsx") "2026-08-03T19:12:00+05:00"
 
-# ---------------- Fri 20 Feb - 2 ----------------
-Commit "Rate card seed: announce its target" @("scripts/seed-installment-plans.ts") "2026-02-20T10:46:00+05:00"
-Commit "Document checklist seed: announce its target" @("scripts/seed-document-requirements.ts") "2026-02-20T19:21:00+05:00"
+# ---------------- Tue 4 Aug - 1 ----------------
+Commit "Formats: WhatsApp message templates" @("src/modules/formats/templates.ts") "2026-08-04T14:38:00+05:00"
 
-# ---------------- Fri 27 Feb - 2 ----------------
-Commit "Handover checklist seed: announce its target" @("scripts/seed-handover-requirements.ts") "2026-02-27T12:03:00+05:00"
-Commit "Scripts: read-only report of seeded test data" @("scripts/find-test-data.ts") "2026-02-27T21:15:00+05:00"
+# ---------------- Wed 5 Aug - 3 ----------------
+Commit "Formats: live stock and today's cash position" @("src/modules/formats/queries.ts") "2026-08-05T09:53:00+05:00"
+Commit "Formats: stock report, booking, parts and transfer builders" @("src/app/(dashboard)/formats/format-builders.tsx") "2026-08-05T15:26:00+05:00"
+Commit "Formats: printable inter-dealership transfer letter" @("src/app/(dashboard)/formats/transfer-letter.tsx") "2026-08-05T21:41:00+05:00"
 
-# ---------------- Thu 5 Mar - 2 ----------------
-Commit "Scripts: db:find-test-data entry point" @("package.json") "2026-03-05T14:38:00+05:00"
-Commit "Docs: go-live checklist" @("GOLIVE.md") "2026-03-05T20:07:00+05:00"
+# ---------------- Thu 6 Aug - 1 ----------------
+Commit "Formats: page, branch-scoped for managers" @("src/app/(dashboard)/formats/page.tsx") "2026-08-06T18:09:00+05:00"
 
-# ---------------- Wed 11 Mar - 2 ----------------
-Commit "Invoice: company logo and name lead, branch beneath" @("src/app/(dashboard)/sales/[id]/page.tsx") "2026-03-11T11:52:00+05:00"
-Commit "Print: force light tokens and keep logo and badges in ink" @("src/app/globals.css") "2026-03-11T19:43:00+05:00"
+# ---------------- Fri 7 Aug - 2 ----------------
+Commit "Sidebar: Delivery Process and Formats under Retail" @("src/components/sidebar.tsx") "2026-08-07T12:31:00+05:00"
+Commit "Print: A4 page setup, counter printouts readable in ink" @("src/app/globals.css") "2026-08-07T20:04:00+05:00"
 
-# ---------------- Tue 24 Mar - 2 ----------------
-Commit "Sidebar: company monogram instead of a placeholder emoji" @("src/components/sidebar.tsx") "2026-03-24T13:19:00+05:00"
-Commit "Docs: production hardening and the branding backlog" @("ROADMAP.md") "2026-03-24T20:41:00+05:00"
+# ---------------- Sat 8 Aug - 1 ----------------
+Commit "Branding: one letterhead for every printed document" @("src/components/print-header.tsx") "2026-08-08T16:47:00+05:00"
 
-# ---------------- Tue 31 Mar - 2 ----------------
-Commit "Docs: go-live notes and script safety in the handover" @("HANDOVER.md") "2026-03-31T12:26:00+05:00"
-Commit "Chore: push script and remaining pending files" @(".") "2026-03-31T21:58:00+05:00"
+# ---------------- Sun 9 Aug - 1 ----------------
+Commit "Invoice: adopt the shared letterhead" @("src/app/(dashboard)/sales/[id]/page.tsx") "2026-08-09T13:22:00+05:00"
+
+# ---------------- Mon 10 Aug - 2 ----------------
+Commit "Monthly P&L: letterhead on the printed statement" @("src/app/(dashboard)/reports/pnl/page.tsx") "2026-08-10T11:08:00+05:00"
+Commit "Accounting: letterhead on journal, trial balance and balance sheet" @("src/app/(dashboard)/accounting/page.tsx") "2026-08-10T19:35:00+05:00"
+
+# ---------------- Tue 11 Aug - 1 ----------------
+Commit "Branding: monogram app icon replaces the placeholder bolt" @("public/icon.svg") "2026-08-11T15:19:00+05:00"
+
+# ---------------- Wed 12 Aug - 2 ----------------
+Commit "PWA: navy theme colour so the status bar matches the app" @("src/app/manifest.ts") "2026-08-12T10:56:00+05:00"
+Commit "Docs: user manual for branch managers" @("USER-MANUAL.md") "2026-08-12T20:27:00+05:00"
+
+# ---------------- Thu 13 Aug - 1 ----------------
+Commit "Docs: project handover for the owners" @("PROJECT-HANDOVER.md") "2026-08-13T17:43:00+05:00"
+
+# ---------------- Fri 14 Aug - 3 ----------------
+Commit "Gate pass: printable two-copy slip on the letterhead" @("src/app/(dashboard)/gatepass/print-pass.tsx") "2026-08-14T09:35:00+05:00"
+Commit "Gate pass: print action and status ramp badges" @("src/app/(dashboard)/gatepass/page.tsx") "2026-08-14T11:20:00+05:00"
+Commit "Docs: crash training agenda for the first manager" @("docs/TRAINING-DAY.md") "2026-08-14T14:15:00+05:00"
+
+# ---------------- Sat 15 Aug - 5 (Sir's per-day cap) ----------------
+Commit "Email: SMTP transport so owners actually receive mail" @("src/lib/email.ts") "2026-08-15T09:12:00+05:00"
+Commit "Deps: nodemailer for SMTP delivery" @("package.json") "2026-08-15T11:40:00+05:00"
+Commit "Env: SMTP and standing-recipient settings documented" @(".env.example") "2026-08-15T14:28:00+05:00"
+# A pricing change gets its own commit rather than being swept into the chore -
+# this is the number staff quote to customers, and it must be findable in the
+# history on its own. That makes 21 commits, not the 20 planned; the extra one
+# is deliberate.
+Commit "Rate card: T5L repriced, advance 199,000 and 12-month at 14,500" @("scripts/seed-installment-plans.ts") "2026-08-15T18:05:00+05:00"
+Commit "Chore: token sweep across the modal forms, docs and push script" @(".") "2026-08-15T21:50:00+05:00"
 
 Remove-Item Env:GIT_AUTHOR_DATE -ErrorAction SilentlyContinue
 Remove-Item Env:GIT_COMMITTER_DATE -ErrorAction SilentlyContinue

@@ -48,12 +48,12 @@ export default async function AssetsPage() {
               <tr key={a.id} className={`border-t border-line row-hover ${!a.isActive ? "opacity-50" : ""}`}>
                 <td className="px-4 py-2.5">{a.branchName}</td>
                 <td className="px-4 py-2.5 font-medium">{a.name}</td>
-                <td className="px-4 py-2.5"><span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs">{a.category}</span></td>
+                <td className="px-4 py-2.5"><span className="rounded-full bg-raised px-2 py-0.5 text-xs text-ink-soft">{a.category}</span></td>
                 <td className="px-4 py-2.5 text-right">{a.qty}</td>
                 <td className="px-4 py-2.5 text-right">{fmt(a.unitValue)}</td>
                 <td className="px-4 py-2.5 text-right font-medium">{fmt(a.qty * Number(a.unitValue))}</td>
                 <td className="px-4 py-2.5">
-                  <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${a.isActive ? "bg-emerald-100 text-emerald-700" : "bg-slate-100 text-ink-faint"}`}>
+                  <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${a.isActive ? "bg-emerald-100 text-emerald-700" : "bg-raised text-ink-faint"}`}>
                     {a.isActive ? "active" : "retired"}
                   </span>
                 </td>

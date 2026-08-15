@@ -118,7 +118,7 @@ const BADGE_TONES: Record<string, string> = {
   violet: "bg-violet-100 text-violet-700",
   teal: "bg-teal-100 text-teal-700",
   brand: "bg-brand-100 text-brand-700",
-  grey: "bg-slate-100 text-slate-600",
+  grey: "bg-raised text-ink-soft",
 };
 
 export function Badge({ tone = "grey", children }: { tone?: keyof typeof BADGE_TONES; children: React.ReactNode }) {

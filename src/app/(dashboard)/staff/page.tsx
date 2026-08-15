@@ -20,7 +20,7 @@ const ROLE_BADGE: Record<string, string> = {
   salesperson: "bg-emerald-100 text-emerald-700",
   assistant: "bg-teal-100 text-teal-700",
   mechanic: "bg-amber-100 text-amber-700",
-  gate_staff: "bg-slate-100 text-ink-soft",
+  gate_staff: "bg-raised text-ink-soft",
 };
 
 export default async function StaffPage() {

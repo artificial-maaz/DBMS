@@ -7,7 +7,7 @@ import { requireStaff } from "@/lib/session";
 import { CreateJobForm, JobActions } from "./workshop-forms";
 
 const STATUS_BADGE: Record<string, string> = {
-  open: "bg-slate-100 text-slate-700",
+  open: "bg-raised text-ink-soft",
   in_progress: "bg-sky-100 text-sky-700",
   completed: "bg-emerald-100 text-emerald-700",
   delivered: "bg-brand-100 text-brand-700",
@@ -110,7 +110,7 @@ export default async function WorkshopPage({
                         ? "bg-amber-100 text-amber-700"
                         : j.warrantyStatus === "in_warranty"
                           ? "bg-sky-100 text-sky-700"
-                          : "bg-slate-100 text-ink-soft"
+                          : "bg-raised text-ink-soft"
                     }`}
                   >
                     {j.warrantyStatus === "free_coupon" ? `coupon #${j.couponNo}` : j.warrantyStatus.replace(/_/g, " ")}

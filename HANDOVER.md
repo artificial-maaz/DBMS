@@ -186,6 +186,49 @@ renaming/retiring a requirement later never rewrites history.
 - See "Known gotchas" below for the stale-bash-sandbox rule and the
   ROADMAP.md renumbering rule — both were hard-learned this session.
 
+## ⚠ PRODUCTION BUILD FAILED AGAIN — root-caused 2026-08-15
+
+**Symptom:** the live site served a login screen from before 6 August. Railway had been failing every
+build since, so it kept serving the last image that compiled. Railway does email "Build failed"; the
+message is easy to miss among notifications.
+
+**Cause 1 — `timeZone` passed to `Number.prototype.toLocaleString`.** Nine call sites did
+`someNumber.toLocaleString("en-PK", { timeZone: "Asia/Karachi", ... })`. `Date` accepts `timeZone`;
+**`Number` does not** — `NumberFormatOptions` has no such property. Chunk 38 knowingly left these in
+("NumberFormat ignores the option, the noise isn't worth it"), which was true at runtime and fatal at
+`tsc`. Removed from every NUMBER call; every DATE call keeps it and must.
+
+**Cause 2 — a missing import**, added while wiring the shared letterhead into the invoice.
+
+**The lesson, again: `npm run dev` does not type-check the project.** Only `npm run build` does, and
+it is the same check Railway runs. Run it before every push — it is the difference between finding
+this in thirty seconds and finding it on the morning of a handover.
+
+**Also: `git commit -a` will NOT pick up new files.** It stages tracked, modified files only, so a
+chunk consisting mostly of NEW files reports "nothing to commit, working tree clean" and everything
+is silently left behind. `scripts/push.ps1` uses explicit `git add <path>` per commit for exactly
+this reason — use it rather than committing by hand.
+
+## Delivery day (2026-08-15)
+
+Handed to the owners 2026-08-16 with one branch manager trained. Two counter screens were added for
+that, and both are deliberately simple:
+
+- **`/delivery-process`** — the counter SOP (cash, installment, spare part, booking, instalment
+  receipt). Steps live as DATA in `modules/delivery-process/steps.ts` so screen and print cannot
+  drift. **Tick state is in-memory on purpose**: it is a per-customer checklist, not a record, and a
+  new table on the morning of the first real sale was not a trade worth making. The per-sale record
+  already exists — the Handover Checklist (#13) on the invoice. Persisting a run is a clean
+  follow-up if the business asks for it.
+- **`/formats`** — WhatsApp message generators. The stock report reads LIVE inventory, which is the
+  whole point: typed by hand it drifts from the system and then nobody knows which number is real.
+  **WhatsApp bold is a SINGLE asterisk pair**, not markdown's double — centralised in `b()` in
+  `modules/formats/templates.ts` because getting it wrong renders literal asterisks in the group.
+
+Owner-facing and staff-facing documentation now exists: `PROJECT-HANDOVER.md`, `USER-MANUAL.md`,
+`docs/TRAINING-DAY.md`. Keep them current — they are what the business sees, and a stale manual is
+worse than none.
+
 ## Go-live (2026-08-09)
 
 Sir confirmed real staff and real sales are **weeks away**. `GOLIVE.md` is the checklist; read it
@@ -205,7 +248,10 @@ before running anything that writes.
 - Next.js 16 (App Router) + TypeScript, Drizzle ORM, PostgreSQL on **Neon**,
   Better Auth (invite-only, organization plugin), Tailwind v4, PWA (manifest + SVG icon).
 - **Production: Railway** — auto-deploys every push to `main` (~3 min). Pushing = shipping.
-- Prod URL: dbms-production-841d.up.railway.app (custom domain = future task).
+- Prod URL: **dbms-production-d07c.up.railway.app** (custom domain = future task).
+  *Corrected 2026-08-15: this file said `841d`, which is dead. Railway regenerates the subdomain
+  when a service is recreated, and the doc was never updated. Verify against cron-job.org's
+  configured URL — those jobs run daily and prove which host is actually alive.*
 - Dev and prod currently share the SAME Neon database (split via Neon branching is
   a roadmap item — warn Sir before staff enters real data).
 - Secrets live in `.env` (local, gitignored) and Railway Variables (prod has its own

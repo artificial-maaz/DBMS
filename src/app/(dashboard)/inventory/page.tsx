@@ -129,7 +129,7 @@ export default async function InventoryPage({
                       )}
                     </>
                   ) : (
-                    <span className="text-slate-300">—</span>
+                    <span className="text-ink-faint">—</span>
                   )}
                 </td>
                 {showPrice && <td className="px-4 py-2.5">{fmt(v.purchasePrice)}</td>}

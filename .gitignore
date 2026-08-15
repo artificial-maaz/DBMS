@@ -9,6 +9,11 @@ Thumbs.db
 .env
 .env.*
 *.local
+# ...but the TEMPLATE must be in the repo. `.env.*` above swallowed it, so
+# `.env.example` was silently untracked — which is why README tells you to copy
+# a file that was never there. It holds variable NAMES and comments only, never
+# a value (2026-08-15).
+!.env.example
 
 # Logs
 *.log

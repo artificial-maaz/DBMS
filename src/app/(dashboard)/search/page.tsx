@@ -31,7 +31,7 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
             <Link key={v.id} href="/inventory" className="block rounded-lg card p-3 hover:border-brand-300">
               <span className="font-medium">{v.make} {v.model}</span>
               <span className="ml-2 font-mono text-xs text-ink-faint">{v.chassisNo} · {v.engineNo}</span>
-              <span className="ml-2 rounded-full bg-slate-100 px-2 py-0.5 text-xs">{v.status.replace("_", " ")}</span>
+              <span className="ml-2 rounded-full bg-raised px-2 py-0.5 text-xs text-ink-soft">{v.status.replace("_", " ")}</span>
               <span className="ml-2 text-xs text-ink-faint">{v.branchName}</span>
             </Link>
           ))}
@@ -58,7 +58,7 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
               <span className="font-mono font-medium text-brand-700">{i.invoiceNo}</span>
               <span className="ml-2 text-sm">{i.customerName}</span>
               <span className="ml-2 text-xs text-ink-faint">Rs. {Number(i.total).toLocaleString("en-PK")}</span>
-              <span className="ml-2 rounded-full bg-slate-100 px-2 py-0.5 text-xs">{i.status}</span>
+              <span className="ml-2 rounded-full bg-raised px-2 py-0.5 text-xs text-ink-soft">{i.status}</span>
             </Link>
           ))}
         </Section>

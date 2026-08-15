@@ -14,7 +14,7 @@ export function EditRequirementForm({ requirement }: { requirement: { id: number
 
   if (!open) {
     return (
-      <button onClick={() => setOpen(true)} className="rounded-md px-2.5 py-1 text-xs font-medium text-ink-soft hover:bg-slate-100">
+      <button onClick={() => setOpen(true)} className="rounded-md px-2.5 py-1 text-xs font-medium text-ink-soft hover:bg-raised">
         Rename
       </button>
     );
@@ -31,7 +31,7 @@ export function EditRequirementForm({ requirement }: { requirement: { id: number
       <button type="submit" disabled={pending} className="rounded-md bg-brand-600 px-2.5 py-1 text-xs font-medium text-white disabled:opacity-50">
         {pending ? "…" : "Save"}
       </button>
-      <button type="button" onClick={() => setOpen(false)} className="rounded-md px-2.5 py-1 text-xs font-medium text-ink-faint hover:bg-slate-100">
+      <button type="button" onClick={() => setOpen(false)} className="rounded-md px-2.5 py-1 text-xs font-medium text-ink-faint hover:bg-raised">
         Cancel
       </button>
       {state && !state.ok && <span className="text-xs text-red-600">{state.error}</span>}

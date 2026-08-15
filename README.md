@@ -5,6 +5,17 @@ sales, accounting, HR, workshop, and reporting. Delivered as an installable PWA.
 
 > Formerly scoped as a ground-up database engine; re-scoped 2026-07-03. See `CLAUDE.md`.
 
+## Documentation — start here
+
+| If you are… | Read |
+|---|---|
+| An **owner** receiving the system | `PROJECT-HANDOVER.md` — what was built, how, in what time, and its honest limitations |
+| A **branch manager or counter staff** | `USER-MANUAL.md` |
+| **Training** someone for the first time | `docs/TRAINING-DAY.md` |
+| Taking it **live** | `GOLIVE.md` — ordered pre-launch checklist |
+| A **developer** picking this up | `HANDOVER.md`, then `docs/ARCHITECTURE.md` and `ROADMAP.md` |
+| **Testing** it | `TESTING.md` (35 cases) |
+
 ## Stack
 
 Next.js (App Router) + TypeScript · PostgreSQL (Neon) via Drizzle ORM · Better Auth ·

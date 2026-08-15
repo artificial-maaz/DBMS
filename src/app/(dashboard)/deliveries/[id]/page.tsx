@@ -33,7 +33,7 @@ export default async function DeliveryDetailPage({ params }: { params: Promise<{
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <Link href="/deliveries" className="text-sm text-ink-faint hover:text-slate-800">← Back to Deliveries</Link>
+        <Link href="/deliveries" className="text-sm text-ink-faint hover:text-ink">← Back to Deliveries</Link>
         <span className="text-sm text-ink-faint">
           {sold} of {units.length} sold
         </span>
@@ -48,7 +48,7 @@ export default async function DeliveryDetailPage({ params }: { params: Promise<{
             </p>
           </div>
           <div className="text-right text-sm text-ink-faint">
-            <p className="font-medium text-slate-700">
+            <p className="font-medium text-ink-soft">
               {new Date(delivery.deliveredOn).toLocaleDateString("en-PK", { timeZone: "Asia/Karachi", dateStyle: "medium" })}
             </p>
             <p className="text-xs">received by {receiverName ?? "—"}</p>
@@ -63,7 +63,7 @@ export default async function DeliveryDetailPage({ params }: { params: Promise<{
         </div>
 
         {delivery.notes && (
-          <div className="rounded-lg bg-slate-50 p-3 text-sm text-ink-soft">
+          <div className="rounded-lg bg-raised p-3 text-sm text-ink-soft">
             <span className="text-xs font-semibold uppercase text-ink-faint">Notes: </span>
             {delivery.notes}
           </div>

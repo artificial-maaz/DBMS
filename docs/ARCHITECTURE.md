@@ -51,3 +51,17 @@ vehicle=sold   ledger ◄── installment payments (cash_in)
 ## Stack
 Next.js (App Router) + TypeScript · Drizzle ORM · PostgreSQL (Neon) ·
 Better Auth (invite-only) · Tailwind v4 · PWA · Railway (auto-deploy on push).
+
+## Counter tools (2026-08-15)
+Two read-mostly screens that sit beside the transactional modules rather than inside them:
+
+- `modules/delivery-process/steps.ts` - the counter SOP as DATA (flows, steps, the
+  registration fork, hard rules). One source drives the on-screen runbook and the printed
+  wall copy, so they cannot drift. No table, no service: nothing here is persisted, because
+  what physically left with the bike is already recorded by the Handover Checklist on the invoice.
+- `modules/formats/` - `templates.ts` builds WhatsApp message text (bold is a SINGLE asterisk
+  pair); `queries.ts` reads live inventory and today's ledger net so the stock report cannot
+  disagree with the system. Pure functions in, string out - trivially testable, no side effects.
+
+Both are gated to counter-facing roles only (creator, owner, branch_manager, salesperson,
+assistant) and both respect branch scope: a BM sees their own branch's stock, not the company's.

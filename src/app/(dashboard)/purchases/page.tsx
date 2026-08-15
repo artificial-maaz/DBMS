@@ -118,7 +118,7 @@ export default async function PurchasesPage() {
                 <table className="w-full text-sm">
                   <tbody>
                     {poItems.map((it) => (
-                      <tr key={it.id} className="border-t border-slate-50">
+                      <tr key={it.id} className="border-t border-line">
                         <td className="px-4 py-2 pl-8 font-medium">{it.model}</td>
                         <td className="px-2 py-2 text-ink-faint">{it.color ?? "—"}</td>
                         <td className="px-2 py-2 text-right text-ink-soft">

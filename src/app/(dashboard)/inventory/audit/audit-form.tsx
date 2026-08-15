@@ -17,7 +17,7 @@ export function StockAuditForm({ branchId, branchName, stock }: { branchId: numb
       <form action={formAction} className="space-y-4 card p-6">
         <div className="flex items-center justify-between">
           <h2 className="font-medium">System Stock — {branchName}</h2>
-          <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-medium text-ink-soft">
+          <span className="rounded-full bg-raised px-2.5 py-0.5 text-xs font-medium text-ink-soft">
             {stock.length} expected
           </span>
         </div>
@@ -110,7 +110,7 @@ function ResultCard({
       {items.length === 0 ? (
         <p className="mt-2 text-sm text-ink-faint">{empty}</p>
       ) : (
-        <ul className="mt-2 max-h-48 space-y-1 overflow-y-auto font-mono text-xs text-slate-700">
+        <ul className="mt-2 max-h-48 space-y-1 overflow-y-auto font-mono text-xs text-ink-soft">
           {items.map((i) => (
             <li key={i}>{i}</li>
           ))}

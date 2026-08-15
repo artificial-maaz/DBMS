@@ -112,6 +112,21 @@ Starting clean means:
 
 ---
 
+## 5b. Training the first branch manager
+
+Full agenda in `docs/TRAINING-DAY.md`. The short version:
+
+1. Create his account (Admin → Staff → Onboard, role **Branch Manager**), hand the temporary
+   password over **on paper**.
+2. Sign him in **on his phone first** and install to the home screen — that is where he will use it.
+3. Teach the **counter procedure before the software**: `/delivery-process`, both flows, stopping
+   hard at the registration fork. Print it for the counter wall.
+4. Run one real cash sale end to end while he drives and you approve it from your own login, so he
+   sees the Review Queue work rather than hearing about it.
+5. Generate the stock report from `/formats` and send it to the group. This is usually the moment a
+   manager decides he likes the system.
+6. Do not onboard a second manager until the first can teach it.
+
 ## 6. First-week habits
 
 - Watch `/approvals` — every money and stock action from staff waits there.

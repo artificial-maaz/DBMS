@@ -45,7 +45,7 @@ export default async function CustomersPage({
           name="q"
           defaultValue={params.q ?? ""}
           placeholder="Search name, phone, CNIC…"
-          className="w-72 rounded-lg border border-line px-3 py-1.5 text-sm outline-none focus:border-slate-500"
+          className="w-72 rounded-lg border border-line px-3 py-1.5 text-sm outline-none focus:border-brand-500"
         />
         <button className="rounded-lg bg-brand-600 px-4 py-1.5 text-sm text-white hover:bg-brand-500">
           Search

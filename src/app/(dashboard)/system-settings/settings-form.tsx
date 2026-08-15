@@ -48,7 +48,7 @@ export function SettingsForm({ settings }: { settings: Settings }) {
           {settings.logoDataUrl && (
             <label className="flex items-end gap-3 text-sm">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={settings.logoDataUrl} alt="Current logo" className="h-10 w-10 rounded object-contain ring-1 ring-slate-200" />
+              <img src={settings.logoDataUrl} alt="Current logo" className="h-10 w-10 rounded object-contain ring-1 ring-line" />
               <span className="inline-flex items-center gap-1.5 pb-2">
                 <input type="checkbox" name="removeLogo" />
                 Remove current logo
@@ -124,7 +124,7 @@ function Field({
         name={name}
         required={label.includes("*")}
         defaultValue={defaultValue}
-        className="w-full rounded-lg border border-line px-3 py-2 outline-none focus:border-slate-500"
+        className="w-full rounded-lg border border-line px-3 py-2 outline-none focus:border-brand-500"
       />
       {hint && <span className="mt-1 block text-xs text-ink-faint">{hint}</span>}
     </label>

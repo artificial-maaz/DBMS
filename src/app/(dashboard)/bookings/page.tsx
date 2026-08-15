@@ -11,7 +11,7 @@ import { BookingStatusActions } from "./booking-status-actions";
 const STATUS_BADGE: Record<string, string> = {
   open: "bg-amber-100 text-amber-700",
   converted: "bg-emerald-100 text-emerald-700",
-  cancelled: "bg-slate-100 text-ink-faint",
+  cancelled: "bg-raised text-ink-faint",
   refunded: "bg-red-100 text-red-700",
 };
 const METHOD_LABEL: Record<string, string> = {

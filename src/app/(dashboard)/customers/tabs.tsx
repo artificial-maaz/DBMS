@@ -15,8 +15,8 @@ export function CustomerTabs({ active }: { active: "customers" | "visitors" }) {
           href={t.href}
           className={`rounded-t-lg px-4 py-2 text-sm font-medium ${
             active === t.key
-              ? "border border-b-0 border-line bg-surface text-slate-900"
-              : "text-ink-faint hover:text-slate-800"
+              ? "border border-b-0 border-line bg-surface text-ink"
+              : "text-ink-faint hover:text-ink"
           }`}
         >
           {t.label}

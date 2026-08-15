@@ -33,7 +33,7 @@ export default async function StockAuditPage({
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-semibold">Physical Stock Audit</h1>
-        <Link href="/inventory" className="text-sm text-ink-faint hover:text-slate-800">← Back to Inventory</Link>
+        <Link href="/inventory" className="text-sm text-ink-faint hover:text-ink">← Back to Inventory</Link>
       </div>
 
       {all && (

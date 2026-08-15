@@ -27,7 +27,7 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
   return (
     <div className="mx-auto max-w-3xl space-y-6">
       <div className="flex items-center justify-between">
-        <Link href="/workshop" className="text-sm text-ink-faint hover:text-slate-800">← Back to Workshop</Link>
+        <Link href="/workshop" className="text-sm text-ink-faint hover:text-ink">← Back to Workshop</Link>
         <JobActions
           jobId={job.id}
           status={job.status}
@@ -43,7 +43,7 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
             <p className="text-sm text-ink-faint">{branch?.name} · {new Date(job.createdAt).toLocaleString("en-PK", { timeZone: "Asia/Karachi" })}</p>
           </div>
           <div className="text-right text-sm">
-            <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium capitalize">
+            <span className="rounded-full bg-raised px-2.5 py-1 text-xs font-medium capitalize">
               {job.status.replace("_", " ")}
             </span>
             {job.warrantyStatus === "free_coupon" && (
@@ -68,7 +68,7 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
           </div>
         </div>
 
-        <div className="rounded-lg bg-slate-50 p-3 text-sm text-ink-soft">
+        <div className="rounded-lg bg-raised p-3 text-sm text-ink-soft">
           <span className="text-xs font-semibold uppercase text-ink-faint">Complaints: </span>
           {job.complaints}
         </div>

@@ -19,7 +19,7 @@ export function BookingStatusActions({ id }: { id: number }) {
     <span className="inline-flex items-center gap-2">
       {error && <span className="text-xs text-red-600">{error}</span>}
       {/* #12 (Sir): these were the only action buttons in the app with no motion
-          and no dark-mode colours — `bg-slate-100 text-slate-600` had no dark
+          and no dark-mode colours — `bg-raised text-ink-soft` had no dark
           counterpart, so the Cancel button was a light chip on a dark card.
           Now on the shared treatment: transition + active:scale-95, tokens for
           the neutral button, the semantic danger ramp for the destructive one. */}

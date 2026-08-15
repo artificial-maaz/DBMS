@@ -69,7 +69,7 @@ export function AddVisitorForm({
                 <input
                   disabled
                   value={branches.find((b) => b.id === fixedBranchId)?.name ?? "Your branch"}
-                  className="w-full rounded-lg border border-line bg-slate-50 px-3 py-2"
+                  className="w-full rounded-lg border border-line bg-raised px-3 py-2"
                 />
               </>
             ) : (
@@ -114,7 +114,7 @@ function Field({ name, label, placeholder }: { name: string; label: string; plac
         name={name}
         required={label.includes("*")}
         placeholder={placeholder}
-        className="w-full rounded-lg border border-line px-3 py-2 outline-none focus:border-slate-500"
+        className="w-full rounded-lg border border-line px-3 py-2 outline-none focus:border-brand-500"
       />
     </label>
   );

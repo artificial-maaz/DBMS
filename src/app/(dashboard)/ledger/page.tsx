@@ -99,7 +99,7 @@ export default async function LedgerPage({
               <tr key={e.id} className="border-t border-line row-hover">
                 <td className="px-4 py-2.5 text-ink-faint">{new Date(e.entryDate).toLocaleDateString("en-PK", { timeZone: "Asia/Karachi" })}</td>
                 <td className="px-4 py-2.5">
-                  <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs">{e.category}</span>
+                  <span className="rounded-full bg-raised px-2 py-0.5 text-xs text-ink-soft">{e.category}</span>
                   <span className="ml-1 text-xs text-ink-faint">{e.paymentMethod.replace("_", " ")}</span>
                 </td>
                 <td className="px-4 py-2.5">{e.description}</td>

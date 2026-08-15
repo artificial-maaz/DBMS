@@ -56,7 +56,7 @@ export function AddPartForm({
                 <input
                   disabled
                   value={branches.find((b) => b.id === fixedBranchId)?.name ?? "Your branch"}
-                  className="w-full rounded-lg border border-line bg-slate-50 px-3 py-2"
+                  className="w-full rounded-lg border border-line bg-raised px-3 py-2"
                 />
               </>
             ) : (
@@ -102,7 +102,7 @@ export function AdjustStock({ partId, currentQty }: { partId: number; currentQty
         onClick={() => setOpen(true)}
         /* Matched exactly to the Edit control on Customers (Sir, 2026-08-06) —
            one interaction style for "modify this row" across the whole app. */
-        className="rounded-md px-2.5 py-1 text-xs font-medium text-ink-soft hover:bg-slate-100"
+        className="rounded-md px-2.5 py-1 text-xs font-medium text-ink-soft hover:bg-raised"
       >
         Adjust
       </button>
@@ -145,7 +145,7 @@ function Field({ name, label, placeholder }: { name: string; label: string; plac
         name={name}
         required={label.includes("*")}
         placeholder={placeholder}
-        className="w-full rounded-lg border border-line px-3 py-2 outline-none focus:border-slate-500"
+        className="w-full rounded-lg border border-line px-3 py-2 outline-none focus:border-brand-500"
       />
     </label>
   );

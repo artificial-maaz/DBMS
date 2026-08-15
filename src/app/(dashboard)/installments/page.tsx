@@ -67,7 +67,7 @@ export default async function InstallmentCasesPage({
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-semibold">Installment Cases</h1>
-        <Link href="/sales" className="text-sm text-ink-faint hover:text-slate-800">
+        <Link href="/sales" className="text-sm text-ink-faint hover:text-ink">
           Sales &amp; Invoices →
         </Link>
       </div>

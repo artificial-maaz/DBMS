@@ -99,7 +99,7 @@ export function RateRow({ rate, canManage }: { rate: Rate; canManage: boolean })
       <td className="px-4 py-2.5 text-right">Rs. {Number(rate.price).toLocaleString("en-PK")}</td>
       <td className="px-4 py-2.5 text-ink-faint">{rate.equipment ?? "—"}</td>
       <td className="px-4 py-2.5">
-        <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${rate.isActive ? "bg-emerald-100 text-emerald-700" : "bg-slate-100 text-ink-faint"}`}>
+        <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${rate.isActive ? "bg-emerald-100 text-emerald-700" : "bg-raised text-ink-faint"}`}>
           {rate.isActive ? "active" : "retired"}
         </span>
       </td>
@@ -133,7 +133,7 @@ function Field({ name, label, placeholder }: { name: string; label: string; plac
         name={name}
         required={label.includes("*")}
         placeholder={placeholder}
-        className="w-full rounded-lg border border-line px-3 py-2 outline-none focus:border-slate-500"
+        className="w-full rounded-lg border border-line px-3 py-2 outline-none focus:border-brand-500"
       />
     </label>
   );

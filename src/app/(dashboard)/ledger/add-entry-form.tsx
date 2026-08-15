@@ -97,7 +97,7 @@ export function AddEntryForm({
                 <input
                   disabled
                   value={branches.find((b) => b.id === fixedBranchId)?.name ?? "Your branch"}
-                  className="w-full rounded-lg border border-line bg-slate-50 px-3 py-2"
+                  className="w-full rounded-lg border border-line bg-raised px-3 py-2"
                 />
               </>
             ) : (

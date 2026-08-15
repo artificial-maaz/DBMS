@@ -28,7 +28,7 @@ export function EditPlanForm({ plan }: { plan: Plan }) {
 
   if (!open) {
     return (
-      <button onClick={() => setOpen(true)} className="rounded-md px-2.5 py-1 text-xs font-medium text-ink-soft hover:bg-slate-100">
+      <button onClick={() => setOpen(true)} className="rounded-md px-2.5 py-1 text-xs font-medium text-ink-soft hover:bg-raised">
         Edit
       </button>
     );
@@ -53,7 +53,7 @@ export function EditPlanForm({ plan }: { plan: Plan }) {
             ["9", plan.monthly9, plan.total9],
             ["12", plan.monthly12, plan.total12],
           ] as const).map(([m, monthly, total]) => (
-            <div key={m} className="rounded-lg bg-slate-50 p-3">
+            <div key={m} className="rounded-lg bg-raised p-3">
               <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-ink-faint">{m} Months</p>
               <Field name={`monthly${m}`} label="Monthly (Rs.) *" defaultValue={monthly} />
               <div className="mt-2">
@@ -77,7 +77,7 @@ export function EditPlanForm({ plan }: { plan: Plan }) {
           <button type="submit" disabled={pending} className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-500 disabled:opacity-50">
             {pending ? "Saving…" : "Save Changes"}
           </button>
-          <button type="button" onClick={() => setOpen(false)} className="rounded-lg px-4 py-2 text-sm font-medium text-ink-soft hover:bg-slate-100">
+          <button type="button" onClick={() => setOpen(false)} className="rounded-lg px-4 py-2 text-sm font-medium text-ink-soft hover:bg-raised">
             Cancel
           </button>
         </div>
@@ -94,7 +94,7 @@ function Field({ name, label, defaultValue }: { name: string; label: string; def
         name={name}
         required={label.includes("*")}
         defaultValue={defaultValue}
-        className="w-full rounded-lg border border-line px-3 py-2 outline-none focus:border-slate-500"
+        className="w-full rounded-lg border border-line px-3 py-2 outline-none focus:border-brand-500"
       />
     </label>
   );

@@ -71,3 +71,18 @@ one test Silent Partner (onboard via Staff; log in via incognito windows).
 ## H. History & identity (Sir #1 — already built, verify)
 - H1 Audit Log shows every entry above with the acting person's NAME, action, entity, timestamp.
 - H2 Edits (branch/customer/vehicle/staff) each produce an audit row; deactivations/retirements too.
+
+## J. Counter tools (added 2026-08-15, chunk 45)
+- J1 `/delivery-process`: switching flow resets the ticks and the registration answer — a checklist half-finished for the previous customer is worse than none.
+- J2 Answer registration YES → only the "registering" step shows (photocopy out, original kept). Answer NO → only the "not registering" step shows. Before answering, BOTH are visible.
+- J3 The two hard rules render in the danger tone: "Do NOT give a sales tax invoice", and on the installment flow "KEEP as security until the case is settled".
+- J4 Progress counter ignores "only if asked" steps — an authority letter nobody requested must not hold the count at 12/14.
+- J5 Print the runbook: sidebar and buttons absent, steps do not split across a page break, readable in black and white.
+- J6 `/formats` stock report: matches Inventory for that branch (count a model by hand and compare). Selling a bike and reloading drops it from the report.
+- J7 Stock report "Cash in hand" equals today's ledger net for that branch (cash in minus cash out).
+- J8 Copy button on every generator actually places text on the clipboard, and shows "Copied ✓".
+- J9 Pasted into WhatsApp, the bold renders as bold — NOT as literal asterisks. (Single asterisk pair, not double.)
+- J10 Bike transfer message: two colours of one model produce "*T5-L* *2* Blue¹ Grey¹" with superscript counts.
+- J11 Transfer letter prints on one page with the letterhead, blanks ruled for handwriting, stamp/signature space present, and NO branch manager name printed.
+- J12 As a Branch Manager: `/formats` shows only your own branch in the stock report picker; the transfer destination list still shows all branches.
+- J13 Roles without counter access (mechanic, gate staff) are redirected away from both screens.

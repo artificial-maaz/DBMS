@@ -19,7 +19,7 @@ const STATUS_BADGE: Record<string, string> = {
   contacted: "bg-amber-100 text-amber-700",
   follow_up: "bg-brand-100 text-brand-700",
   converted: "bg-emerald-100 text-emerald-700",
-  lost: "bg-slate-100 text-ink-faint",
+  lost: "bg-raised text-ink-faint",
 };
 
 export default async function VisitorsPage({
@@ -60,7 +60,7 @@ export default async function VisitorsPage({
           name="q"
           defaultValue={params.q ?? ""}
           placeholder="Search name, phone, interest…"
-          className="w-72 rounded-lg border border-line px-3 py-1.5 text-sm outline-none focus:border-slate-500"
+          className="w-72 rounded-lg border border-line px-3 py-1.5 text-sm outline-none focus:border-brand-500"
         />
         <button className="rounded-lg bg-brand-600 px-4 py-1.5 text-sm text-white hover:bg-brand-500">Search</button>
       </form>
