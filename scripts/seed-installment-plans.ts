@@ -37,9 +37,22 @@ const ROWS: Row[] = [
   { company: "Yadea", model: "M3", cashPrice: "174000", advance: "87000", monthly3: "32000", total3: "183000", monthly6: "17500", total6: "192000", monthly9: "12500", total9: "199500", monthly12: "10500", total12: "213000" },
   { company: "Yadea", model: "Ruibin S", cashPrice: "193000", advance: "96500", monthly3: "35000", total3: "201500", monthly6: "19500", total6: "213500", monthly9: "14000", total9: "222500", monthly12: "11500", total12: "234500" },
   { company: "Yadea", model: "M3H", cashPrice: "255000", advance: "128000", monthly3: "47000", total3: "269000", monthly6: "26000", total6: "284000", monthly9: "18500", total9: "294500", monthly12: "15000", total12: "308000" },
-  // Sir (2026-08-06): T5L repriced — cash 305,000, advance 160,000. Monthlies
-  // unchanged, so each total = advance + (monthly x months).
-  { company: "Yadea", model: "T5L", cashPrice: "305000", advance: "160000", monthly3: "52500", total3: "317500", monthly6: "28500", total6: "331000", monthly9: "21000", total9: "349000", monthly12: "17000", total12: "364000" },
+  /*
+   * Sir (2026-08-15): T5L repriced again. He set the 12-month anchor — advance
+   * 199,000, monthly 14,500, total 373,000 — which is a 68,000 markup, 22.3% of
+   * the 305,000 cash price, on a financed amount of 106,000.
+   *
+   * He asked for the shorter terms "at the same percentage of markup". Taken
+   * literally that means every term totals 373,000, which would charge a
+   * 3-month buyer the same 68,000 as a 12-month buyer and leaves the 9-month at
+   * 19,333.33 — not a figure anyone can quote at a counter.
+   *
+   * Chosen instead (option C, Sir 2026-08-15): markup rises WITH the term, the
+   * way this whole rate card is already built, with monthlies rounded to clean
+   * numbers. Effective markup: 5.6% / 11.5% / 16.9% / 22.3%. The 12-month is
+   * exactly as he specified; every total = advance + (monthly x months).
+   */
+  { company: "Yadea", model: "T5L", cashPrice: "305000", advance: "199000", monthly3: "41000", total3: "322000", monthly6: "23500", total6: "340000", monthly9: "17500", total9: "356500", monthly12: "14500", total12: "373000" },
   { company: "Yadea", model: "EPOCH", cashPrice: "355000", advance: "178000", monthly3: "60500", total3: "359500", monthly6: "35000", total6: "388000", monthly9: "25500", total9: "407500", monthly12: "21000", total12: "430000" },
   { company: "Yadea", model: "VELAX", cashPrice: "444000", advance: "222000", monthly3: "80500", total3: "463500", monthly6: "44000", total6: "486000", monthly9: "32000", total9: "510000", monthly12: "26000", total12: "534000" },
   { company: "Yadea", model: "KEINESS", cashPrice: "1400000", advance: "699000", monthly3: "255500", total3: "1465500", monthly6: "139500", total6: "1536000", monthly9: "100000", total9: "1599000", monthly12: "82500", total12: "1689000" },
