@@ -22,7 +22,8 @@
     "db:purge-test": "tsx --env-file=.env scripts/purge-test-data.ts",
     "auth:generate": "npx @better-auth/cli@latest generate --config src/auth/auth.ts --output src/db/auth-schema.ts",
     "db:reset-fresh": "tsx --env-file=.env scripts/reset-to-fresh.ts",
-    "db:migrate:prod": "tsx --env-file=.env scripts/migrate-prod.ts"
+    "db:migrate:prod": "tsx --env-file=.env scripts/migrate-prod.ts",
+    "db:check-prod": "tsx --env-file=.env scripts/check-prod-schema.ts"
   },
   "dependencies": {
     "better-auth": "^1.6.23",
