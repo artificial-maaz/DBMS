@@ -133,7 +133,20 @@ export function Sidebar({
             {(appName ?? APP_NAME).trim().charAt(0).toUpperCase() || "H"}
           </span>
         )}
-        <span className="truncate">{appName ?? APP_NAME}</span>
+        {/* Uppercased in CSS, not in the stored value (Sir, 2026-08-16) — the
+            same approach the login screen uses. The company name in System
+            Settings stays in proper case, so invoices, emails and the login
+            wordmark are unaffected; only the sidebar shouts. Storing it
+            capitalised would put "HUSSAIN MOTORS" on a customer's invoice.
+
+            SIZING: capitals are noticeably wider than lower case, so the
+            inherited 18px clipped to "HUSSAIN MOTO…" in a 240px rail. Dropped to
+            14px and allowed to WRAP rather than truncate — a clipped company
+            name looks broken, two tidy lines look deliberate. `line-clamp-2`
+            keeps a very long name from pushing the nav down the page. */}
+        <span className="line-clamp-2 text-sm font-bold uppercase leading-tight tracking-wide">
+          {appName ?? APP_NAME}
+        </span>
       </div>
 
       <nav className="flex-1 space-y-5 overflow-y-auto px-2.5 py-4">
